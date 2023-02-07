@@ -35,3 +35,41 @@ macro_rules! match_circuit_params {
         }
     };
 }
+
+#[macro_export]
+macro_rules! match_circuit_params_txs {
+    ($txs:expr, $on_match:expr, $on_error:expr) => {
+        match $txs {
+            0..=40 => {
+                const CIRCUIT_CONFIG: CircuitConfig = CircuitConfig {
+                    block_gas_limit: 300000,
+                    max_txs: 40,
+                    max_calldata: 105000,
+                    max_bytecode: 24634,
+                    max_rws: 476052,
+                    min_k: 20,
+                    pad_to: 476052,
+                    min_k_aggregation: 26,
+                    keccak_padding: 336000,
+                };
+                $on_match
+            }
+            41..=80 => {
+                const CIRCUIT_CONFIG: CircuitConfig = CircuitConfig {
+                    block_gas_limit: 600000,
+                    max_txs: 80,
+                    max_calldata: 697500,
+                    max_bytecode: 139500,
+                    max_rws: 3161966,
+                    min_k: 21,
+                    pad_to: 2097152,
+                    min_k_aggregation: 26,
+                    keccak_padding: 1600000,
+                };
+                $on_match
+            }
+
+            _ => $on_error,
+        }
+    };
+}

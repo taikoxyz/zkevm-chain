@@ -378,8 +378,8 @@ impl SharedState {
                         .await
                         .map_err(|e| e.to_string())?;
 
-                let (config, circuit_proof, aggregation_proof) = crate::match_circuit_params!(
-                    witness.gas_used(),
+                let (config, circuit_proof, aggregation_proof) = crate::match_circuit_params_txs!(
+                    witness.txs().len(),
                     {
                         match task_options_copy.circuit.as_str() {
                             "pi" => {
