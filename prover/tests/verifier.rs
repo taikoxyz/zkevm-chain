@@ -8,12 +8,12 @@ use halo2_proofs::plonk::keygen_pk;
 use halo2_proofs::plonk::keygen_vk;
 use halo2_proofs::plonk::VerifyingKey;
 use halo2_proofs::poly::commitment::ParamsProver;
-use plonk_verifier::cost::CostEstimation;
-use plonk_verifier::loader::evm::EvmLoader;
-use plonk_verifier::loader::native::NativeLoader;
-use plonk_verifier::util::transcript::TranscriptWrite;
-use plonk_verifier::verifier::PlonkProof;
-use plonk_verifier::{
+use snark_verifier::cost::CostEstimation;
+use snark_verifier::loader::evm::EvmLoader;
+use snark_verifier::loader::native::NativeLoader;
+use snark_verifier::util::transcript::TranscriptWrite;
+use snark_verifier::verifier::PlonkProof;
+use snark_verifier::{
     system::halo2::{compile, transcript::evm::EvmTranscript, Config},
     verifier::PlonkVerifier,
 };

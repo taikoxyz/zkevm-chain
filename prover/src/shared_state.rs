@@ -1,6 +1,6 @@
-use crate::aggregation_circuit::AggregationCircuit;
-use crate::aggregation_circuit::PoseidonTranscript;
-use crate::aggregation_circuit::Snark;
+// use crate::aggregation_circuit::AggregationCircuit;
+// use crate::aggregation_circuit::PoseidonTranscript;
+// use crate::aggregation_circuit::Snark;
 use crate::circuit_witness::CircuitWitness;
 use crate::circuits::*;
 use crate::utils::collect_instance;
@@ -16,10 +16,10 @@ use halo2_proofs::plonk::Circuit;
 use halo2_proofs::plonk::{keygen_pk, keygen_vk};
 use halo2_proofs::poly::commitment::Params;
 use hyper::Uri;
-use plonk_verifier::loader::native::NativeLoader;
-use plonk_verifier::system::halo2::compile;
-use plonk_verifier::system::halo2::transcript::evm::EvmTranscript;
-use plonk_verifier::system::halo2::Config as PlonkConfig;
+use snark_verifier::loader::native::NativeLoader;
+use snark_verifier::system::halo2::compile;
+use snark_verifier::system::halo2::transcript::evm::EvmTranscript;
+use snark_verifier::system::halo2::Config as PlonkConfig;
 use rand::{thread_rng, Rng};
 use std::collections::HashMap;
 use std::fmt::Write;
@@ -46,7 +46,7 @@ fn get_or_gen_param(task_options: &ProofRequestOptions, k: usize) -> (Arc<Prover
     match &task_options.param {
         Some(v) => {
             let path = get_param_path(v, k);
-            let file = File::open(&path).expect("couldn't open params");
+            let file = File::open(&path).expect("open exist param successfully");
             let params = Arc::new(
                 ProverParams::read(&mut std::io::BufReader::new(file))
                     .expect("Failed to read params"),
@@ -92,8 +92,8 @@ macro_rules! gen_proof {
                 _,
             >(&witness, fixed_rng())?;
             circuit_proof.k = CIRCUIT_CONFIG.min_k as u8;
-            circuit_proof.instance = collect_instance(&circuit.instance());
-            let prover = MockProver::run(CIRCUIT_CONFIG.min_k as u32, &circuit, circuit.instance())
+            circuit_proof.instance = collect_instance(&circuit.0.instance());
+            let prover = MockProver::run(CIRCUIT_CONFIG.min_k as u32, &circuit, circuit.0.instance())
                 .expect("MockProver::run");
             prover.verify_par().expect("MockProver::verify_par");
             circuit_proof.duration = Instant::now().duration_since(time_started).as_millis() as u32;
@@ -118,74 +118,74 @@ macro_rules! gen_proof {
                     .map_err(|e| e.to_string())?
             };
 
-            let circuit_instance = circuit.instance();
+            let circuit_instance = circuit.0.instance();
             circuit_proof.instance = collect_instance(&circuit_instance);
 
             if task_options.aggregate {
-                let time_started = Instant::now();
-                let proof = gen_proof::<
-                    _,
-                    _,
-                    PoseidonTranscript<NativeLoader, _>,
-                    PoseidonTranscript<NativeLoader, _>,
-                    _,
-                >(
-                    &param,
-                    &pk,
-                    circuit,
-                    circuit_instance.clone(),
-                    fixed_rng(),
-                    task_options.mock_feedback,
-                    task_options.verify_proof,
-                );
-                circuit_proof.duration =
-                    Instant::now().duration_since(time_started).as_millis() as u32;
-                circuit_proof.proof = proof.clone().into();
+                // let time_started = Instant::now();
+                // let proof = gen_proof::<
+                //     _,
+                //     _,
+                //     PoseidonTranscript<NativeLoader, _>,
+                //     PoseidonTranscript<NativeLoader, _>,
+                //     _,
+                // >(
+                //     &param,
+                //     &pk,
+                //     circuit,
+                //     circuit_instance.clone(),
+                //     fixed_rng(),
+                //     task_options.mock_feedback,
+                //     task_options.verify_proof,
+                // );
+                // circuit_proof.duration =
+                //     Instant::now().duration_since(time_started).as_millis() as u32;
+                // circuit_proof.proof = proof.clone().into();
 
-                // aggregate the circuit proof
-                let time_started = Instant::now();
-                let protocol = compile(
-                    param.as_ref(),
-                    pk.get_vk(),
-                    PlonkConfig::kzg().with_num_instance(gen_num_instance(&circuit_instance)),
-                );
-                let snark = Snark::new(protocol, circuit_instance, proof);
+                // // aggregate the circuit proof
+                // let time_started = Instant::now();
+                // let protocol = compile(
+                //     param.as_ref(),
+                //     pk.get_vk(),
+                //     PlonkConfig::kzg().with_num_instance(gen_num_instance(&circuit_instance)),
+                // );
+                // let snark = Snark::new(protocol, circuit_instance, proof);
 
-                let (agg_params, agg_param_path) =
-                    get_or_gen_param(&task_options, CIRCUIT_CONFIG.min_k_aggregation);
-                aggregation_proof.k = agg_params.k() as u8;
-                let agg_circuit =
-                    AggregationCircuit::new(agg_params.as_ref(), [snark], fixed_rng());
-                let agg_pk = {
-                    let cache_key = format!(
-                        "{}{}{:?}ag",
-                        &task_options.circuit, &agg_param_path, &CIRCUIT_CONFIG
-                    );
-                    shared_state
-                        .gen_pk(&cache_key, &agg_params, &agg_circuit)
-                        .await
-                        .map_err(|e| e.to_string())?
-                };
-                let agg_instance = agg_circuit.instance();
-                aggregation_proof.instance = collect_instance(&agg_instance);
-                let proof = gen_proof::<
-                    _,
-                    _,
-                    EvmTranscript<G1Affine, _, _, _>,
-                    EvmTranscript<G1Affine, _, _, _>,
-                    _,
-                >(
-                    agg_params.as_ref(),
-                    &agg_pk,
-                    agg_circuit,
-                    agg_instance,
-                    fixed_rng(),
-                    task_options.mock_feedback,
-                    task_options.verify_proof,
-                );
-                aggregation_proof.duration =
-                    Instant::now().duration_since(time_started).as_millis() as u32;
-                aggregation_proof.proof = proof.into();
+                // let (agg_params, agg_param_path) =
+                //     get_or_gen_param(&task_options, CIRCUIT_CONFIG.min_k_aggregation);
+                // aggregation_proof.k = agg_params.k() as u8;
+                // let agg_circuit =
+                //     AggregationCircuit::new(agg_params.as_ref(), [snark], fixed_rng());
+                // let agg_pk = {
+                //     let cache_key = format!(
+                //         "{}{}{:?}ag",
+                //         &task_options.circuit, &agg_param_path, &CIRCUIT_CONFIG
+                //     );
+                //     shared_state
+                //         .gen_pk(&cache_key, &agg_params, &agg_circuit)
+                //         .await
+                //         .map_err(|e| e.to_string())?
+                // };
+                // let agg_instance = agg_circuit.instance();
+                // aggregation_proof.instance = collect_instance(&agg_instance);
+                // let proof = gen_proof::<
+                //     _,
+                //     _,
+                //     EvmTranscript<G1Affine, _, _, _>,
+                //     EvmTranscript<G1Affine, _, _, _>,
+                //     _,
+                // >(
+                //     agg_params.as_ref(),
+                //     &agg_pk,
+                //     agg_circuit,
+                //     agg_instance,
+                //     fixed_rng(),
+                //     task_options.mock_feedback,
+                //     task_options.verify_proof,
+                // );
+                // aggregation_proof.duration =
+                //     Instant::now().duration_since(time_started).as_millis() as u32;
+                // aggregation_proof.proof = proof.into();
             } else {
                 let time_started = Instant::now();
                 let proof = gen_proof::<
@@ -385,44 +385,44 @@ impl SharedState {
                             "pi" => {
                                 gen_proof!(self_copy, task_options_copy, &witness, gen_pi_circuit)
                             }
-                            "super" => {
-                                gen_proof!(
-                                    self_copy,
-                                    task_options_copy,
-                                    &witness,
-                                    gen_super_circuit
-                                )
-                            }
-                            "evm" => {
-                                gen_proof!(self_copy, task_options_copy, &witness, gen_evm_circuit)
-                            }
-                            "state" => gen_proof!(
-                                self_copy,
-                                task_options_copy,
-                                &witness,
-                                gen_state_circuit
-                            ),
-                            "tx" => {
-                                gen_proof!(self_copy, task_options_copy, &witness, gen_tx_circuit)
-                            }
-                            "bytecode" => gen_proof!(
-                                self_copy,
-                                task_options_copy,
-                                &witness,
-                                gen_bytecode_circuit
-                            ),
-                            "copy" => {
-                                gen_proof!(self_copy, task_options_copy, &witness, gen_copy_circuit)
-                            }
-                            "exp" => {
-                                gen_proof!(self_copy, task_options_copy, &witness, gen_exp_circuit)
-                            }
-                            "keccak" => gen_proof!(
-                                self_copy,
-                                task_options_copy,
-                                &witness,
-                                gen_keccak_circuit
-                            ),
+                            // "super" => {
+                            //     gen_proof!(
+                            //         self_copy,
+                            //         task_options_copy,
+                            //         &witness,
+                            //         gen_super_circuit
+                            //     )
+                            // }
+                            // "evm" => {
+                            //     gen_proof!(self_copy, task_options_copy, &witness, gen_evm_circuit)
+                            // }
+                            // "state" => gen_proof!(
+                            //     self_copy,
+                            //     task_options_copy,
+                            //     &witness,
+                            //     gen_state_circuit
+                            // ),
+                            // "tx" => {
+                            //     gen_proof!(self_copy, task_options_copy, &witness, gen_tx_circuit)
+                            // }
+                            // "bytecode" => gen_proof!(
+                            //     self_copy,
+                            //     task_options_copy,
+                            //     &witness,
+                            //     gen_bytecode_circuit
+                            // ),
+                            // "copy" => {
+                            //     gen_proof!(self_copy, task_options_copy, &witness, gen_copy_circuit)
+                            // }
+                            // "exp" => {
+                            //     gen_proof!(self_copy, task_options_copy, &witness, gen_exp_circuit)
+                            // }
+                            // "keccak" => gen_proof!(
+                            //     self_copy,
+                            //     task_options_copy,
+                            //     &witness,
+                            //     gen_keccak_circuit
+                            // ),
                             _ => panic!("unknown circuit"),
                         }
                     },

@@ -8,7 +8,7 @@ pub type ProverParams = ParamsKZG<Bn256>;
 pub type ProverCommitmentScheme = KZGCommitmentScheme<Bn256>;
 pub type ProverKey = ProvingKey<G1Affine>;
 
-pub mod aggregation_circuit;
+// pub mod aggregation_circuit;
 pub mod circuit_autogen;
 pub mod circuit_witness;
 pub mod circuits;

@@ -6,7 +6,7 @@ use halo2_proofs::{
     poly::commitment::ParamsProver,
 };
 use itertools::Itertools;
-use plonk_verifier::loader::halo2::halo2_wrong_ecc::{
+use snark_verifier::loader::halo2::halo2_wrong_ecc::{
     self,
     integer::rns::Rns,
     maingate::{
@@ -15,19 +15,19 @@ use plonk_verifier::loader::halo2::halo2_wrong_ecc::{
     },
     EccConfig,
 };
-use plonk_verifier::{
+use snark_verifier::{
     loader::{self, native::NativeLoader},
     pcs::{
         kzg::{
-            Gwc19, Kzg, KzgAccumulator, KzgAs, KzgSuccinctVerifyingKey, LimbsEncoding,
+            Gwc19, KzgAccumulator, KzgAs, KzgSuccinctVerifyingKey, LimbsEncoding,
             LimbsEncodingInstructions,
         },
         AccumulationScheme, AccumulationSchemeProver,
     },
     system,
     util::arithmetic::{fe_to_limbs, FieldExt},
-    verifier::{self, PlonkVerifier},
-    Protocol,
+    verifier::{self, SnarkVerifier},
+    verifier::plonk::PlonkProtocol,
 };
 use rand::Rng;
 use std::rc::Rc;
@@ -50,13 +50,13 @@ pub type PoseidonTranscript<L, S> =
     system::halo2::transcript::halo2::PoseidonTranscript<G1Affine, L, S, T, RATE, R_F, R_P>;
 
 pub struct Snark {
-    pub protocol: Protocol<G1Affine>,
+    pub protocol: PlonkProtocol<G1Affine>,
     pub instances: Vec<Vec<Fr>>,
     pub proof: Vec<u8>,
 }
 
 impl Snark {
-    pub fn new(protocol: Protocol<G1Affine>, instances: Vec<Vec<Fr>>, proof: Vec<u8>) -> Self {
+    pub fn new(protocol: PlonkProtocol<G1Affine>, instances: Vec<Vec<Fr>>, proof: Vec<u8>) -> Self {
         Self {
             protocol,
             instances,

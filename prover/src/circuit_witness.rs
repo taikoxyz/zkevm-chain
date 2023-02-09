@@ -72,7 +72,7 @@ impl CircuitWitness {
         // TODO: add support for `eth_getHeaderByNumber`
         let block = geth_client.get_block_by_number((*block_num).into()).await?;
         let circuit_config =
-            crate::match_circuit_params!(block.gas_used.as_usize(), CIRCUIT_CONFIG, {
+            crate::match_circuit_params_txs!(block.transactions.len(), CIRCUIT_CONFIG, {
                 return Err(format!(
                     "No circuit parameters found for block with gas used={}",
                     block.gas_used
@@ -143,7 +143,6 @@ impl CircuitWitness {
             block_constants,
             prev_state_root,
             transactions: eth_block.transactions.clone(),
-            block_hash: eth_block.hash.unwrap_or_default(),
             state_root: eth_block.state_root,
         }
     }
