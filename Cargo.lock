@@ -341,7 +341,7 @@ checksum = "0d261e256854913907f67ed06efbc3338dfe6179796deefc1ff763fc1aee5535"
 [[package]]
 name = "bus-mapping"
 version = "0.1.0"
-source = "git+https://github.com/smtmfft/zkevm-circuits.git?branch=feature/root-circuit#15f1066afba741507cb3734b76321520769206f1"
+source = "git+https://github.com/smtmfft/zkevm-circuits.git?branch=feature/root-circuit#a8e5220274caff0894b02bac7c4ae6a3d799687f"
 dependencies = [
  "eth-types",
  "ethers-core",
@@ -988,7 +988,7 @@ dependencies = [
 [[package]]
 name = "eth-types"
 version = "0.1.0"
-source = "git+https://github.com/smtmfft/zkevm-circuits.git?branch=feature/root-circuit#15f1066afba741507cb3734b76321520769206f1"
+source = "git+https://github.com/smtmfft/zkevm-circuits.git?branch=feature/root-circuit#a8e5220274caff0894b02bac7c4ae6a3d799687f"
 dependencies = [
  "ethers-core",
  "ethers-signers",
@@ -1142,7 +1142,7 @@ dependencies = [
 [[package]]
 name = "external-tracer"
 version = "0.1.0"
-source = "git+https://github.com/smtmfft/zkevm-circuits.git?branch=feature/root-circuit#15f1066afba741507cb3734b76321520769206f1"
+source = "git+https://github.com/smtmfft/zkevm-circuits.git?branch=feature/root-circuit#a8e5220274caff0894b02bac7c4ae6a3d799687f"
 dependencies = [
  "eth-types",
  "geth-utils",
@@ -1344,7 +1344,7 @@ dependencies = [
 [[package]]
 name = "gadgets"
 version = "0.1.0"
-source = "git+https://github.com/smtmfft/zkevm-circuits.git?branch=feature/root-circuit#15f1066afba741507cb3734b76321520769206f1"
+source = "git+https://github.com/smtmfft/zkevm-circuits.git?branch=feature/root-circuit#a8e5220274caff0894b02bac7c4ae6a3d799687f"
 dependencies = [
  "digest 0.7.6",
  "eth-types",
@@ -1384,7 +1384,7 @@ dependencies = [
 [[package]]
 name = "geth-utils"
 version = "0.1.0"
-source = "git+https://github.com/smtmfft/zkevm-circuits.git?branch=feature/root-circuit#15f1066afba741507cb3734b76321520769206f1"
+source = "git+https://github.com/smtmfft/zkevm-circuits.git?branch=feature/root-circuit#a8e5220274caff0894b02bac7c4ae6a3d799687f"
 dependencies = [
  "env_logger",
  "gobuild",
@@ -1595,9 +1595,9 @@ dependencies = [
 
 [[package]]
 name = "http"
-version = "0.2.8"
+version = "0.2.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "75f43d41e26995c17e71ee126451dd3941010b0514a81a9d11f3b341debc2399"
+checksum = "bd6effc99afb63425aff9b05836f029929e345a6148a14b7ecd5ab67af944482"
 dependencies = [
  "bytes",
  "fnv",
@@ -1862,7 +1862,7 @@ dependencies = [
 [[package]]
 name = "keccak256"
 version = "0.1.0"
-source = "git+https://github.com/smtmfft/zkevm-circuits.git?branch=feature/root-circuit#15f1066afba741507cb3734b76321520769206f1"
+source = "git+https://github.com/smtmfft/zkevm-circuits.git?branch=feature/root-circuit#a8e5220274caff0894b02bac7c4ae6a3d799687f"
 dependencies = [
  "env_logger",
  "eth-types",
@@ -2021,7 +2021,7 @@ dependencies = [
 [[package]]
 name = "mock"
 version = "0.1.0"
-source = "git+https://github.com/smtmfft/zkevm-circuits.git?branch=feature/root-circuit#15f1066afba741507cb3734b76321520769206f1"
+source = "git+https://github.com/smtmfft/zkevm-circuits.git?branch=feature/root-circuit#a8e5220274caff0894b02bac7c4ae6a3d799687f"
 dependencies = [
  "eth-types",
  "ethers-core",
@@ -2131,18 +2131,18 @@ dependencies = [
 
 [[package]]
 name = "num_enum"
-version = "0.5.9"
+version = "0.5.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8d829733185c1ca374f17e52b762f24f535ec625d2cc1f070e34c8a9068f341b"
+checksum = "3e0072973714303aa6e3631c7e8e777970cf4bdd25dc4932e41031027b8bcc4e"
 dependencies = [
  "num_enum_derive",
 ]
 
 [[package]]
 name = "num_enum_derive"
-version = "0.5.9"
+version = "0.5.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2be1598bf1c313dcdd12092e3f1920f463462525a21b7b4e11b4168353d0123e"
+checksum = "0629cbd6b897944899b1f10496d9c4a7ac5878d45fd61bc22e9e79bfbbc29597"
 dependencies = [
  "proc-macro-crate 1.3.0",
  "proc-macro2",
@@ -3140,9 +3140,9 @@ dependencies = [
 
 [[package]]
 name = "slab"
-version = "0.4.7"
+version = "0.4.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4614a76b2a8be0058caa9dbbaf66d988527d86d003c11a94fbd335d7661edcef"
+checksum = "6528351c9bc8ab22353f9d776db39a20288e8d6c37ef8cfe3317cf875eecfc2d"
 dependencies = [
  "autocfg",
 ]
@@ -3303,9 +3303,9 @@ dependencies = [
 
 [[package]]
 name = "time"
-version = "0.3.18"
+version = "0.3.19"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "af0097eaf301d576d0b2aead7a59facab6d53cc636340f0291fab8446a2e8613"
+checksum = "53250a3b3fed8ff8fd988587d8925d26a83ac3845d9e03b220b37f34c2b8d6c2"
 dependencies = [
  "itoa",
  "serde",
@@ -3321,9 +3321,9 @@ checksum = "2e153e1f1acaef8acc537e68b44906d2db6436e2b35ac2c6b42640fff91f00fd"
 
 [[package]]
 name = "time-macros"
-version = "0.2.6"
+version = "0.2.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d967f99f534ca7e495c575c62638eebc2898a8c84c119b89e250477bc4ba16b2"
+checksum = "a460aeb8de6dcb0f381e1ee05f1cd56fcf5a5f6eb8187ff3d8f0b11078d38b7c"
 dependencies = [
  "time-core",
 ]
@@ -3898,7 +3898,7 @@ checksum = "c394b5bd0c6f669e7275d9c20aa90ae064cb22e75a1cad54e1b34088034b149f"
 [[package]]
 name = "zkevm-circuits"
 version = "0.1.0"
-source = "git+https://github.com/smtmfft/zkevm-circuits.git?branch=feature/root-circuit#15f1066afba741507cb3734b76321520769206f1"
+source = "git+https://github.com/smtmfft/zkevm-circuits.git?branch=feature/root-circuit#a8e5220274caff0894b02bac7c4ae6a3d799687f"
 dependencies = [
  "array-init",
  "bus-mapping",
