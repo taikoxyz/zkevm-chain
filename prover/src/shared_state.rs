@@ -89,8 +89,7 @@ macro_rules! gen_proof {
                 { CIRCUIT_CONFIG.max_txs },
                 { CIRCUIT_CONFIG.max_calldata },
                 { CIRCUIT_CONFIG.max_rws },
-                _,
-            >(&witness, fixed_rng())?;
+                _>(&witness, task_options.prover, fixed_rng())?;
             circuit_proof.k = CIRCUIT_CONFIG.min_k as u8;
             circuit_proof.instance = collect_instance(&circuit.0.instance());
             let prover = MockProver::run(CIRCUIT_CONFIG.min_k as u32, &circuit, circuit.0.instance())
@@ -105,7 +104,7 @@ macro_rules! gen_proof {
                 { CIRCUIT_CONFIG.max_calldata },
                 { CIRCUIT_CONFIG.max_rws },
                 _,
-            >(&witness, fixed_rng())?;
+            >(&witness, task_options.prover, fixed_rng())?;
             // generate and cache the prover key
             let pk = {
                 let cache_key = format!(

@@ -24,6 +24,7 @@ tokio = { version = "1.16.1", features = ["macros", "rt-multi-thread"] }
 zkevm_common = { path = "../common" }
 itertools = "0.10.3"
 clap = { version = "4.0.14", features = ["derive", "env"] }
+hex = "0.4.3"
 
 # autogen
 mock = { git = "https://github.com/smtmfft/zkevm-circuits.git", branch = "feature/root-circuit", optional = true  }

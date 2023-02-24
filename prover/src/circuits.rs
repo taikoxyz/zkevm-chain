@@ -9,7 +9,7 @@ use zkevm_circuits::keccak_circuit::keccak_packed_multi::KeccakCircuit;
 use zkevm_circuits::pi_circuit2::PiCircuit;
 use zkevm_circuits::pi_circuit2::PiTestCircuit;
 use zkevm_circuits::state_circuit::StateCircuit;
-use zkevm_circuits::super_circuit::SuperCircuit;
+// use zkevm_circuits::super_circuit::SuperCircuit;
 use zkevm_circuits::tx_circuit::TxCircuit;
 use zkevm_circuits::util::SubCircuit;
 
@@ -55,10 +55,14 @@ pub fn gen_pi_circuit<
     RNG: Rng,
 >(
     witness: &CircuitWitness,
+    prover_address: String,
     mut _rng: RNG,
 ) -> Result<PiTestCircuit<Fr, MAX_TXS, MAX_CALLDATA>, String> {
     let block = witness.evm_witness();
-    let circuit = PiTestCircuit::<Fr, MAX_TXS, MAX_CALLDATA>(PiCircuit::new_from_block(&block));
+    let prover = eth_types::Address::from_slice(
+        &hex::decode(prover_address.as_bytes()).expect("parse_address"),
+    );
+    let circuit = PiTestCircuit::<Fr, MAX_TXS, MAX_CALLDATA>(PiCircuit::new_from_block_with_prover(&block, prover));
 
     Ok(circuit)
 }

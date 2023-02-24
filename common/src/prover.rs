@@ -50,6 +50,8 @@ pub struct ProofRequestOptions {
     pub block: u64,
     /// the rpc url
     pub rpc: String,
+    /// the prover address
+    pub prover: String,
     /// retry proof computation if error
     pub retry: bool,
     /// Parameters file or directory to use.
