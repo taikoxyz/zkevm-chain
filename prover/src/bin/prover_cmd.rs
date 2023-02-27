@@ -29,7 +29,7 @@ async fn main() {
     let request = ProofRequestOptions {
         circuit: "super".to_string(),
         block: block_num,
-        rpc: rpc_url,
+        l2_rpc: rpc_url,
         retry: false,
         param: Some(params_path),
         mock: false,

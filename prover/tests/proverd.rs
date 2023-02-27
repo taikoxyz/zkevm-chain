@@ -28,14 +28,14 @@ async fn proverd_simple_signaling() {
         circuit: "super".to_string(),
         block: 1,
         retry: false,
-        rpc: "http://localhost:1111".to_string(),
+        l2_rpc: "http://localhost:1111".to_string(),
         ..Default::default()
     };
     let proof_b = ProofRequestOptions {
         circuit: "super".to_string(),
         block: 2,
         retry: false,
-        rpc: "http://localhost:1111".to_string(),
+        l2_rpc: "http://localhost:1111".to_string(),
         ..Default::default()
     };
 

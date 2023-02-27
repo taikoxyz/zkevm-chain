@@ -341,7 +341,6 @@ checksum = "0d261e256854913907f67ed06efbc3338dfe6179796deefc1ff763fc1aee5535"
 [[package]]
 name = "bus-mapping"
 version = "0.1.0"
-source = "git+https://github.com/smtmfft/zkevm-circuits.git?branch=feature/root-circuit#348d771db62c2bbda4aaabe45dd1ac40605a0700"
 dependencies = [
  "eth-types",
  "ethers-core",
@@ -988,7 +987,6 @@ dependencies = [
 [[package]]
 name = "eth-types"
 version = "0.1.0"
-source = "git+https://github.com/smtmfft/zkevm-circuits.git?branch=feature/root-circuit#348d771db62c2bbda4aaabe45dd1ac40605a0700"
 dependencies = [
  "ethers-core",
  "ethers-signers",
@@ -1142,10 +1140,20 @@ dependencies = [
 [[package]]
 name = "external-tracer"
 version = "0.1.0"
+dependencies = [
+ "eth-types",
+ "geth-utils 0.1.0",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "external-tracer"
+version = "0.1.0"
 source = "git+https://github.com/smtmfft/zkevm-circuits.git?branch=feature/root-circuit#348d771db62c2bbda4aaabe45dd1ac40605a0700"
 dependencies = [
  "eth-types",
- "geth-utils",
+ "geth-utils 0.1.0 (git+https://github.com/smtmfft/zkevm-circuits.git?branch=feature/root-circuit)",
  "serde",
  "serde_json",
 ]
@@ -1344,7 +1352,6 @@ dependencies = [
 [[package]]
 name = "gadgets"
 version = "0.1.0"
-source = "git+https://github.com/smtmfft/zkevm-circuits.git?branch=feature/root-circuit#348d771db62c2bbda4aaabe45dd1ac40605a0700"
 dependencies = [
  "digest 0.7.6",
  "eth-types",
@@ -1379,6 +1386,15 @@ checksum = "bff49e947297f3312447abdca79f45f4738097cc82b06e72054d2223f601f1b9"
 dependencies = [
  "typenum",
  "version_check",
+]
+
+[[package]]
+name = "geth-utils"
+version = "0.1.0"
+dependencies = [
+ "env_logger",
+ "gobuild",
+ "log",
 ]
 
 [[package]]
@@ -1862,7 +1878,6 @@ dependencies = [
 [[package]]
 name = "keccak256"
 version = "0.1.0"
-source = "git+https://github.com/smtmfft/zkevm-circuits.git?branch=feature/root-circuit#348d771db62c2bbda4aaabe45dd1ac40605a0700"
 dependencies = [
  "env_logger",
  "eth-types",
@@ -2021,12 +2036,26 @@ dependencies = [
 [[package]]
 name = "mock"
 version = "0.1.0"
+dependencies = [
+ "eth-types",
+ "ethers-core",
+ "ethers-signers",
+ "external-tracer 0.1.0",
+ "itertools",
+ "lazy_static",
+ "rand",
+ "rand_chacha",
+]
+
+[[package]]
+name = "mock"
+version = "0.1.0"
 source = "git+https://github.com/smtmfft/zkevm-circuits.git?branch=feature/root-circuit#348d771db62c2bbda4aaabe45dd1ac40605a0700"
 dependencies = [
  "eth-types",
  "ethers-core",
  "ethers-signers",
- "external-tracer",
+ "external-tracer 0.1.0 (git+https://github.com/smtmfft/zkevm-circuits.git?branch=feature/root-circuit)",
  "itertools",
  "lazy_static",
  "rand",
@@ -2478,7 +2507,7 @@ dependencies = [
  "hyper",
  "itertools",
  "log",
- "mock",
+ "mock 0.1.0 (git+https://github.com/smtmfft/zkevm-circuits.git?branch=feature/root-circuit)",
  "rand",
  "rand_xorshift",
  "serde",
@@ -3899,7 +3928,6 @@ checksum = "c394b5bd0c6f669e7275d9c20aa90ae064cb22e75a1cad54e1b34088034b149f"
 [[package]]
 name = "zkevm-circuits"
 version = "0.1.0"
-source = "git+https://github.com/smtmfft/zkevm-circuits.git?branch=feature/root-circuit#348d771db62c2bbda4aaabe45dd1ac40605a0700"
 dependencies = [
  "array-init",
  "bus-mapping",
@@ -3920,7 +3948,7 @@ dependencies = [
  "libsecp256k1",
  "log",
  "maingate",
- "mock",
+ "mock 0.1.0",
  "num",
  "num-bigint",
  "rand",

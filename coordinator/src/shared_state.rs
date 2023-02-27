@@ -1058,8 +1058,10 @@ impl SharedState {
         let proof_options = ProofRequestOptions {
             circuit: config.circuit_name.clone(),
             block: block_num.as_u64(),
-            rpc: config.l2_rpc_url.to_string(),
+            l1_rpc: config.l1_rpc_url.to_string(),
+            l2_rpc: config.l2_rpc_url.to_string(),
             prover: String::from(""),
+            propose_tx_hash: String::from(""),
             retry: false,
             param: config.params_path.clone(),
             mock: config.mock_prover,

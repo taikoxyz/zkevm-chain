@@ -48,10 +48,14 @@ pub struct ProofRequestOptions {
     pub circuit: String,
     /// the block number
     pub block: u64,
-    /// the rpc url
-    pub rpc: String,
+    /// the l1 rpc url
+    pub l1_rpc: String,
+    /// the l2 rpc url
+    pub l2_rpc: String,
     /// the prover address
     pub prover: String,
+    /// the propose tx hash
+    pub propose_tx_hash: String,
     /// retry proof computation if error
     pub retry: bool,
     /// Parameters file or directory to use.
@@ -74,7 +78,10 @@ pub struct ProofRequestOptions {
 impl PartialEq for ProofRequestOptions {
     fn eq(&self, other: &Self) -> bool {
         self.block == other.block
-            && self.rpc == other.rpc
+            && self.l1_rpc == other.l1_rpc
+            && self.l2_rpc == other.l2_rpc
+            && self.prover == other.prover
+            && self.propose_tx_hash == other.propose_tx_hash
             && self.param == other.param
             && self.circuit == other.circuit
             && self.mock == other.mock

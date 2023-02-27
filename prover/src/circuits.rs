@@ -62,7 +62,11 @@ pub fn gen_pi_circuit<
     let prover = eth_types::Address::from_slice(
         &hex::decode(prover_address.as_bytes()).expect("parse_address"),
     );
-    let circuit = PiTestCircuit::<Fr, MAX_TXS, MAX_CALLDATA>(PiCircuit::new_from_block_with_prover(&block, prover));
+    let circuit = PiTestCircuit::<Fr, MAX_TXS, MAX_CALLDATA>(PiCircuit::new_from_block_with_extra(
+        &block,
+        prover,
+        witness.txs_rlp.clone(),
+    ));
 
     Ok(circuit)
 }
