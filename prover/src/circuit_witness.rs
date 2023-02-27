@@ -60,7 +60,7 @@ impl CircuitWitness {
             eth_block: empty_data.eth_block,
             block: builder.block,
             code_db: builder.code_db,
-            txs_rlp: Bytes::from(vec![]),
+            txs_rlp: Bytes::default(),
         })
     }
 
