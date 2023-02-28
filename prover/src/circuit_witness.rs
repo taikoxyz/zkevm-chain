@@ -1,13 +1,14 @@
 use bus_mapping::circuit_input_builder::BuilderClient;
 use bus_mapping::circuit_input_builder::CircuitsParams;
 use bus_mapping::mock::BlockData;
+use bus_mapping::public_input_builder::get_txs_rlp;
 use bus_mapping::rpc::GethClient;
-use eth_types::geth_types;
 use eth_types::geth_types::GethData;
 use eth_types::Address;
 use eth_types::ToBigEndian;
 use eth_types::Word;
 use eth_types::H256;
+use eth_types::{geth_types, Bytes};
 use ethers_providers::Http;
 use halo2_proofs::halo2curves::bn256::Fr;
 use std::str::FromStr;
@@ -21,6 +22,7 @@ pub struct CircuitWitness {
     pub eth_block: eth_types::Block<eth_types::Transaction>,
     pub block: bus_mapping::circuit_input_builder::Block,
     pub code_db: bus_mapping::state_db::CodeDB,
+    pub txs_rlp: Bytes,
 }
 
 impl CircuitWitness {
@@ -58,6 +60,7 @@ impl CircuitWitness {
             eth_block: empty_data.eth_block,
             block: builder.block,
             code_db: builder.code_db,
+            txs_rlp: Bytes::default(),
         })
     }
 
@@ -65,12 +68,23 @@ impl CircuitWitness {
     /// Expects a go-ethereum node with debug & archive capabilities on `rpc_url`.
     pub async fn from_rpc(
         block_num: &u64,
-        rpc_url: &str,
+        l1_rpc_url: &str,
+        propose_tx_hash: &str,
+        l2_rpc_url: &str,
     ) -> Result<Self, Box<dyn std::error::Error>> {
-        let url = Http::from_str(rpc_url)?;
-        let geth_client = GethClient::new(url);
+        let l1_url = Http::from_str(l1_rpc_url)?;
+        let l1_geth_client = GethClient::new(l1_url);
+        let propose_tx_hash = eth_types::H256::from_slice(
+            &hex::decode(propose_tx_hash).expect("parse propose tx hash"),
+        );
+        let txs_rlp = get_txs_rlp(&l1_geth_client, propose_tx_hash).await?;
+
+        let l2_url = Http::from_str(l2_rpc_url)?;
+        let l2_geth_client = GethClient::new(l2_url);
         // TODO: add support for `eth_getHeaderByNumber`
-        let block = geth_client.get_block_by_number((*block_num).into()).await?;
+        let block = l2_geth_client
+            .get_block_by_number((*block_num).into())
+            .await?;
         let circuit_config =
             crate::match_circuit_params_txs!(block.transactions.len(), CIRCUIT_CONFIG, {
                 return Err(format!(
@@ -86,7 +100,7 @@ impl CircuitWitness {
             max_rws: circuit_config.max_rws,
             keccak_padding: Some(circuit_config.keccak_padding),
         };
-        let builder = BuilderClient::new(geth_client, circuit_params).await?;
+        let builder = BuilderClient::new(l2_geth_client, circuit_params).await?;
         let (builder, eth_block) = builder.gen_inputs(*block_num).await?;
 
         Ok(Self {
@@ -94,6 +108,7 @@ impl CircuitWitness {
             eth_block,
             block: builder.block,
             code_db: builder.code_db,
+            txs_rlp,
         })
     }
 

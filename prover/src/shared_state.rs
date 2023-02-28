@@ -16,11 +16,11 @@ use halo2_proofs::plonk::Circuit;
 use halo2_proofs::plonk::{keygen_pk, keygen_vk};
 use halo2_proofs::poly::commitment::Params;
 use hyper::Uri;
+use rand::{thread_rng, Rng};
 use snark_verifier::loader::native::NativeLoader;
 use snark_verifier::system::halo2::compile;
 use snark_verifier::system::halo2::transcript::evm::EvmTranscript;
 use snark_verifier::system::halo2::Config as PlonkConfig;
-use rand::{thread_rng, Rng};
 use std::collections::HashMap;
 use std::fmt::Write;
 use std::fs::File;
@@ -89,11 +89,13 @@ macro_rules! gen_proof {
                 { CIRCUIT_CONFIG.max_txs },
                 { CIRCUIT_CONFIG.max_calldata },
                 { CIRCUIT_CONFIG.max_rws },
-                _>(&witness, task_options.prover, fixed_rng())?;
+                _,
+            >(&witness, task_options.prover, fixed_rng())?;
             circuit_proof.k = CIRCUIT_CONFIG.min_k as u8;
             circuit_proof.instance = collect_instance(&circuit.0.instance());
-            let prover = MockProver::run(CIRCUIT_CONFIG.min_k as u32, &circuit, circuit.0.instance())
-                .expect("MockProver::run");
+            let prover =
+                MockProver::run(CIRCUIT_CONFIG.min_k as u32, &circuit, circuit.0.instance())
+                    .expect("MockProver::run");
             prover.verify_par().expect("MockProver::verify_par");
             circuit_proof.duration = Instant::now().duration_since(time_started).as_millis() as u32;
         } else {
@@ -372,10 +374,14 @@ impl SharedState {
             let self_copy = self.clone();
 
             tokio::spawn(async move {
-                let witness =
-                    CircuitWitness::from_rpc(&task_options_copy.block, &task_options_copy.rpc)
-                        .await
-                        .map_err(|e| e.to_string())?;
+                let witness = CircuitWitness::from_rpc(
+                    &task_options_copy.block,
+                    &task_options_copy.l1_rpc,
+                    &task_options_copy.propose_tx_hash,
+                    &task_options_copy.l2_rpc,
+                )
+                .await
+                .map_err(|e| e.to_string())?;
 
                 let (config, circuit_proof, aggregation_proof) = crate::match_circuit_params_txs!(
                     witness.txs().len(),
