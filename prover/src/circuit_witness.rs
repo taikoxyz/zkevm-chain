@@ -9,10 +9,9 @@ use eth_types::ToBigEndian;
 use eth_types::Word;
 use eth_types::H256;
 use eth_types::{geth_types, Bytes};
-// use ethers_providers::Http;
-use ethers_providers::Ws;
+use ethers_providers::Http;
 use halo2_proofs::halo2curves::bn256::Fr;
-// use std::str::FromStr;
+use std::str::FromStr;
 use zkevm_circuits::evm_circuit;
 use zkevm_circuits::pi_circuit::PublicData;
 use zkevm_common::prover::CircuitConfig;
@@ -73,14 +72,14 @@ impl CircuitWitness {
         propose_tx_hash: &str,
         l2_rpc_url: &str,
     ) -> Result<Self, Box<dyn std::error::Error>> {
-        let l1_url = Ws::connect(l1_rpc_url).await?;
+        let l1_url = Http::from_str(l1_rpc_url)?;
         let l1_geth_client = GethClient::new(l1_url);
         let propose_tx_hash = eth_types::H256::from_slice(
             &hex::decode(propose_tx_hash).expect("parse propose tx hash"),
         );
         let txs_rlp = get_txs_rlp(&l1_geth_client, propose_tx_hash).await?;
 
-        let l2_url = Ws::connect(l2_rpc_url).await?;
+        let l2_url = Http::from_str(l2_rpc_url)?;
         let l2_geth_client = GethClient::new(l2_url);
         // TODO: add support for `eth_getHeaderByNumber`
         let block = l2_geth_client
