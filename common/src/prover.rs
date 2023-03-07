@@ -78,8 +78,6 @@ pub struct ProofRequestOptions {
 impl PartialEq for ProofRequestOptions {
     fn eq(&self, other: &Self) -> bool {
         self.block == other.block
-            && self.l1_rpc == other.l1_rpc
-            && self.l2_rpc == other.l2_rpc
             && self.prover == other.prover
             && self.propose_tx_hash == other.propose_tx_hash
             && self.param == other.param
