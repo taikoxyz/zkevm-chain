@@ -33,6 +33,8 @@ use zkevm_circuits::util::SubCircuit;
 use zkevm_common::json_rpc::jsonrpc_request_client;
 use zkevm_common::prover::*;
 
+const GEN_TIMEOUT: std::time::Duration = std::time::Duration::from_secs(10 * 60);
+
 fn get_param_path(path: &String, k: usize) -> PathBuf {
     // try to automatically choose a file if the path is a folder.
     if Path::new(path).is_dir() {
@@ -189,21 +191,29 @@ macro_rules! gen_proof {
                 // aggregation_proof.proof = proof.into();
             } else {
                 let time_started = Instant::now();
-                let proof = gen_proof::<
-                    _,
-                    _,
-                    EvmTranscript<G1Affine, _, _, _>,
-                    EvmTranscript<G1Affine, _, _, _>,
-                    _,
-                >(
-                    &param,
-                    &pk,
-                    circuit,
-                    circuit_instance.clone(),
-                    fixed_rng(),
-                    task_options.mock_feedback,
-                    task_options.verify_proof,
-                );
+                let handle = tokio::task::spawn_blocking(move || {
+                    gen_proof::<
+                        _,
+                        _,
+                        EvmTranscript<G1Affine, _, _, _>,
+                        EvmTranscript<G1Affine, _, _, _>,
+                        _,
+                    >(
+                        &param,
+                        &pk,
+                        circuit,
+                        circuit_instance.clone(),
+                        fixed_rng(),
+                        task_options.mock_feedback,
+                        task_options.verify_proof,
+                    )
+                });
+
+                let proof = tokio::time::timeout(GEN_TIMEOUT, handle)
+                    .await
+                    .map_err(|e| e.to_string())?
+                    .map_err(|e| e.to_string())?;
+
                 circuit_proof.duration =
                     Instant::now().duration_since(time_started).as_millis() as u32;
                 circuit_proof.proof = proof.clone().into();
@@ -549,7 +559,7 @@ impl SharedState {
     // https://github.com/zcash/halo2/issues/443
     // https://github.com/zcash/halo2/issues/449
     /// Compute or retrieve a proving key from cache.
-    async fn gen_pk<C: Circuit<Fr>>(
+    async fn gen_pk<C: Circuit<Fr> + Send + Clone + 'static>(
         &self,
         cache_key: &str,
         param: &Arc<ProverParams>,
@@ -559,11 +569,14 @@ impl SharedState {
         if !rw.pk_cache.contains_key(cache_key) {
             // drop, potentially long running
             drop(rw);
-
-            let vk = keygen_vk(param.as_ref(), circuit)?;
-            let pk = keygen_pk(param.as_ref(), vk, circuit)?;
-            let pk = Arc::new(pk);
-
+            let param = param.clone();
+            let circuit = circuit.clone();
+            let handle = tokio::task::spawn_blocking(move || {
+                let vk = keygen_vk(param.as_ref(), &circuit)?;
+                let pk = keygen_pk(param.as_ref(), vk, &circuit)?;
+                Result::<_, halo2_proofs::plonk::Error>::Ok(Arc::new(pk))
+            });
+            let pk = tokio::time::timeout(GEN_TIMEOUT, handle).await???;
             // acquire lock and update
             rw = self.rw.lock().await;
             rw.pk_cache.insert(cache_key.to_string(), pk);
