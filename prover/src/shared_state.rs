@@ -33,7 +33,7 @@ use zkevm_circuits::util::SubCircuit;
 use zkevm_common::json_rpc::jsonrpc_request_client;
 use zkevm_common::prover::*;
 
-const GEN_TIMEOUT: std::time::Duration = std::time::Duration::from_secs(10 * 60);
+const GEN_TIMEOUT: std::time::Duration = std::time::Duration::from_secs(15 * 60);
 
 fn get_param_path(path: &String, k: usize) -> PathBuf {
     // try to automatically choose a file if the path is a folder.
@@ -72,6 +72,7 @@ macro_rules! gen_proof {
         let shared_state = $shared_state;
 
         log::info!("Using circuit parameters: {:#?}", CIRCUIT_CONFIG);
+        log::info!("Using task options: {:#?}", task_options);
 
         let mut circuit_proof = ProofResult::default();
         circuit_proof.label = format!(
@@ -118,7 +119,10 @@ macro_rules! gen_proof {
                 shared_state
                     .gen_pk(&cache_key, &param, &circuit)
                     .await
-                    .map_err(|e| e.to_string())?
+                    .map_err(|e| {
+                        log::error!("failed to generate pk: {}", e);
+                        e.to_string()
+                    })?
             };
 
             let circuit_instance = circuit.0.instance();
@@ -211,8 +215,14 @@ macro_rules! gen_proof {
 
                 let proof = tokio::time::timeout(GEN_TIMEOUT, handle)
                     .await
-                    .map_err(|e| e.to_string())?
-                    .map_err(|e| e.to_string())?;
+                    .map_err(|e| {
+                        log::error!("gen proof timeout: {}", e);
+                        e.to_string()
+                    })?
+                    .map_err(|e| {
+                        log::error!("spawn gen proof task failed: {}", e);
+                        e.to_string()
+                    })?;
 
                 circuit_proof.duration =
                     Instant::now().duration_since(time_started).as_millis() as u32;
