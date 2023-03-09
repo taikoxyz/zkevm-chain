@@ -72,7 +72,6 @@ macro_rules! gen_proof {
         let shared_state = $shared_state;
 
         log::info!("Using circuit parameters: {:#?}", CIRCUIT_CONFIG);
-        log::info!("Using task options: {:#?}", task_options);
 
         let mut circuit_proof = ProofResult::default();
         circuit_proof.label = format!(
