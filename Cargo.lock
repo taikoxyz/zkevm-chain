@@ -295,7 +295,7 @@ checksum = "0d261e256854913907f67ed06efbc3338dfe6179796deefc1ff763fc1aee5535"
 [[package]]
 name = "bus-mapping"
 version = "0.1.0"
-source = "git+https://github.com/smtmfft/zkevm-circuits.git?branch=feature/root-circuit#e393cfb3d298fd6f6f0f6fad12ff68a3878298bd"
+source = "git+https://github.com/smtmfft/zkevm-circuits.git?branch=feature/root-circuit#a597c12ba9f612cdead252e9aa3399f399f5e85f"
 dependencies = [
  "ark-std",
  "eth-types",
@@ -949,7 +949,7 @@ dependencies = [
 [[package]]
 name = "eth-types"
 version = "0.1.0"
-source = "git+https://github.com/smtmfft/zkevm-circuits.git?branch=feature/root-circuit#e393cfb3d298fd6f6f0f6fad12ff68a3878298bd"
+source = "git+https://github.com/smtmfft/zkevm-circuits.git?branch=feature/root-circuit#a597c12ba9f612cdead252e9aa3399f399f5e85f"
 dependencies = [
  "ethers-core",
  "ethers-signers",
@@ -1106,7 +1106,7 @@ dependencies = [
 [[package]]
 name = "external-tracer"
 version = "0.1.0"
-source = "git+https://github.com/smtmfft/zkevm-circuits.git?branch=feature/root-circuit#e393cfb3d298fd6f6f0f6fad12ff68a3878298bd"
+source = "git+https://github.com/smtmfft/zkevm-circuits.git?branch=feature/root-circuit#a597c12ba9f612cdead252e9aa3399f399f5e85f"
 dependencies = [
  "eth-types",
  "geth-utils",
@@ -1271,7 +1271,7 @@ dependencies = [
 [[package]]
 name = "gadgets"
 version = "0.1.0"
-source = "git+https://github.com/smtmfft/zkevm-circuits.git?branch=feature/root-circuit#e393cfb3d298fd6f6f0f6fad12ff68a3878298bd"
+source = "git+https://github.com/smtmfft/zkevm-circuits.git?branch=feature/root-circuit#a597c12ba9f612cdead252e9aa3399f399f5e85f"
 dependencies = [
  "digest 0.7.6",
  "eth-types",
@@ -1311,7 +1311,7 @@ dependencies = [
 [[package]]
 name = "geth-utils"
 version = "0.1.0"
-source = "git+https://github.com/smtmfft/zkevm-circuits.git?branch=feature/root-circuit#e393cfb3d298fd6f6f0f6fad12ff68a3878298bd"
+source = "git+https://github.com/smtmfft/zkevm-circuits.git?branch=feature/root-circuit#a597c12ba9f612cdead252e9aa3399f399f5e85f"
 dependencies = [
  "env_logger",
  "gobuild",
@@ -1795,7 +1795,7 @@ dependencies = [
 [[package]]
 name = "keccak256"
 version = "0.1.0"
-source = "git+https://github.com/smtmfft/zkevm-circuits.git?branch=feature/root-circuit#e393cfb3d298fd6f6f0f6fad12ff68a3878298bd"
+source = "git+https://github.com/smtmfft/zkevm-circuits.git?branch=feature/root-circuit#a597c12ba9f612cdead252e9aa3399f399f5e85f"
 dependencies = [
  "env_logger",
  "eth-types",
@@ -1954,7 +1954,7 @@ dependencies = [
 [[package]]
 name = "mock"
 version = "0.1.0"
-source = "git+https://github.com/smtmfft/zkevm-circuits.git?branch=feature/root-circuit#e393cfb3d298fd6f6f0f6fad12ff68a3878298bd"
+source = "git+https://github.com/smtmfft/zkevm-circuits.git?branch=feature/root-circuit#a597c12ba9f612cdead252e9aa3399f399f5e85f"
 dependencies = [
  "eth-types",
  "ethers-core",
@@ -3744,7 +3744,7 @@ checksum = "c394b5bd0c6f669e7275d9c20aa90ae064cb22e75a1cad54e1b34088034b149f"
 [[package]]
 name = "zkevm-circuits"
 version = "0.1.0"
-source = "git+https://github.com/smtmfft/zkevm-circuits.git?branch=feature/root-circuit#e393cfb3d298fd6f6f0f6fad12ff68a3878298bd"
+source = "git+https://github.com/smtmfft/zkevm-circuits.git?branch=feature/root-circuit#a597c12ba9f612cdead252e9aa3399f399f5e85f"
 dependencies = [
  "array-init",
  "bus-mapping",
