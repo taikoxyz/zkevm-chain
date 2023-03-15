@@ -295,7 +295,7 @@ checksum = "0d261e256854913907f67ed06efbc3338dfe6179796deefc1ff763fc1aee5535"
 [[package]]
 name = "bus-mapping"
 version = "0.1.0"
-source = "git+https://github.com/smtmfft/zkevm-circuits.git?branch=feature/root-circuit#dc5fa4ca586e485e9de1826b1c04438e49334a42"
+source = "git+https://github.com/taikoxyz/zkevm-circuits.git?branch=taiko-pi-test#bfc0bfcd6fb9cbb2df245c426838b083377eb3f6"
 dependencies = [
  "ark-std",
  "eth-types",
@@ -968,7 +968,7 @@ dependencies = [
 [[package]]
 name = "eth-types"
 version = "0.1.0"
-source = "git+https://github.com/smtmfft/zkevm-circuits.git?branch=feature/root-circuit#dc5fa4ca586e485e9de1826b1c04438e49334a42"
+source = "git+https://github.com/taikoxyz/zkevm-circuits.git?branch=taiko-pi-test#bfc0bfcd6fb9cbb2df245c426838b083377eb3f6"
 dependencies = [
  "ethers-core",
  "ethers-signers",
@@ -1130,7 +1130,7 @@ dependencies = [
 [[package]]
 name = "external-tracer"
 version = "0.1.0"
-source = "git+https://github.com/smtmfft/zkevm-circuits.git?branch=feature/root-circuit#dc5fa4ca586e485e9de1826b1c04438e49334a42"
+source = "git+https://github.com/taikoxyz/zkevm-circuits.git?branch=taiko-pi-test#bfc0bfcd6fb9cbb2df245c426838b083377eb3f6"
 dependencies = [
  "eth-types",
  "geth-utils",
@@ -1304,7 +1304,7 @@ dependencies = [
 [[package]]
 name = "gadgets"
 version = "0.1.0"
-source = "git+https://github.com/smtmfft/zkevm-circuits.git?branch=feature/root-circuit#dc5fa4ca586e485e9de1826b1c04438e49334a42"
+source = "git+https://github.com/taikoxyz/zkevm-circuits.git?branch=taiko-pi-test#bfc0bfcd6fb9cbb2df245c426838b083377eb3f6"
 dependencies = [
  "digest 0.7.6",
  "eth-types",
@@ -1344,7 +1344,7 @@ dependencies = [
 [[package]]
 name = "geth-utils"
 version = "0.1.0"
-source = "git+https://github.com/smtmfft/zkevm-circuits.git?branch=feature/root-circuit#dc5fa4ca586e485e9de1826b1c04438e49334a42"
+source = "git+https://github.com/taikoxyz/zkevm-circuits.git?branch=taiko-pi-test#bfc0bfcd6fb9cbb2df245c426838b083377eb3f6"
 dependencies = [
  "env_logger",
  "gobuild",
@@ -1828,7 +1828,7 @@ dependencies = [
 [[package]]
 name = "keccak256"
 version = "0.1.0"
-source = "git+https://github.com/smtmfft/zkevm-circuits.git?branch=feature/root-circuit#dc5fa4ca586e485e9de1826b1c04438e49334a42"
+source = "git+https://github.com/taikoxyz/zkevm-circuits.git?branch=taiko-pi-test#bfc0bfcd6fb9cbb2df245c426838b083377eb3f6"
 dependencies = [
  "env_logger",
  "eth-types",
@@ -1987,7 +1987,7 @@ dependencies = [
 [[package]]
 name = "mock"
 version = "0.1.0"
-source = "git+https://github.com/smtmfft/zkevm-circuits.git?branch=feature/root-circuit#dc5fa4ca586e485e9de1826b1c04438e49334a42"
+source = "git+https://github.com/taikoxyz/zkevm-circuits.git?branch=taiko-pi-test#bfc0bfcd6fb9cbb2df245c426838b083377eb3f6"
 dependencies = [
  "eth-types",
  "ethers-core",
@@ -3805,7 +3805,7 @@ checksum = "c394b5bd0c6f669e7275d9c20aa90ae064cb22e75a1cad54e1b34088034b149f"
 [[package]]
 name = "zkevm-circuits"
 version = "0.1.0"
-source = "git+https://github.com/smtmfft/zkevm-circuits.git?branch=feature/root-circuit#dc5fa4ca586e485e9de1826b1c04438e49334a42"
+source = "git+https://github.com/taikoxyz/zkevm-circuits.git?branch=taiko-pi-test#bfc0bfcd6fb9cbb2df245c426838b083377eb3f6"
 dependencies = [
  "array-init",
  "bus-mapping",

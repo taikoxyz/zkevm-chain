@@ -6,9 +6,9 @@ license = "MIT OR Apache-2.0"
 
 [dependencies]
 halo2_proofs = { git = "https://github.com/privacy-scaling-explorations/halo2.git", tag = "v2022_10_22" }
-bus-mapping = { git = "https://github.com/smtmfft/zkevm-circuits.git", branch = "feature/root-circuit" }
-eth-types = { git = "https://github.com/smtmfft/zkevm-circuits.git", branch = "feature/root-circuit" }
-zkevm-circuits = { git = "https://github.com/smtmfft/zkevm-circuits.git", branch = "feature/root-circuit", features = [
+bus-mapping = { git = "https://github.com/taikoxyz/zkevm-circuits.git", branch = "taiko-pi-test" }
+eth-types = { git = "https://github.com/taikoxyz/zkevm-circuits.git", branch = "taiko-pi-test" }
+zkevm-circuits = { git = "https://github.com/taikoxyz/zkevm-circuits.git", branch = "taiko-pi-test", features = [
   "test",
 ] }
 snark-verifier = { git = "https://github.com/privacy-scaling-explorations/snark-verifier", tag = "v2022_12_23", default-features = false, features = [
@@ -33,7 +33,7 @@ clap = { version = "4.0.14", features = ["derive", "env"] }
 hex = "0.4.3"
 
 # autogen
-mock = { git = "https://github.com/smtmfft/zkevm-circuits.git", branch = "feature/root-circuit", optional = true }
+mock = { git = "https://github.com/taikoxyz/zkevm-circuits.git", branch = "taiko-pi-test", optional = true }
 
 ethers-signers = { version = "2.0.0", optional = true }
 zkevm_dev = { path = "../dev", optional = true }
