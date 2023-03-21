@@ -20,7 +20,9 @@ pub(crate) struct ProverdConfig {
 #[tokio::main]
 async fn main() {
     let config = ProverdConfig::parse();
-    env_logger::Builder::from_env(Env::default().default_filter_or("info")).init();
+    let mut builder = env_logger::Builder::from_env(Env::default().default_filter_or("info"));
+    builder.target(env_logger::Target::Stdout);
+    builder.init();
 
     let shared_state = SharedState::new(SharedState::random_worker_id(), config.lookup);
     {
