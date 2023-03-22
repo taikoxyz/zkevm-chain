@@ -1,3 +1,5 @@
+use std::env::var;
+
 use clap::Parser;
 use env_logger::Env;
 
@@ -24,7 +26,12 @@ async fn main() {
     builder.target(env_logger::Target::Stdout);
     builder.init();
 
-    let shared_state = SharedState::new(SharedState::random_worker_id(), config.lookup);
+    let max_tasks: usize = var("MAX_TASKS")
+    .unwrap_or_else(|_| "150".to_string())
+    .parse()
+    .expect("Cannot parse MAX_TASKS env var as usize");
+
+    let shared_state = SharedState::new(SharedState::random_worker_id(), config.lookup, max_tasks);
     {
         // start the http server
         let h1 = serve(&shared_state, &config.bind);
