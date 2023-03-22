@@ -245,6 +245,8 @@ pub struct RoState {
 
 pub struct RwState {
     pub tasks: Vec<ProofRequest>,
+    /// The maximum tasks can be held.
+    pub max_tasks: usize,
     pub pk_cache: HashMap<String, Arc<ProverKey>>,
     /// The current active task this instance wants to obtain or is working on.
     pub pending: Option<ProofRequestOptions>,
@@ -259,7 +261,7 @@ pub struct SharedState {
 }
 
 impl SharedState {
-    pub fn new(node_id: String, node_lookup: Option<String>) -> SharedState {
+    pub fn new(node_id: String, node_lookup: Option<String>, max_tasks: usize) -> SharedState {
         Self {
             ro: RoState {
                 node_id,
@@ -267,6 +269,7 @@ impl SharedState {
             },
             rw: Arc::new(Mutex::new(RwState {
                 tasks: Vec::new(),
+                max_tasks,
                 pk_cache: HashMap::new(),
                 pending: None,
                 obtained: false,
@@ -315,7 +318,26 @@ impl SharedState {
             rw.tasks.push(task);
         }
 
+        drop(rw);
+        self.prune_tasks().await;
         None
+    }
+
+    async fn prune_tasks(&self) {
+        let mut rw = self.rw.lock().await;
+        let max_tasks = rw.max_tasks;
+        // limit tasks size if max_tasks != 0
+        // TODO: drain completed only.
+        if rw.tasks.len() >= max_tasks && max_tasks != 0 {
+            rw.tasks
+                .sort_by(|a, b| a.options.block.cmp(&b.options.block));
+            rw.tasks.drain(0..(max_tasks / 2));
+            log::info!(
+                "prune tasks to block in [{:?}, {:?}]",
+                rw.tasks.first().map(|t| t.options.block),
+                rw.tasks.last().map(|t| t.options.block)
+            );
+        }
     }
 
     /// Checks if there is anything to do like:
@@ -620,6 +642,8 @@ impl SharedState {
                 log::debug!("{} new task {:#?}", LOG_TAG, peer_task);
             }
         }
+        drop(rw);
+        self.prune_tasks().await;
     }
 
     /// Tries to obtain `self.rw.pending` by querying all other peers
