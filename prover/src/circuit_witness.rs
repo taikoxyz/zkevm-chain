@@ -89,14 +89,13 @@ impl CircuitWitness {
         let block = l2_geth_client
             .get_block_by_number((*block_num).into())
             .await?;
-        let circuit_config =
-            crate::match_circuit_params_txs!(block.transactions.len(), CIRCUIT_CONFIG, {
-                return Err(format!(
-                    "No circuit parameters found for block with gas used={}",
-                    block.gas_used
-                )
-                .into());
-            });
+        let circuit_config = crate::match_circuit_params_txs!(l1_txs.len(), CIRCUIT_CONFIG, {
+            return Err(format!(
+                "No circuit parameters found for block with gas used={}",
+                block.gas_used
+            )
+            .into());
+        });
         let circuit_params = CircuitsParams {
             max_txs: circuit_config.max_txs,
             max_calldata: circuit_config.max_calldata,
