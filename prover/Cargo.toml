@@ -31,6 +31,7 @@ zkevm_common = { path = "../common" }
 itertools = "0.10.3"
 clap = { version = "4.0.14", features = ["derive", "env"] }
 hex = "0.4.3"
+rlp = "0.5.2"
 
 # autogen
 mock = { git = "https://github.com/taikoxyz/zkevm-circuits.git", branch = "taiko-pi-test", optional = true }

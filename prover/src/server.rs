@@ -195,7 +195,7 @@ async fn handle_method(
             .map_err(|e| e.to_string())?;
 
             let circuit_config =
-                crate::match_circuit_params!(witness.gas_used(), CIRCUIT_CONFIG, {
+                crate::match_circuit_params_txs!(witness.l1_txs.len(), CIRCUIT_CONFIG, {
                     return Err(format!(
                         "No circuit parameters found for block with gas={}",
                         witness.gas_used()

@@ -2423,6 +2423,7 @@ dependencies = [
  "mock",
  "rand",
  "rand_xorshift",
+ "rlp",
  "serde",
  "serde_json",
  "snark-verifier",
