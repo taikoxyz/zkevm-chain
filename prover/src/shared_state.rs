@@ -425,7 +425,7 @@ impl SharedState {
                 .map_err(|e| e.to_string())?;
 
                 let (config, circuit_proof, aggregation_proof) = crate::match_circuit_params_txs!(
-                    witness.txs().len(),
+                    witness.l1_txs.len(),
                     {
                         match task_options_copy.circuit.as_str() {
                             "pi" => {

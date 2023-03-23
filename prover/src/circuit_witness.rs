@@ -11,6 +11,7 @@ use eth_types::H256;
 use eth_types::{geth_types, Bytes};
 use ethers_providers::Http;
 use halo2_proofs::halo2curves::bn256::Fr;
+use rlp::Rlp;
 use std::str::FromStr;
 use zkevm_circuits::evm_circuit;
 use zkevm_circuits::pi_circuit::PublicData;
@@ -23,6 +24,7 @@ pub struct CircuitWitness {
     pub block: bus_mapping::circuit_input_builder::Block,
     pub code_db: bus_mapping::state_db::CodeDB,
     pub txs_rlp: Bytes,
+    pub l1_txs: Vec<eth_types::Transaction>,
 }
 
 impl CircuitWitness {
@@ -61,6 +63,7 @@ impl CircuitWitness {
             block: builder.block,
             code_db: builder.code_db,
             txs_rlp: Bytes::default(),
+            l1_txs: vec![],
         })
     }
 
@@ -78,6 +81,7 @@ impl CircuitWitness {
             &hex::decode(propose_tx_hash).expect("parse propose tx hash"),
         );
         let txs_rlp = get_txs_rlp(&l1_geth_client, propose_tx_hash).await?;
+        let l1_txs = Rlp::new(&txs_rlp).as_list().expect("invalid txs rlp");
 
         let l2_url = Http::from_str(l2_rpc_url)?;
         let l2_geth_client = GethClient::new(l2_url);
@@ -85,14 +89,13 @@ impl CircuitWitness {
         let block = l2_geth_client
             .get_block_by_number((*block_num).into())
             .await?;
-        let circuit_config =
-            crate::match_circuit_params_txs!(block.transactions.len(), CIRCUIT_CONFIG, {
-                return Err(format!(
-                    "No circuit parameters found for block with gas used={}",
-                    block.gas_used
-                )
-                .into());
-            });
+        let circuit_config = crate::match_circuit_params_txs!(l1_txs.len(), CIRCUIT_CONFIG, {
+            return Err(format!(
+                "No circuit parameters found for block with gas used={}",
+                block.gas_used
+            )
+            .into());
+        });
         let circuit_params = CircuitsParams {
             max_txs: circuit_config.max_txs,
             max_calldata: circuit_config.max_calldata,
@@ -109,6 +112,7 @@ impl CircuitWitness {
             block: builder.block,
             code_db: builder.code_db,
             txs_rlp,
+            l1_txs,
         })
     }
 
