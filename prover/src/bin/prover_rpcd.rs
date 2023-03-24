@@ -32,7 +32,7 @@ async fn main() {
     .expect("Cannot parse MAX_TASKS env var as usize");
 
     let full_node: bool = var("FULL_NODE")
-    .unwrap_or_else(|_| "false".to_string())
+    .unwrap_or_else(|_| "true".to_string())
     .parse()
     .expect("Cannot parse FULL_NODE env var as bool");
 

@@ -539,7 +539,7 @@ impl SharedState {
             let task = rw.tasks.iter_mut().find(|e| e.options == task_options);
             if let Some(task) = task {
                 // found our task, update result
-                task.completed = true; // err result is also completed, and wait for retry later.
+                task.completed = task_result.is_ok();
                 task.result = Some(task_result);
                 task.edition += 1;
             } else {
