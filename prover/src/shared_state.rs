@@ -565,7 +565,10 @@ impl SharedState {
                 .iter()
                 .map(|t| ProofRequest {
                     options: t.options.clone(),
-                    result: t.result.as_ref().map_or_else(
+                    result: t.result.as_ref().and_then(|r| match r {
+                            Ok(_) => None,
+                            Err(_) => Some(r.clone()),
+                        }),
                         || None,
                         |r| match r {
                             Ok(_) => None,
