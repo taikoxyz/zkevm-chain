@@ -209,7 +209,10 @@ async fn handle_method(
 
         // returns `NodeInformation`
         // used internally for p2p communication
-        "info" => Ok(serde_json::to_value(shared_state.get_node_information().await).unwrap()),
+        "info" => Ok(serde_json::to_value(shared_state.get_node_information(true).await).unwrap()),
+        // return succinct `NodeInformation`
+        // used internally for p2p communication
+        "sinfo" => Ok(serde_json::to_value(shared_state.get_node_information(false).await).unwrap()),
 
         // returns `NodeStatus`
         // used internally for p2p communication

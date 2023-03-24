@@ -236,6 +236,8 @@ macro_rules! gen_proof {
 
 #[derive(Clone)]
 pub struct RoState {
+    /// full node contains all proof results, others only have completed flag to save bandwidth
+    pub full_node: bool,
     // a unique identifier
     pub node_id: String,
     // a `HOSTNAME:PORT` conformant string that will be used for DNS service discovery of other
@@ -261,9 +263,21 @@ pub struct SharedState {
 }
 
 impl SharedState {
-    pub fn new(node_id: String, node_lookup: Option<String>, max_tasks: usize) -> SharedState {
+    pub fn new(
+        node_id: String,
+        node_lookup: Option<String>,
+        max_tasks: usize,
+        full_node: bool,
+    ) -> SharedState {
+        log::info!(
+            "Start a new SharedState id:{}, max_tasks:{}, full_node:{}",
+            node_id,
+            max_tasks,
+            full_node
+        );
         Self {
             ro: RoState {
+                full_node,
                 node_id,
                 node_lookup,
             },
@@ -298,6 +312,7 @@ impl SharedState {
                     log::debug!("retrying: {:#?}", task);
                     // will be a candidate in `duty_cycle` again
                     task.result = None;
+                    task.completed = false;
                     task.edition += 1;
                 } else {
                     log::debug!("completed: {:#?}", task);
@@ -313,6 +328,7 @@ impl SharedState {
                 options: options.clone(),
                 result: None,
                 edition: 0,
+                completed: false,
             };
             log::debug!("enqueue: {:#?}", task);
             rw.tasks.push(task);
@@ -360,7 +376,7 @@ impl SharedState {
         let tasks: Vec<ProofRequestOptions> = rw
             .tasks
             .iter()
-            .filter(|&e| e.result.is_none())
+            .filter(|&e| e.result.is_none() && !e.completed)
             .map(|e| e.options.clone())
             .collect();
         drop(rw);
@@ -523,6 +539,7 @@ impl SharedState {
             let task = rw.tasks.iter_mut().find(|e| e.options == task_options);
             if let Some(task) = task {
                 // found our task, update result
+                task.completed = true; // err result is also completed, and wait for retry later.
                 task.result = Some(task_result);
                 task.edition += 1;
             } else {
@@ -538,10 +555,27 @@ impl SharedState {
 
     /// Returns `node_id` and `tasks` for this instance.
     /// Normally used for the rpc api.
-    pub async fn get_node_information(&self) -> NodeInformation {
+    pub async fn get_node_information(&self, full: bool) -> NodeInformation {
+        let tasks = if !full {
+            self.rw
+                .lock()
+                .await
+                .tasks
+                .iter()
+                .map(|t| ProofRequest {
+                    options: t.options.clone(),
+                    result: None,
+                    edition: t.edition,
+                    completed: t.completed,
+                })
+                .collect()
+        } else {
+            self.rw.lock().await.tasks.clone()
+        };
+
         NodeInformation {
             id: self.ro.node_id.clone(),
-            tasks: self.rw.lock().await.tasks.clone(),
+            tasks,
         }
     }
 
@@ -569,8 +603,10 @@ impl SharedState {
 
         for addr in addrs_iter {
             let uri = Uri::try_from(format!("http://{}", addr)).map_err(|e| e.to_string())?;
+            // full node query info from others, otherwise get succinct_info from others
+            let method = if self.ro.full_node { "info" } else { "sinfo" };
             let peer: NodeInformation =
-                jsonrpc_request_client(5000, &hyper_client, &uri, "info", serde_json::json!([]))
+                jsonrpc_request_client(5000, &hyper_client, &uri, method, serde_json::json!([]))
                     .await?;
 
             if peer.id == self.ro.node_id {
@@ -635,6 +671,7 @@ impl SharedState {
                 // update result, edition
                 existent_task.edition = peer_task.edition;
                 existent_task.result = peer_task.result.clone();
+                existent_task.completed = peer_task.completed;
                 log::debug!("{} updated {:#?}", LOG_TAG, existent_task);
             } else {
                 // copy task

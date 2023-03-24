@@ -93,6 +93,8 @@ pub struct ProofRequest {
     pub result: Option<Result<Proofs, String>>,
     /// A counter to keep track of changes of the `result` field
     pub edition: u64,
+    /// A flag to save passing result everywhere
+    pub completed: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize)]

@@ -31,7 +31,12 @@ async fn main() {
     .parse()
     .expect("Cannot parse MAX_TASKS env var as usize");
 
-    let shared_state = SharedState::new(SharedState::random_worker_id(), config.lookup, max_tasks);
+    let full_node: bool = var("FULL_NODE")
+    .unwrap_or_else(|_| "false".to_string())
+    .parse()
+    .expect("Cannot parse FULL_NODE env var as bool");
+
+    let shared_state = SharedState::new(SharedState::random_worker_id(), config.lookup, max_tasks, full_node);
     {
         // start the http server
         let h1 = serve(&shared_state, &config.bind);
