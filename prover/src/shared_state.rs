@@ -569,12 +569,6 @@ impl SharedState {
                             Ok(_) => None,
                             Err(_) => Some(r.clone()),
                         }),
-                        || None,
-                        |r| match r {
-                            Ok(_) => None,
-                            Err(_) => Some(r.clone()),
-                        },
-                    ),
                     edition: t.edition,
                     completed: t.completed,
                 })
