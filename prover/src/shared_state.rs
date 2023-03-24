@@ -557,6 +557,7 @@ impl SharedState {
     /// Normally used for the rpc api.
     pub async fn get_node_information(&self, full: bool) -> NodeInformation {
         let tasks = if !full {
+            // succinct node broadcasts task status w/ error instead of proof.
             self.rw
                 .lock()
                 .await
@@ -564,7 +565,13 @@ impl SharedState {
                 .iter()
                 .map(|t| ProofRequest {
                     options: t.options.clone(),
-                    result: None,
+                    result: t.result.as_ref().map_or_else(
+                        || None,
+                        |r| match r {
+                            Ok(_) => None,
+                            Err(_) => Some(r.clone()),
+                        },
+                    ),
                     edition: t.edition,
                     completed: t.completed,
                 })
