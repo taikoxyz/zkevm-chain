@@ -58,7 +58,7 @@ async fn main() {
                     ctx.duty_cycle().await;
                 })
                 .await;
-                tokio::time::sleep(std::time::Duration::from_millis(5000)).await;
+                tokio::time::sleep(std::time::Duration::from_millis(1000)).await;
             }
         });
 
@@ -75,7 +75,7 @@ async fn main() {
                     let _ = ctx.merge_tasks_from_peers().await;
                 })
                 .await;
-                tokio::time::sleep(std::time::Duration::from_millis(5000)).await;
+                tokio::time::sleep(std::time::Duration::from_millis(1000)).await;
             }
         });
 
