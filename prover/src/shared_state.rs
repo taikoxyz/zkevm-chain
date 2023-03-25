@@ -376,7 +376,7 @@ impl SharedState {
         let tasks: Vec<ProofRequestOptions> = rw
             .tasks
             .iter()
-            .filter(|&e| e.result.is_none() && !e.completed)
+            .filter(|&e| !e.completed)
             .map(|e| e.options.clone())
             .collect();
         drop(rw);
