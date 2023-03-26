@@ -674,7 +674,15 @@ impl SharedState {
 
                 // update result, edition
                 existent_task.edition = peer_task.edition;
-                if existent_task.result.is_none() && peer_task.result.is_some() {
+                let update_result =
+                    existent_task.result.clone().and_then(
+                        |existent_result| match existent_result {
+                            Ok(_) => Some(existent_result),
+                            Err(_) => None,
+                        },
+                    );
+                // assume same edition(height) has only 1 result
+                if update_result.is_none() && peer_task.result.is_some() {
                     existent_task.result = peer_task.result.clone();
                 }
                 existent_task.completed = peer_task.completed;
