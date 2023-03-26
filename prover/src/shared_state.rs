@@ -610,7 +610,7 @@ impl SharedState {
             // full node query info from others, otherwise get succinct_info from others
             let method = if self.ro.full_node { "info" } else { "sinfo" };
             let peer: NodeInformation =
-                jsonrpc_request_client(5000, &hyper_client, &uri, method, serde_json::json!([]))
+                jsonrpc_request_client(3000, &hyper_client, &uri, method, serde_json::json!([]))
                     .await?;
 
             if peer.id == self.ro.node_id {
@@ -666,7 +666,7 @@ impl SharedState {
             let maybe_task = rw.tasks.iter_mut().find(|e| e.options == peer_task.options);
 
             if let Some(existent_task) = maybe_task {
-                if existent_task.edition >= peer_task.edition {
+                if existent_task.edition > peer_task.edition {
                     // fast case
                     log::debug!("{} up to date {:#?}", LOG_TAG, existent_task);
                     continue;
@@ -720,7 +720,7 @@ impl SharedState {
         for addr in addrs_iter {
             let uri = Uri::try_from(format!("http://{}", addr)).map_err(|e| e.to_string())?;
             let peer: NodeStatus =
-                jsonrpc_request_client(5000, &hyper_client, &uri, "status", serde_json::json!([]))
+                jsonrpc_request_client(3000, &hyper_client, &uri, "status", serde_json::json!([]))
                     .await?;
 
             if peer.id == self.ro.node_id {
