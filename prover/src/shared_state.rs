@@ -566,9 +566,9 @@ impl SharedState {
                 .map(|t| ProofRequest {
                     options: t.options.clone(),
                     result: t.result.as_ref().and_then(|r| match r {
-                            Ok(_) => None,
-                            Err(_) => Some(r.clone()),
-                        }),
+                        Ok(_) => None,
+                        Err(_) => Some(r.clone()),
+                    }),
                     edition: t.edition,
                     completed: t.completed,
                 })
@@ -674,7 +674,9 @@ impl SharedState {
 
                 // update result, edition
                 existent_task.edition = peer_task.edition;
-                existent_task.result = peer_task.result.clone();
+                if existent_task.result.is_none() && peer_task.result.is_some() {
+                    existent_task.result = peer_task.result.clone();
+                }
                 existent_task.completed = peer_task.completed;
                 log::debug!("{} updated {:#?}", LOG_TAG, existent_task);
             } else {
