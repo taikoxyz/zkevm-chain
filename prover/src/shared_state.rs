@@ -24,16 +24,31 @@ use snark_verifier::system::halo2::transcript::evm::EvmTranscript;
 use std::collections::HashMap;
 use std::fmt::Write;
 use std::fs::File;
+use std::net::SocketAddr;
 use std::net::ToSocketAddrs;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use std::time::Instant;
+use std::vec;
 use tokio::sync::Mutex;
 use zkevm_circuits::util::SubCircuit;
 use zkevm_common::json_rpc::jsonrpc_request_client;
 use zkevm_common::prover::*;
 
 const GEN_TIMEOUT: std::time::Duration = std::time::Duration::from_secs(15 * 60);
+
+fn find_lookup_candidates(lookup: String) -> Result<vec::IntoIter<SocketAddr>, String> {
+    if lookup.eq_ignore_ascii_case("debug") {
+        let addr1 = SocketAddr::from(([127, 0, 0, 1], 9000));
+        let addr2 = SocketAddr::from(([127, 0, 0, 1], 9001));
+        let addr3 = SocketAddr::from(([127, 0, 0, 1], 9002));
+        let addrs = vec![addr1, addr2, addr3];
+        Ok(addrs.into_iter())
+    } else {
+        let addrs_iter = lookup.to_socket_addrs().map_err(|e| e.to_string())?;
+        Ok(addrs_iter)
+    }
+}
 
 fn get_param_path(path: &String, k: usize) -> PathBuf {
     // try to automatically choose a file if the path is a folder.
@@ -236,6 +251,8 @@ macro_rules! gen_proof {
 
 #[derive(Clone)]
 pub struct RoState {
+    /// full node contains all proof results, others only have completed flag to save bandwidth
+    pub full_node: bool,
     // a unique identifier
     pub node_id: String,
     // a `HOSTNAME:PORT` conformant string that will be used for DNS service discovery of other
@@ -247,6 +264,8 @@ pub struct RwState {
     pub tasks: Vec<ProofRequest>,
     /// The maximum tasks can be held.
     pub max_tasks: usize,
+    /// known full_nodes
+    pub known_full_nodes: Vec<SocketAddr>,
     pub pk_cache: HashMap<String, Arc<ProverKey>>,
     /// The current active task this instance wants to obtain or is working on.
     pub pending: Option<ProofRequestOptions>,
@@ -261,15 +280,28 @@ pub struct SharedState {
 }
 
 impl SharedState {
-    pub fn new(node_id: String, node_lookup: Option<String>, max_tasks: usize) -> SharedState {
+    pub fn new(
+        node_id: String,
+        node_lookup: Option<String>,
+        max_tasks: usize,
+        full_node: bool,
+    ) -> SharedState {
+        log::info!(
+            "Start a new SharedState id:{}, max_tasks:{}, full_node:{}",
+            node_id,
+            max_tasks,
+            full_node
+        );
         Self {
             ro: RoState {
+                full_node,
                 node_id,
                 node_lookup,
             },
             rw: Arc::new(Mutex::new(RwState {
                 tasks: Vec::new(),
                 max_tasks,
+                known_full_nodes: Vec::new(),
                 pk_cache: HashMap::new(),
                 pending: None,
                 obtained: false,
@@ -298,7 +330,9 @@ impl SharedState {
                     log::debug!("retrying: {:#?}", task);
                     // will be a candidate in `duty_cycle` again
                     task.result = None;
-                    task.edition += 1;
+                    task.completed = false;
+                    task.obtain_node_id = None;
+                    task.edition = 0;
                 } else {
                     log::debug!("completed: {:#?}", task);
                     return task.result.clone();
@@ -313,6 +347,8 @@ impl SharedState {
                 options: options.clone(),
                 result: None,
                 edition: 0,
+                completed: false,
+                obtain_node_id: None,
             };
             log::debug!("enqueue: {:#?}", task);
             rw.tasks.push(task);
@@ -329,8 +365,8 @@ impl SharedState {
         // limit tasks size if max_tasks != 0
         // TODO: drain completed only.
         if rw.tasks.len() >= max_tasks && max_tasks != 0 {
-            rw.tasks
-                .sort_by(|a, b| a.options.block.cmp(&b.options.block));
+            // rw.tasks
+            //     .sort_by(|a, b| a.options.block.cmp(&b.options.block));
             rw.tasks.drain(0..(max_tasks / 2));
             log::info!(
                 "prune tasks to block in [{:?}, {:?}]",
@@ -340,16 +376,104 @@ impl SharedState {
         }
     }
 
+    /// get a new worker task and return the current nodestatus
+    /// for snode only
+    pub async fn new_worker_task(&self, options: &ProofRequestOptions) -> NodeStatus {
+        let mut rw = self.rw.lock().await;
+
+        let mut pending_task = None;
+
+        if let Some(val) = &rw.pending {
+            pending_task = Some(val.clone());
+        } else {
+            let task = rw.tasks.iter_mut().find(|e| e.options == *options);
+
+            if task.is_some() {
+                let existed_task = task.unwrap();
+                let task_result = existed_task.result.clone();
+                match task_result {
+                    None => {
+                        log::info!("duplicated new_task: {:#?}", options);
+                        pending_task = Some(options.clone());
+                    }
+                    Some(r) => {
+                        if r.is_err() {
+                            existed_task.completed = false;
+                            existed_task.result = None;
+                            existed_task.obtain_node_id = None;
+                        }
+                    }
+                }
+            } else {
+                // enqueue the task
+                let task = ProofRequest {
+                    options: options.clone(),
+                    result: None,
+                    edition: 0,
+                    completed: false,
+                    obtain_node_id: None,
+                };
+                log::info!("new_task: {:#?}", task);
+                rw.tasks.push(task);
+            }
+        }
+        let ret = NodeStatus {
+            id: self.ro.node_id.clone(),
+            full_node: self.ro.full_node,
+            task: pending_task,
+            obtained: rw.obtained,
+        };
+        drop(rw);
+        self.prune_tasks().await;
+        ret
+    }
+
+    /// Will return the result or error of the task if it's completed.
+    /// Otherwise enqueues the task and returns `None`.
+    /// `retry_if_error` enqueues the task again if it returned with an error
+    /// before.
+    pub async fn snode_obtain_task(
+        &self,
+        obtain_task_request: &TaskObtainRequest,
+    ) -> Result<bool, String> {
+        let mut rw = self.rw.lock().await;
+
+        log::debug!("snode try obtain {:?}.", obtain_task_request);
+        // task already pending or completed?
+        let task = rw
+            .tasks
+            .iter_mut()
+            .find(|e| e.options == obtain_task_request.options);
+
+        if task.is_some() {
+            let mut task = task.unwrap();
+            let obtained_node = task.obtain_node_id.clone();
+            match obtained_node {
+                Some(node_id) => {
+                    if node_id != obtain_task_request.node_id {
+                        log::debug!("already obtain by {:?}.", node_id);
+                        return Ok(false);
+                    }
+                }
+                None => (),
+            }
+            task.obtain_node_id = Some(obtain_task_request.node_id.clone());
+        }
+
+        log::debug!("snode obtain successed, update tasks {:?}.", rw.tasks);
+        Ok(true)
+    }
+
     /// Checks if there is anything to do like:
     /// - records if a task completed
     /// - starting a new task
     /// Blocks until completion but releases the lock of `self.rw` in between.
     pub async fn duty_cycle(&self) {
         // fix the 'world' view
-        if let Err(err) = self.merge_tasks_from_peers().await {
-            log::error!("merge_tasks_from_peers failed with: {}", err);
-            return;
-        }
+        // if let Err(err) = self.merge_tasks_from_peers().await {
+        //     log::error!("merge_tasks_from_peers failed with: {}", err);
+        //     return;
+        // }
 
         let rw = self.rw.lock().await;
         if rw.pending.is_some() || rw.obtained {
@@ -360,15 +484,17 @@ impl SharedState {
         let tasks: Vec<ProofRequestOptions> = rw
             .tasks
             .iter()
-            .filter(|&e| e.result.is_none())
+            .filter(|&e| !e.completed && e.obtain_node_id.is_none())
             .map(|e| e.options.clone())
             .collect();
         drop(rw);
 
+
+        let mut unobtainable_tasks = vec![];
         for task in tasks {
             // signals that this node wants to process this task
             log::debug!("trying to obtain {:#?}", task);
-            self.rw.lock().await.pending = Some(task);
+            self.rw.lock().await.pending = Some(task.clone());
 
             // notify other peers
             // wrap the object because it's important to clear `pending` on error
@@ -382,15 +508,28 @@ impl SharedState {
 
                 if obtain_task.is_err() || !obtain_task.unwrap() {
                     self.rw.lock().await.pending = None;
+                    unobtainable_tasks.push(task);
                     log::debug!("failed to obtain task");
                     continue;
                 }
 
                 // won the race
-                self.rw.lock().await.obtained = true;
+                {
+                    let mut rw = self.rw.lock().await;
+                    rw.obtained = true;
+                    let updated_task = rw.tasks.iter_mut().find(|e| e.options == task);
+                    if let Some(t) = updated_task {
+                        t.obtain_node_id = Some(self.ro.node_id.clone());
+                    } else {
+                        log::info!("obtained task is lost {:#?}", task);
+                    }
+                }
                 break;
             }
         }
+
+        // remove those unobtainable tasks.
+        self.rw.lock().await.tasks.retain_mut(|t| !unobtainable_tasks.contains(&t.options));
 
         // needs to be cloned because of long running tasks and
         // the possibility that the task gets removed in the meantime
@@ -523,6 +662,8 @@ impl SharedState {
             let task = rw.tasks.iter_mut().find(|e| e.options == task_options);
             if let Some(task) = task {
                 // found our task, update result
+                task.completed = true;
+                task.obtain_node_id = Some(self.ro.node_id.clone());
                 task.result = Some(task_result);
                 task.edition += 1;
             } else {
@@ -538,10 +679,33 @@ impl SharedState {
 
     /// Returns `node_id` and `tasks` for this instance.
     /// Normally used for the rpc api.
-    pub async fn get_node_information(&self) -> NodeInformation {
+    pub async fn get_node_information(&self, full: bool) -> NodeInformation {
+        let tasks = if !full {
+            // succinct node broadcasts task status w/ error instead of proof.
+            self.rw
+                .lock()
+                .await
+                .tasks
+                .iter()
+                .map(|t| ProofRequest {
+                    options: t.options.clone(),
+                    result: t.result.as_ref().and_then(|r| match r {
+                        Ok(_) => None,
+                        Err(_) => Some(r.clone()),
+                    }),
+                    edition: t.edition,
+                    completed: t.completed,
+                    obtain_node_id: t.obtain_node_id.clone(),
+                })
+                .collect()
+        } else {
+            self.rw.lock().await.tasks.clone()
+        };
+
         NodeInformation {
             id: self.ro.node_id.clone(),
-            tasks: self.rw.lock().await.tasks.clone(),
+            full_node: self.ro.full_node.clone(),
+            tasks,
         }
     }
 
@@ -557,20 +721,17 @@ impl SharedState {
         if self.ro.node_lookup.is_none() {
             return Ok(true);
         }
-
         let hyper_client = hyper::Client::new();
-        let addrs_iter = self
-            .ro
-            .node_lookup
-            .as_ref()
+        let addrs_iter = find_lookup_candidates(self.ro.node_lookup.clone().unwrap())
             .unwrap()
-            .to_socket_addrs()
-            .map_err(|e| e.to_string())?;
+            .into_iter();
 
         for addr in addrs_iter {
             let uri = Uri::try_from(format!("http://{}", addr)).map_err(|e| e.to_string())?;
+            // full node query info from others, otherwise get succinct_info from others
+            let method = if self.ro.full_node { "info" } else { "sinfo" };
             let peer: NodeInformation =
-                jsonrpc_request_client(5000, &hyper_client, &uri, "info", serde_json::json!([]))
+                jsonrpc_request_client(1500, &hyper_client, &uri, method, serde_json::json!([]))
                     .await?;
 
             if peer.id == self.ro.node_id {
@@ -578,8 +739,82 @@ impl SharedState {
                 continue;
             }
 
-            log::debug!("{} merging with peer({})", LOG_TAG, peer.id);
+            log::debug!("{} merging with sub node ({})", LOG_TAG, peer.id);
             self.merge_tasks(&peer).await;
+        }
+
+        Ok(true)
+    }
+
+    /// Pulls `NodeInformation` from all other peers and
+    /// merges missing or updated tasks from these peers to
+    /// preserve information in case individual nodes are going to be
+    /// terminated.
+    ///
+    /// Always returns `true` otherwise returns with error.
+    pub async fn dispatch_tasks_to_peers(&self) -> Result<bool, String> {
+        const LOG_TAG: &str = "dispatch_tasks_to_peers:";
+
+        if self.ro.node_lookup.is_none() || !self.ro.full_node {
+            return Ok(true);
+        }
+
+        let rw = self.rw.lock().await;
+        // find a pending task
+        let tasks: Vec<ProofRequestOptions> = rw
+            .tasks
+            .iter()
+            .filter(|&e| !e.completed && e.obtain_node_id.is_none())
+            .map(|e| e.options.clone())
+            .collect();
+        drop(rw);
+
+        log::debug!("candidate tasks: {:?}", tasks);
+        if tasks.is_empty() {
+            return Ok(true);
+        }
+
+        let hyper_client = hyper::Client::new();
+        let addrs_iter = find_lookup_candidates(self.ro.node_lookup.clone().unwrap())
+            .unwrap()
+            .into_iter();
+        log::debug!("addrs-iter = {:?}", addrs_iter);
+
+        let mut task_idx = 0;
+        let mut task = &tasks[task_idx];
+        for addr in addrs_iter {
+            log::debug!("send new_task to addr {:?}", addr);
+            let uri = Uri::try_from(format!("http://{}", addr)).map_err(|e| e.to_string())?;
+            // full node query info from others, otherwise get succinct_info from others
+            let method = "new_task";
+            let peer: NodeStatus = jsonrpc_request_client(
+                1500,
+                &hyper_client,
+                &uri,
+                method,
+                serde_json::json!(vec![task]),
+            )
+            .await
+            .map_err(|e| {
+                log::debug!("Err: {:?}", e);
+                e
+            })?;
+
+            if peer.id == self.ro.node_id || peer.full_node {
+                log::debug!("{} skipping full_node ({})", LOG_TAG, peer.id);
+                continue;
+            }
+
+            if peer.task.is_none() {
+                // dispatch success
+                task_idx += 1;
+                if task_idx == tasks.len() {
+                    break;
+                }
+                task = &tasks[task_idx];
+            } else {
+                log::debug!("peer {:?} is busy working {:?}", peer.id, peer.task);
+            }
         }
 
         Ok(true)
@@ -626,7 +861,7 @@ impl SharedState {
             let maybe_task = rw.tasks.iter_mut().find(|e| e.options == peer_task.options);
 
             if let Some(existent_task) = maybe_task {
-                if existent_task.edition >= peer_task.edition {
+                if existent_task.edition > peer_task.edition {
                     // fast case
                     log::debug!("{} up to date {:#?}", LOG_TAG, existent_task);
                     continue;
@@ -634,7 +869,19 @@ impl SharedState {
 
                 // update result, edition
                 existent_task.edition = peer_task.edition;
-                existent_task.result = peer_task.result.clone();
+                let update_result =
+                    existent_task.result.clone().and_then(
+                        |existent_result| match existent_result {
+                            Ok(_) => Some(existent_result),
+                            Err(_) => None,
+                        },
+                    );
+                // assume same edition(height) has only 1 result
+                if update_result.is_none() && peer_task.result.is_some() {
+                    existent_task.result = peer_task.result.clone();
+                }
+                existent_task.completed = peer_task.completed;
+                existent_task.obtain_node_id = peer_task.obtain_node_id.clone();
                 log::debug!("{} updated {:#?}", LOG_TAG, existent_task);
             } else {
                 // copy task
@@ -667,44 +914,49 @@ impl SharedState {
             return Ok(true);
         }
 
+        let known_nodes = self.rw.lock().await.known_full_nodes.clone();
         // resolve all other nodes for this service
         let hyper_client = hyper::Client::new();
-        let addrs_iter = self
-            .ro
-            .node_lookup
-            .as_ref()
-            .unwrap()
-            .to_socket_addrs()
-            .map_err(|e| e.to_string())?;
+        let mut full_node_inited = !known_nodes.is_empty();
+        let (addrs_iter, method, params) = if known_nodes.is_empty() {
+            full_node_inited = false;
+            let addrs_iter = find_lookup_candidates(self.ro.node_lookup.clone().unwrap())
+                .unwrap()
+                .into_iter();
+            (addrs_iter, "status", serde_json::json!([]))
+        } else {
+            let obtain_request = TaskObtainRequest {
+                node_id: self.ro.node_id.clone(),
+                options: task_options.clone(),
+            };
+            (
+                known_nodes.into_iter(),
+                "obtain",
+                serde_json::json!(vec![obtain_request]),
+            )
+        };
         for addr in addrs_iter {
             let uri = Uri::try_from(format!("http://{}", addr)).map_err(|e| e.to_string())?;
             let peer: NodeStatus =
-                jsonrpc_request_client(5000, &hyper_client, &uri, "status", serde_json::json!([]))
-                    .await?;
+                jsonrpc_request_client(1500, &hyper_client, &uri, method, params.clone()).await?;
 
             if peer.id == self.ro.node_id {
                 log::debug!("{} skipping self({})", LOG_TAG, peer.id);
                 continue;
             }
 
-            if let Some(peer_task) = peer.task {
-                if peer_task == task_options {
-                    // a slight chance to 'win' the task
-                    if !peer.obtained && peer.id > self.ro.node_id {
-                        log::debug!("{} won task against {}", LOG_TAG, peer.id);
-                        // continue the race against the remaining peers
-                        continue;
-                    }
-
-                    log::debug!("{} lost task against {}", LOG_TAG, peer.id);
-                    // early return
-                    return Ok(false);
+            if !full_node_inited {
+                // init full_node only
+                if peer.full_node {
+                    self.rw.lock().await.known_full_nodes.push(addr);
                 }
+            } else {
+                return Ok(peer.obtained);
             }
         }
 
         // default
-        Ok(true)
+        Ok(false)
     }
 
     pub fn random_worker_id() -> String {

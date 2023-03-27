@@ -25,7 +25,7 @@ async fn main() {
         .parse()
         .expect("Cannot parse PROVERD_PARAMS_PATH env var");
 
-    let state = SharedState::new(String::new(), None, 100);
+    let state = SharedState::new(String::new(), None, 100, true);
     let request = ProofRequestOptions {
         circuit: "super".to_string(),
         block: block_num,
