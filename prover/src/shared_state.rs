@@ -389,8 +389,21 @@ impl SharedState {
             let task = rw.tasks.iter_mut().find(|e| e.options == *options);
 
             if task.is_some() {
-                log::info!("duplicated new_task: {:#?}", task);
-                pending_task = task.map(|t| t.options.clone());
+                let existed_task = task.unwrap();
+                let task_result = existed_task.result.clone();
+                match task_result {
+                    None => {
+                        log::info!("duplicated new_task: {:#?}", options);
+                        pending_task = Some(options.clone());
+                    }
+                    Some(r) => {
+                        if r.is_err() {
+                            existed_task.completed = false;
+                            existed_task.result = None;
+                            existed_task.obtain_node_id = None;
+                        }
+                    }
+                }
             } else {
                 // enqueue the task
                 let task = ProofRequest {
@@ -476,6 +489,8 @@ impl SharedState {
             .collect();
         drop(rw);
 
+
+        let mut unobtainable_tasks = vec![];
         for task in tasks {
             // signals that this node wants to process this task
             log::debug!("trying to obtain {:#?}", task);
@@ -493,6 +508,7 @@ impl SharedState {
 
                 if obtain_task.is_err() || !obtain_task.unwrap() {
                     self.rw.lock().await.pending = None;
+                    unobtainable_tasks.push(task);
                     log::debug!("failed to obtain task");
                     continue;
                 }
@@ -511,6 +527,9 @@ impl SharedState {
                 break;
             }
         }
+
+        // remove those unobtainable tasks.
+        self.rw.lock().await.tasks.retain_mut(|t| !unobtainable_tasks.contains(&t.options));
 
         // needs to be cloned because of long running tasks and
         // the possibility that the task gets removed in the meantime
