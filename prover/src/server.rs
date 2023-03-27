@@ -212,7 +212,9 @@ async fn handle_method(
         "info" => Ok(serde_json::to_value(shared_state.get_node_information(true).await).unwrap()),
         // return succinct `NodeInformation`
         // used internally for p2p communication
-        "sinfo" => Ok(serde_json::to_value(shared_state.get_node_information(false).await).unwrap()),
+        "sinfo" => {
+            Ok(serde_json::to_value(shared_state.get_node_information(false).await).unwrap())
+        }
 
         // returns `NodeStatus`
         // used internally for p2p communication
@@ -226,10 +228,53 @@ async fn handle_method(
 
             let ret = NodeStatus {
                 id: shared_state.ro.node_id.clone(),
+                full_node: shared_state.ro.full_node,
                 task: pending_task,
                 obtained: rw.obtained,
             };
             drop(rw);
+
+            Ok(serde_json::to_value(ret).unwrap())
+        }
+
+        // returns `NodeStatus`
+        // used internally for p2p communication
+        "new_task" => {
+            if shared_state.ro.full_node {
+                // Err(String::from("Err: new_task to full node"))
+                let ret = NodeStatus {
+                    id: shared_state.ro.node_id.clone(),
+                    full_node: shared_state.ro.full_node,
+                    task: None,
+                    obtained: false,
+                };
+                Ok(serde_json::to_value(ret).unwrap())
+            } else {
+                let options = params.get(0).ok_or("expected struct ProofRequestOptions")?;
+                let options: ProofRequestOptions =
+                    serde_json::from_value(options.to_owned()).map_err(|e| e.to_string())?;
+                log::debug!("recieve new task: {:?}", options);
+
+                let ret = shared_state.new_worker_task(&options).await;
+
+                Ok(serde_json::to_value(ret).unwrap())
+            }
+        }
+
+        // returns `NodeStatus`
+        // used internally for p2p communication
+        "obtain" => {
+            let options = params.get(0).ok_or("expected struct ProofRequestOptions")?;
+            let options: TaskObtainRequest =
+                serde_json::from_value(options.to_owned()).map_err(|e| e.to_string())?;
+
+            let obtained = shared_state.snode_obtain_task(&options).await.unwrap();
+            let ret = NodeStatus {
+                id: shared_state.ro.node_id.clone(),
+                full_node: shared_state.ro.full_node,
+                task: None,
+                obtained: obtained,
+            };
 
             Ok(serde_json::to_value(ret).unwrap())
         }

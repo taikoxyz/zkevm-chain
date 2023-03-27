@@ -95,17 +95,28 @@ pub struct ProofRequest {
     pub edition: u64,
     /// A flag to save passing result everywhere
     pub completed: bool,
+    /// A flag to show if this task is obtained
+    pub obtain_node_id: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct TaskObtainRequest {
+    pub node_id: String,
+    pub options: ProofRequestOptions,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct NodeInformation {
     pub id: String,
+    pub full_node: bool,
     pub tasks: Vec<ProofRequest>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct NodeStatus {
     pub id: String,
+    /// full_node
+    pub full_node: bool,
     /// The current active task this instance wants to obtain or is working on.
     pub task: Option<ProofRequestOptions>,
     /// `true` if this instance started working on `task`
