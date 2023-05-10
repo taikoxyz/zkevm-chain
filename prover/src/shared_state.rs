@@ -92,7 +92,7 @@ macro_rules! gen_proof {
                 { CIRCUIT_CONFIG.max_calldata },
                 { CIRCUIT_CONFIG.max_rws },
                 _,
-            >(&witness, task_options.prover, fixed_rng())?;
+            >(&witness, &task_options, fixed_rng())?;
             circuit_proof.k = CIRCUIT_CONFIG.min_k as u8;
             circuit_proof.instance = collect_instance(&circuit.0.instance());
             let prover =
@@ -108,7 +108,7 @@ macro_rules! gen_proof {
                 { CIRCUIT_CONFIG.max_calldata },
                 { CIRCUIT_CONFIG.max_rws },
                 _,
-            >(&witness, task_options.prover, fixed_rng())?;
+            >(&witness, &task_options, fixed_rng())?;
             // generate and cache the prover key
             let pk = {
                 let cache_key = format!(
@@ -415,14 +415,10 @@ impl SharedState {
             let self_copy = self.clone();
 
             tokio::spawn(async move {
-                let witness = CircuitWitness::from_rpc(
-                    &task_options_copy.block,
-                    &task_options_copy.l1_rpc,
-                    &task_options_copy.propose_tx_hash,
-                    &task_options_copy.l2_rpc,
-                )
-                .await
-                .map_err(|e| e.to_string())?;
+                let witness =
+                    CircuitWitness::from_rpc(&task_options_copy.block, &task_options_copy.l2_rpc)
+                        .await
+                        .map_err(|e| e.to_string())?;
 
                 let (config, circuit_proof, aggregation_proof) = crate::match_circuit_params_txs!(
                     witness.l1_txs.len(),

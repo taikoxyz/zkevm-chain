@@ -48,14 +48,25 @@ pub struct ProofRequestOptions {
     pub circuit: String,
     /// the block number
     pub block: u64,
-    /// the l1 rpc url
-    pub l1_rpc: String,
     /// the l2 rpc url
     pub l2_rpc: String,
     /// the prover address
     pub prover: String,
-    /// the propose tx hash
-    pub propose_tx_hash: String,
+
+    /// l1 signal service address
+    pub l1_signal_service: String,
+    /// l2 signal service address
+    pub l2_signal_service: String,
+    /// l2 contract address
+    pub l2_contract: String,
+    /// meta hash
+    pub meta_hash: String,
+    /// signal root
+    pub signal_root: String,
+    /// extra message
+    pub graffiti: String,
+    /// parent gas used
+    pub parent_gas_used: u32,
     /// retry proof computation if error
     pub retry: bool,
     /// Parameters file or directory to use.
@@ -79,7 +90,13 @@ impl PartialEq for ProofRequestOptions {
     fn eq(&self, other: &Self) -> bool {
         self.block == other.block
             && self.prover == other.prover
-            && self.propose_tx_hash == other.propose_tx_hash
+            && self.l1_signal_service == other.l1_signal_service
+            && self.l2_signal_service == other.l2_signal_service
+            && self.l2_contract == other.l2_contract
+            && self.meta_hash == other.meta_hash
+            && self.signal_root == other.signal_root
+            && self.graffiti == other.graffiti
+            && self.parent_gas_used == other.parent_gas_used
             && self.param == other.param
             && self.circuit == other.circuit
             && self.mock == other.mock

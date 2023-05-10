@@ -185,14 +185,9 @@ async fn handle_method(
             let options: ProofRequestOptions =
                 serde_json::from_value(options.to_owned()).map_err(|e| e.to_string())?;
 
-            let witness = CircuitWitness::from_rpc(
-                &options.block,
-                &options.l1_rpc,
-                &options.propose_tx_hash,
-                &options.l2_rpc,
-            )
-            .await
-            .map_err(|e| e.to_string())?;
+            let witness = CircuitWitness::from_rpc(&options.block, &options.l2_rpc)
+                .await
+                .map_err(|e| e.to_string())?;
 
             let circuit_config =
                 crate::match_circuit_params_txs!(witness.l1_txs.len(), CIRCUIT_CONFIG, {
