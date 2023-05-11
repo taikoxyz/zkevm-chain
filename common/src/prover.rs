@@ -61,11 +61,14 @@ pub struct ProofRequestOptions {
     pub l2_contract: String,
     /// meta hash
     pub meta_hash: String,
+    pub block_hash: String,
+    pub parent_hash: String,
     /// signal root
     pub signal_root: String,
     /// extra message
     pub graffiti: String,
     /// parent gas used
+    pub gas_used: u32,
     pub parent_gas_used: u32,
     /// retry proof computation if error
     pub retry: bool,
@@ -93,9 +96,12 @@ impl PartialEq for ProofRequestOptions {
             && self.l1_signal_service == other.l1_signal_service
             && self.l2_signal_service == other.l2_signal_service
             && self.l2_contract == other.l2_contract
+            && self.block_hash == other.block_hash
+            && self.parent_hash == other.parent_hash
             && self.meta_hash == other.meta_hash
             && self.signal_root == other.signal_root
             && self.graffiti == other.graffiti
+            && self.gas_used == other.gas_used
             && self.parent_gas_used == other.parent_gas_used
             && self.param == other.param
             && self.circuit == other.circuit

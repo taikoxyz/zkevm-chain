@@ -64,9 +64,12 @@ fn as_taiko_witness(task_options: &ProofRequestOptions) -> Taiko {
         l2_signal_service: parse_address(&task_options.l2_signal_service),
         l2_contract: parse_address(&task_options.l2_contract),
         meta_hash: parse_hash(&task_options.meta_hash),
+        block_hash: parse_hash(&task_options.block_hash),
+        parent_hash: parse_hash(&task_options.parent_hash),
         signal_root: parse_hash(&task_options.signal_root),
         graffiti: parse_hash(&task_options.graffiti),
         prover: parse_address(&task_options.prover),
+        gas_used: task_options.gas_used,
         parent_gas_used: task_options.parent_gas_used,
     }
 }
