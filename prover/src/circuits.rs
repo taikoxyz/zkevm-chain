@@ -71,6 +71,9 @@ fn as_taiko_witness(task_options: &ProofRequestOptions) -> Taiko {
         prover: parse_address(&task_options.prover),
         gas_used: task_options.gas_used,
         parent_gas_used: task_options.parent_gas_used,
+        max_bytes_per_tx_list: task_options.max_bytes_per_tx_list,
+        block_max_gas_limit: task_options.block_max_gas_limit,
+        max_transactions_per_block: task_options.max_transactions_per_block,
     }
 }
 

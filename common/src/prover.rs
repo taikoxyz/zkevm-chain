@@ -70,6 +70,9 @@ pub struct ProofRequestOptions {
     /// parent gas used
     pub gas_used: u32,
     pub parent_gas_used: u32,
+    pub block_max_gas_limit: u64,
+    pub max_bytes_per_tx_list: u64,
+    pub max_transactions_per_block: u64,
     /// retry proof computation if error
     pub retry: bool,
     /// Parameters file or directory to use.
@@ -103,6 +106,9 @@ impl PartialEq for ProofRequestOptions {
             && self.graffiti == other.graffiti
             && self.gas_used == other.gas_used
             && self.parent_gas_used == other.parent_gas_used
+            && self.max_bytes_per_tx_list == other.max_bytes_per_tx_list
+            && self.block_max_gas_limit == other.block_max_gas_limit
+            && self.max_transactions_per_block == other.max_transactions_per_block
             && self.param == other.param
             && self.circuit == other.circuit
             && self.mock == other.mock
