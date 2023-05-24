@@ -1,4 +1,5 @@
 use crate::circuit_witness::CircuitWitness;
+use eth_types::{Address, H256};
 use halo2_proofs::halo2curves::bn256::Fr;
 use rand::Rng;
 use zkevm_circuits::bytecode_circuit::bytecode_unroller::BytecodeCircuit;
@@ -10,8 +11,10 @@ use zkevm_circuits::pi_circuit2::PiCircuit;
 use zkevm_circuits::pi_circuit2::PiTestCircuit;
 use zkevm_circuits::state_circuit::StateCircuit;
 // use zkevm_circuits::super_circuit::SuperCircuit;
+use zkevm_circuits::evm_circuit::witness::Taiko;
 use zkevm_circuits::tx_circuit::TxCircuit;
 use zkevm_circuits::util::SubCircuit;
+use zkevm_common::prover::ProofRequestOptions;
 
 /// Returns a instance of the `SuperCircuit`.
 // pub fn gen_super_circuit<
@@ -47,6 +50,33 @@ use zkevm_circuits::util::SubCircuit;
 //     Ok(circuit)
 // }
 
+fn parse_hash(input: &str) -> H256 {
+    H256::from_slice(&hex::decode(input).expect("parse_hash"))
+}
+
+fn parse_address(input: &String) -> Address {
+    eth_types::Address::from_slice(&hex::decode(input).expect("parse_address"))
+}
+
+fn as_taiko_witness(task_options: &ProofRequestOptions) -> Taiko {
+    Taiko {
+        l1_signal_service: parse_address(&task_options.l1_signal_service),
+        l2_signal_service: parse_address(&task_options.l2_signal_service),
+        l2_contract: parse_address(&task_options.l2_contract),
+        meta_hash: parse_hash(&task_options.meta_hash),
+        block_hash: parse_hash(&task_options.block_hash),
+        parent_hash: parse_hash(&task_options.parent_hash),
+        signal_root: parse_hash(&task_options.signal_root),
+        graffiti: parse_hash(&task_options.graffiti),
+        prover: parse_address(&task_options.prover),
+        gas_used: task_options.gas_used,
+        parent_gas_used: task_options.parent_gas_used,
+        max_bytes_per_tx_list: task_options.max_bytes_per_tx_list,
+        block_max_gas_limit: task_options.block_max_gas_limit,
+        max_transactions_per_block: task_options.max_transactions_per_block,
+    }
+}
+
 /// Returns a instance of the `PiTestCircuit`.
 pub fn gen_pi_circuit<
     const MAX_TXS: usize,
@@ -55,18 +85,12 @@ pub fn gen_pi_circuit<
     RNG: Rng,
 >(
     witness: &CircuitWitness,
-    prover_address: String,
+    task_options: &ProofRequestOptions,
     mut _rng: RNG,
-) -> Result<PiTestCircuit<Fr, MAX_TXS, MAX_CALLDATA>, String> {
+) -> Result<PiTestCircuit<Fr>, String> {
     let block = witness.evm_witness();
-    let prover = eth_types::Address::from_slice(
-        &hex::decode(prover_address.as_bytes()).expect("parse_address"),
-    );
-    let circuit = PiTestCircuit::<Fr, MAX_TXS, MAX_CALLDATA>(PiCircuit::new_from_block_with_extra(
-        &block,
-        prover,
-        witness.txs_rlp.clone(),
-    ));
+    let taiko = as_taiko_witness(task_options);
+    let circuit = PiTestCircuit::<Fr>(PiCircuit::new_from_block_with_extra(&block, &taiko));
 
     Ok(circuit)
 }

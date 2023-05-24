@@ -1,17 +1,15 @@
 use bus_mapping::circuit_input_builder::BuilderClient;
 use bus_mapping::circuit_input_builder::CircuitsParams;
 use bus_mapping::mock::BlockData;
-use bus_mapping::public_input_builder::get_txs_rlp;
 use bus_mapping::rpc::GethClient;
+use eth_types::geth_types;
 use eth_types::geth_types::GethData;
 use eth_types::Address;
 use eth_types::ToBigEndian;
 use eth_types::Word;
 use eth_types::H256;
-use eth_types::{geth_types, Bytes};
 use ethers_providers::Http;
 use halo2_proofs::halo2curves::bn256::Fr;
-use rlp::Rlp;
 use std::str::FromStr;
 use zkevm_circuits::evm_circuit;
 use zkevm_circuits::pi_circuit::PublicData;
@@ -23,7 +21,6 @@ pub struct CircuitWitness {
     pub eth_block: eth_types::Block<eth_types::Transaction>,
     pub block: bus_mapping::circuit_input_builder::Block,
     pub code_db: bus_mapping::state_db::CodeDB,
-    pub txs_rlp: Bytes,
     pub l1_txs: Vec<eth_types::Transaction>,
 }
 
@@ -62,7 +59,6 @@ impl CircuitWitness {
             eth_block: empty_data.eth_block,
             block: builder.block,
             code_db: builder.code_db,
-            txs_rlp: Bytes::default(),
             l1_txs: vec![],
         })
     }
@@ -71,31 +67,22 @@ impl CircuitWitness {
     /// Expects a go-ethereum node with debug & archive capabilities on `rpc_url`.
     pub async fn from_rpc(
         block_num: &u64,
-        l1_rpc_url: &str,
-        propose_tx_hash: &str,
         l2_rpc_url: &str,
     ) -> Result<Self, Box<dyn std::error::Error>> {
-        let l1_url = Http::from_str(l1_rpc_url)?;
-        let l1_geth_client = GethClient::new(l1_url);
-        let propose_tx_hash = eth_types::H256::from_slice(
-            &hex::decode(propose_tx_hash).expect("parse propose tx hash"),
-        );
-        let txs_rlp = get_txs_rlp(&l1_geth_client, propose_tx_hash).await?;
-        let l1_txs = Rlp::new(&txs_rlp).as_list().expect("invalid txs rlp");
-
         let l2_url = Http::from_str(l2_rpc_url)?;
         let l2_geth_client = GethClient::new(l2_url);
         // TODO: add support for `eth_getHeaderByNumber`
         let block = l2_geth_client
             .get_block_by_number((*block_num).into())
             .await?;
-        let circuit_config = crate::match_circuit_params_txs!(l1_txs.len(), CIRCUIT_CONFIG, {
-            return Err(format!(
-                "No circuit parameters found for block with gas used={}",
-                block.gas_used
-            )
-            .into());
-        });
+        let circuit_config =
+            crate::match_circuit_params_txs!(block.transactions.len(), CIRCUIT_CONFIG, {
+                return Err(format!(
+                    "No circuit parameters found for block with gas used={}",
+                    block.gas_used
+                )
+                .into());
+            });
         let circuit_params = CircuitsParams {
             max_txs: circuit_config.max_txs,
             max_calldata: circuit_config.max_calldata,
@@ -111,8 +98,7 @@ impl CircuitWitness {
             eth_block,
             block: builder.block,
             code_db: builder.code_db,
-            txs_rlp,
-            l1_txs,
+            l1_txs: block.transactions,
         })
     }
 
