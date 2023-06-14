@@ -94,6 +94,25 @@ pub struct RequestExtraInstance {
     pub max_bytes_per_tx_list: u64,
 }
 
+impl PartialEq for RequestExtraInstance {
+    fn eq(&self, other: &Self) -> bool {
+        self.l1_signal_service == other.l1_signal_service
+            && self.l2_signal_service == other.l2_signal_service
+            && self.l2_contract == other.l2_contract
+            && self.meta_hash == other.meta_hash
+            && self.block_hash == other.block_hash
+            && self.parent_hash == other.parent_hash
+            && self.signal_root == other.signal_root
+            && self.graffiti == other.graffiti
+            && self.prover == other.prover
+            && self.gas_used == other.gas_used
+            && self.parent_gas_used == other.parent_gas_used
+            && self.block_max_gas_limit == other.block_max_gas_limit
+            && self.max_transactions_per_block == other.max_transactions_per_block
+            && self.max_bytes_per_tx_list == other.max_bytes_per_tx_list
+    }
+}
+
 fn parse_hash(input: &str) -> H256 {
     H256::from_slice(&hex::decode(input).expect("parse_hash"))
 }
@@ -156,23 +175,7 @@ pub struct ProofRequestOptions {
 impl PartialEq for ProofRequestOptions {
     fn eq(&self, other: &Self) -> bool {
         self.block == other.block
-            && self.protocol_instance.prover == other.protocol_instance.prover
-            && self.protocol_instance.l1_signal_service == other.protocol_instance.l1_signal_service
-            && self.protocol_instance.l2_signal_service == other.protocol_instance.l2_signal_service
-            && self.protocol_instance.l2_contract == other.protocol_instance.l2_contract
-            && self.protocol_instance.block_hash == other.protocol_instance.block_hash
-            && self.protocol_instance.parent_hash == other.protocol_instance.parent_hash
-            && self.protocol_instance.meta_hash == other.protocol_instance.meta_hash
-            && self.protocol_instance.signal_root == other.protocol_instance.signal_root
-            && self.protocol_instance.graffiti == other.protocol_instance.graffiti
-            && self.protocol_instance.gas_used == other.protocol_instance.gas_used
-            && self.protocol_instance.parent_gas_used == other.protocol_instance.parent_gas_used
-            && self.protocol_instance.max_bytes_per_tx_list
-                == other.protocol_instance.max_bytes_per_tx_list
-            && self.protocol_instance.block_max_gas_limit
-                == other.protocol_instance.block_max_gas_limit
-            && self.protocol_instance.max_transactions_per_block
-                == other.protocol_instance.max_transactions_per_block
+            && self.protocol_instance == other.protocol_instance
             && self.rpc == other.rpc
             && self.param == other.param
             && self.circuit == other.circuit
