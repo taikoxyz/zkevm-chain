@@ -9,8 +9,8 @@ use rand::Rng;
 // use zkevm_circuits::pi_circuit::PiCircuit;
 // use zkevm_circuits::state_circuit::StateCircuit;
 // use zkevm_circuits::tx_circuit::TxCircuit;
-use zkevm_circuits::util::SubCircuit;
 use zkevm_circuits::taiko_super_circuit::SuperCircuit;
+use zkevm_circuits::util::SubCircuit;
 
 /// Returns a instance of the `SuperCircuit`.
 pub fn gen_super_circuit<

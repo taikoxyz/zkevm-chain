@@ -10,12 +10,12 @@ use eth_types::ToBigEndian;
 use eth_types::Word;
 use eth_types::H256;
 use ethers_providers::Http;
-use zkevm_common::prover::ProofRequestOptions;
 use std::str::FromStr;
 use zkevm_circuits::evm_circuit;
 use zkevm_circuits::pi_circuit::PublicData;
 use zkevm_circuits::witness::ProtocolInstance;
 use zkevm_common::prover::CircuitConfig;
+use zkevm_common::prover::ProofRequestOptions;
 
 /// Wrapper struct for circuit witness data.
 pub struct CircuitWitness {
@@ -68,9 +68,11 @@ impl CircuitWitness {
         })
     }
 
-    pub async fn from_request(request: &ProofRequestOptions) -> Result<Self, Box<dyn std::error::Error>> {
+    pub async fn from_request(
+        request: &ProofRequestOptions,
+    ) -> Result<Self, Box<dyn std::error::Error>> {
         let mut w = Self::from_rpc(&request.block, &request.rpc).await?;
-        w.protocol_instance =request.protocol_instance.clone().into();
+        w.protocol_instance = request.protocol_instance.clone().into();
         Ok(w)
     }
 

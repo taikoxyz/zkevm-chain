@@ -15,13 +15,10 @@ use halo2_proofs::poly::commitment::Params;
 use halo2_proofs::SerdeFormat;
 use hyper::Uri;
 use rand::{thread_rng, Rng};
-use snark_verifier::{
-    system::halo2::{transcript::evm::EvmTranscript},
-};
-use snark_verifier_sdk::CircuitExt;
+use snark_verifier::system::halo2::transcript::evm::EvmTranscript;
 use snark_verifier_sdk::evm::gen_evm_proof_gwc;
 use snark_verifier_sdk::halo2::gen_snark_gwc;
-use zkevm_circuits::root_circuit::PCDAggregationCircuit;
+use snark_verifier_sdk::CircuitExt;
 use std::collections::HashMap;
 use std::fmt::Write;
 use std::fs::File;
@@ -31,6 +28,7 @@ use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use std::time::Instant;
 use tokio::sync::Mutex;
+use zkevm_circuits::root_circuit::PCDAggregationCircuit;
 use zkevm_circuits::util::SubCircuit;
 use zkevm_common::json_rpc::jsonrpc_request_client;
 use zkevm_common::prover::*;
@@ -118,7 +116,12 @@ async fn compute_proof<C: Circuit<Fr> + Clone + SubCircuit<Fr> + CircuitExt<Fr>>
                 &task_options.circuit, &param_path, &circuit_config
             );
             shared_state
-                .gen_pk(&cache_key, &Arc::new(circuit_param.clone()), &circuit, &mut circuit_proof.aux)
+                .gen_pk(
+                    &cache_key,
+                    &Arc::new(circuit_param.clone()),
+                    &circuit,
+                    &mut circuit_proof.aux,
+                )
                 .await
                 .map_err(|e| e.to_string())?
         };
@@ -175,7 +178,7 @@ async fn compute_proof<C: Circuit<Fr> + Clone + SubCircuit<Fr> + CircuitExt<Fr>>
                     Instant::now().duration_since(time_started).as_millis() as u32;
                 v
             };
-            
+
             if std::env::var("PROVERD_DUMP").is_ok() {
                 File::create(format!(
                     "proof-{}-agg--{:?}",
@@ -387,10 +390,9 @@ impl SharedState {
             let self_copy = self.clone();
 
             tokio::spawn(async move {
-                let witness =
-                    CircuitWitness::from_request(&task_options_copy)
-                        .await
-                        .map_err(|e| e.to_string())?;
+                let witness = CircuitWitness::from_request(&task_options_copy)
+                    .await
+                    .map_err(|e| e.to_string())?;
 
                 let (config, circuit_proof, aggregation_proof) = crate::match_circuit_params!(
                     witness.gas_used(),

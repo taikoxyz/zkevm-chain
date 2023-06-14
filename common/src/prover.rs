@@ -1,4 +1,4 @@
-use eth_types::{Bytes, U256, Address, H256};
+use eth_types::{Address, Bytes, H256, U256};
 use serde::{Deserialize, Serialize};
 use zkevm_circuits::witness::ProtocolInstance;
 
@@ -108,8 +108,8 @@ impl From<RequestExtraInstance> for ProtocolInstance {
             l1_signal_service: parse_address(&instance.l1_signal_service),
             l2_signal_service: parse_address(&instance.l2_signal_service),
             l2_contract: parse_address(&instance.l2_contract),
-            meta_hash:   parse_hash(&instance.meta_hash),
-            block_hash:  parse_hash(&instance.block_hash),
+            meta_hash: parse_hash(&instance.meta_hash),
+            block_hash: parse_hash(&instance.block_hash),
             parent_hash: parse_hash(&instance.parent_hash),
             signal_root: parse_hash(&instance.signal_root),
             graffiti: parse_hash(&instance.graffiti),
@@ -167,9 +167,12 @@ impl PartialEq for ProofRequestOptions {
             && self.protocol_instance.graffiti == other.protocol_instance.graffiti
             && self.protocol_instance.gas_used == other.protocol_instance.gas_used
             && self.protocol_instance.parent_gas_used == other.protocol_instance.parent_gas_used
-            && self.protocol_instance.max_bytes_per_tx_list == other.protocol_instance.max_bytes_per_tx_list
-            && self.protocol_instance.block_max_gas_limit == other.protocol_instance.block_max_gas_limit
-            && self.protocol_instance.max_transactions_per_block == other.protocol_instance.max_transactions_per_block
+            && self.protocol_instance.max_bytes_per_tx_list
+                == other.protocol_instance.max_bytes_per_tx_list
+            && self.protocol_instance.block_max_gas_limit
+                == other.protocol_instance.block_max_gas_limit
+            && self.protocol_instance.max_transactions_per_block
+                == other.protocol_instance.max_transactions_per_block
             && self.rpc == other.rpc
             && self.param == other.param
             && self.circuit == other.circuit
