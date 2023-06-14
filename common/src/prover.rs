@@ -1,5 +1,6 @@
-use eth_types::{Bytes, U256};
+use eth_types::{Bytes, U256, Address, H256};
 use serde::{Deserialize, Serialize};
+use zkevm_circuits::witness::ProtocolInstance;
 
 #[derive(Clone, Default, Serialize, Deserialize)]
 pub struct ProofResult {
@@ -61,14 +62,78 @@ pub struct Proofs {
 }
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
+// request extra instance corresponding to ProtocolInstance
+pub struct RequestExtraInstance {
+    /// l1 signal service address
+    pub l1_signal_service: String,
+    /// l2 signal service address
+    pub l2_signal_service: String,
+    /// l2 contract address
+    pub l2_contract: String,
+    /// meta hash
+    pub meta_hash: String,
+    /// block hash value
+    pub block_hash: String,
+    /// the parent block hash
+    pub parent_hash: String,
+    /// signal root
+    pub signal_root: String,
+    /// extra message
+    pub graffiti: String,
+    /// Prover address
+    pub prover: String,
+    /// gas used
+    pub gas_used: u32,
+    /// parent gas used
+    pub parent_gas_used: u32,
+    /// blockMaxGasLimit
+    pub block_max_gas_limit: u64,
+    /// maxTransactionsPerBlock
+    pub max_transactions_per_block: u64,
+    /// maxBytesPerTxList
+    pub max_bytes_per_tx_list: u64,
+}
+
+fn parse_hash(input: &str) -> H256 {
+    H256::from_slice(&hex::decode(input).expect("parse_hash"))
+}
+
+fn parse_address(input: &str) -> Address {
+    Address::from_slice(&hex::decode(input).expect("parse_address"))
+}
+
+impl From<RequestExtraInstance> for ProtocolInstance {
+    fn from(instance: RequestExtraInstance) -> Self {
+        ProtocolInstance {
+            l1_signal_service: parse_address(&instance.l1_signal_service),
+            l2_signal_service: parse_address(&instance.l2_signal_service),
+            l2_contract: parse_address(&instance.l2_contract),
+            meta_hash:   parse_hash(&instance.meta_hash),
+            block_hash:  parse_hash(&instance.block_hash),
+            parent_hash: parse_hash(&instance.parent_hash),
+            signal_root: parse_hash(&instance.signal_root),
+            graffiti: parse_hash(&instance.graffiti),
+            prover: parse_address(&instance.prover),
+            gas_used: instance.gas_used,
+            parent_gas_used: instance.parent_gas_used,
+            block_max_gas_limit: instance.block_max_gas_limit,
+            max_transactions_per_block: instance.max_transactions_per_block,
+            max_bytes_per_tx_list: instance.max_bytes_per_tx_list,
+        }
+    }
+}
+
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub struct ProofRequestOptions {
     /// The name of the circuit.
     /// "super", "pi"
     pub circuit: String,
     /// the block number
     pub block: u64,
-    /// the rpc url
+    /// the l2 rpc url
     pub rpc: String,
+    /// the protocol instance data
+    pub protocol_instance: RequestExtraInstance,
     /// retry proof computation if error
     pub retry: bool,
     /// Parameters file or directory to use.
@@ -91,6 +156,20 @@ pub struct ProofRequestOptions {
 impl PartialEq for ProofRequestOptions {
     fn eq(&self, other: &Self) -> bool {
         self.block == other.block
+            && self.protocol_instance.prover == other.protocol_instance.prover
+            && self.protocol_instance.l1_signal_service == other.protocol_instance.l1_signal_service
+            && self.protocol_instance.l2_signal_service == other.protocol_instance.l2_signal_service
+            && self.protocol_instance.l2_contract == other.protocol_instance.l2_contract
+            && self.protocol_instance.block_hash == other.protocol_instance.block_hash
+            && self.protocol_instance.parent_hash == other.protocol_instance.parent_hash
+            && self.protocol_instance.meta_hash == other.protocol_instance.meta_hash
+            && self.protocol_instance.signal_root == other.protocol_instance.signal_root
+            && self.protocol_instance.graffiti == other.protocol_instance.graffiti
+            && self.protocol_instance.gas_used == other.protocol_instance.gas_used
+            && self.protocol_instance.parent_gas_used == other.protocol_instance.parent_gas_used
+            && self.protocol_instance.max_bytes_per_tx_list == other.protocol_instance.max_bytes_per_tx_list
+            && self.protocol_instance.block_max_gas_limit == other.protocol_instance.block_max_gas_limit
+            && self.protocol_instance.max_transactions_per_block == other.protocol_instance.max_transactions_per_block
             && self.rpc == other.rpc
             && self.param == other.param
             && self.circuit == other.circuit

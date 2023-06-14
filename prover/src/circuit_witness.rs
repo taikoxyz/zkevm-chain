@@ -10,9 +10,11 @@ use eth_types::ToBigEndian;
 use eth_types::Word;
 use eth_types::H256;
 use ethers_providers::Http;
+use zkevm_common::prover::ProofRequestOptions;
 use std::str::FromStr;
 use zkevm_circuits::evm_circuit;
 use zkevm_circuits::pi_circuit::PublicData;
+use zkevm_circuits::witness::ProtocolInstance;
 use zkevm_common::prover::CircuitConfig;
 
 /// Wrapper struct for circuit witness data.
@@ -21,6 +23,7 @@ pub struct CircuitWitness {
     pub eth_block: eth_types::Block<eth_types::Transaction>,
     pub block: bus_mapping::circuit_input_builder::Block,
     pub code_db: bus_mapping::state_db::CodeDB,
+    pub protocol_instance: ProtocolInstance,
 }
 
 impl CircuitWitness {
@@ -61,7 +64,14 @@ impl CircuitWitness {
             eth_block: empty_data.eth_block,
             block: builder.block,
             code_db: builder.code_db,
+            protocol_instance: ProtocolInstance::default(),
         })
+    }
+
+    pub async fn from_request(request: &ProofRequestOptions) -> Result<Self, Box<dyn std::error::Error>> {
+        let mut w = Self::from_rpc(&request.block, &request.rpc).await?;
+        w.protocol_instance =request.protocol_instance.clone().into();
+        Ok(w)
     }
 
     /// Gathers debug trace(s) from `rpc_url` for block `block_num`.
@@ -100,6 +110,7 @@ impl CircuitWitness {
             eth_block,
             block: builder.block,
             code_db: builder.code_db,
+            protocol_instance: ProtocolInstance::default(),
         })
     }
 
@@ -110,6 +121,8 @@ impl CircuitWitness {
         // fixed randomness used in PublicInput contract and SuperCircuit
         block.randomness = Fr::from(0x100);
 
+        // fill protocol instance
+        block.protocal_instance = self.protocol_instance.clone();
         block
     }
 

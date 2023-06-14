@@ -2,13 +2,12 @@ use crate::circuit_witness::CircuitWitness;
 use crate::circuits::*;
 use crate::utils::collect_instance;
 use crate::utils::fixed_rng;
-use crate::utils::gen_num_instance;
 use crate::utils::gen_proof;
 use crate::Fr;
 use crate::G1Affine;
 use crate::ProverKey;
 use crate::ProverParams;
-use halo2_proofs::circuit::Value;
+
 use halo2_proofs::dev::MockProver;
 use halo2_proofs::plonk::Circuit;
 use halo2_proofs::plonk::{keygen_pk, keygen_vk};
@@ -17,10 +16,7 @@ use halo2_proofs::SerdeFormat;
 use hyper::Uri;
 use rand::{thread_rng, Rng};
 use snark_verifier::{
-    loader::evm::{self, encode_calldata, Address as VerifierAddress, EvmLoader, ExecutorBuilder},
-    pcs::kzg::{self, *},
-    system::halo2::{compile, transcript::evm::EvmTranscript, Config},
-    verifier::SnarkVerifier,
+    system::halo2::{transcript::evm::EvmTranscript},
 };
 use snark_verifier_sdk::CircuitExt;
 use snark_verifier_sdk::evm::gen_evm_proof_gwc;
@@ -392,7 +388,7 @@ impl SharedState {
 
             tokio::spawn(async move {
                 let witness =
-                    CircuitWitness::from_rpc(&task_options_copy.block, &task_options_copy.rpc)
+                    CircuitWitness::from_request(&task_options_copy)
                         .await
                         .map_err(|e| e.to_string())?;
 

@@ -1183,6 +1183,7 @@ impl SharedState {
             circuit: config.circuit_name.clone(),
             block: block_num.as_u64(),
             rpc: config.l2_rpc_url.to_string(),
+            protocol_instance: Default::default(),
             retry: false,
             param: config.params_path.clone(),
             mock: config.mock_prover,
