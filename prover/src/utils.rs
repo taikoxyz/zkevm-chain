@@ -130,3 +130,12 @@ pub fn collect_instance(instance: &[Vec<Fr>]) -> Vec<U256> {
         .map(|v| U256::from_little_endian(v.to_repr().as_ref()))
         .collect()
 }
+
+/// Collect circuit instance as flat vector
+pub fn collect_instance_hex(instance: &[Vec<Fr>]) -> Vec<String> {
+    instance
+        .iter()
+        .flatten()
+        .map(|v| format!("{:x}", U256::from_little_endian(v.to_repr().as_ref())))
+        .collect()
+}

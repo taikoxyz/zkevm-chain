@@ -7,7 +7,7 @@ pub struct ProofResult {
     /// The halo2 transcript
     pub proof: Bytes,
     /// Public inputs for the proof
-    pub instance: Vec<U256>,
+    pub instance: Vec<String>,
     /// k of circuit parameters
     pub k: u8,
     /// Randomness used

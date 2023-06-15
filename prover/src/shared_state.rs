@@ -1,6 +1,6 @@
 use crate::circuit_witness::CircuitWitness;
 use crate::circuits::*;
-use crate::utils::collect_instance;
+use crate::utils::collect_instance_hex;
 use crate::utils::fixed_rng;
 use crate::utils::gen_proof;
 use crate::Fr;
@@ -36,7 +36,7 @@ use zkevm_common::prover::*;
 fn get_param_path(path: &String, k: usize) -> PathBuf {
     // try to automatically choose a file if the path is a folder.
     if Path::new(path).is_dir() {
-        Path::new(path).join(format!("{k}.bin"))
+        Path::new(path).join(format!("kzg_bn254_{k}.srs"))
     } else {
         Path::new(path).to_path_buf()
     }
@@ -46,7 +46,7 @@ fn get_or_gen_param(task_options: &ProofRequestOptions, k: usize) -> (Arc<Prover
     match &task_options.param {
         Some(v) => {
             let path = get_param_path(v, k);
-            let file = File::open(&path).expect("couldn't open params");
+            let file = File::open(&path).expect(&format!("couldn't open params {}", k));
             let params = Arc::new(
                 ProverParams::read(&mut std::io::BufReader::new(file))
                     .expect("Failed to read params"),
@@ -97,7 +97,7 @@ async fn compute_proof<C: Circuit<Fr> + Clone + SubCircuit<Fr> + CircuitExt<Fr>>
         // only run the mock prover
         let time_started = Instant::now();
         circuit_proof.k = circuit_config.min_k as u8;
-        circuit_proof.instance = collect_instance(&circuit.instance());
+        circuit_proof.instance = collect_instance_hex(&circuit.instance());
         let prover = MockProver::run(circuit_config.min_k as u32, &circuit, circuit.instance())
             .expect("MockProver::run");
         prover.verify_par().expect("MockProver::verify_par");
@@ -107,7 +107,10 @@ async fn compute_proof<C: Circuit<Fr> + Clone + SubCircuit<Fr> + CircuitExt<Fr>>
         let (base_param, param_path) = get_or_gen_param(task_options, universe_k);
         let mut aggregation_param = (*base_param).clone();
         let mut circuit_param = aggregation_param.clone();
-        circuit_param.downsize(circuit_config.min_k as u32);
+        if circuit_param.k() as usize > circuit_config.min_k {
+            circuit_param.downsize(circuit_config.min_k as u32);
+            circuit_proof.k = circuit_param.k() as u8;
+        }
         circuit_proof.k = circuit_param.k() as u8;
         // generate and cache the prover key
         let pk = {
@@ -127,12 +130,10 @@ async fn compute_proof<C: Circuit<Fr> + Clone + SubCircuit<Fr> + CircuitExt<Fr>>
         };
 
         let circuit_instance = circuit.instance();
-        circuit_proof.instance = collect_instance(&circuit_instance);
-
+        circuit_proof.instance = collect_instance_hex(&circuit_instance);
         if task_options.aggregate {
             let snark = gen_snark_gwc(&circuit_param, &pk, circuit, None::<&str>);
             circuit_proof.proof = snark.proof.clone().into();
-
             if std::env::var("PROVERD_DUMP").is_ok() {
                 File::create(format!(
                     "proof-{}-{:?}",
@@ -143,7 +144,10 @@ async fn compute_proof<C: Circuit<Fr> + Clone + SubCircuit<Fr> + CircuitExt<Fr>>
                 .unwrap();
             }
 
-            aggregation_param.downsize(circuit_config.min_k_aggregation as u32);
+            if aggregation_param.k() as usize > circuit_config.min_k_aggregation {
+                aggregation_param.downsize(circuit_config.min_k_aggregation as u32);
+                aggregation_proof.k = aggregation_param.k() as u8;
+            }
             let (agg_params, agg_param_path) = (aggregation_param, param_path.clone());
             aggregation_proof.k = agg_params.k() as u8;
             let agg_circuit = {
@@ -170,7 +174,7 @@ async fn compute_proof<C: Circuit<Fr> + Clone + SubCircuit<Fr> + CircuitExt<Fr>>
                     .map_err(|e| e.to_string())?
             };
             let agg_instance = agg_circuit.instance();
-            aggregation_proof.instance = collect_instance(&agg_instance);
+            aggregation_proof.instance = collect_instance_hex(&agg_instance);
             let proof = {
                 let time_started = Instant::now();
                 let v = gen_evm_proof_gwc(&agg_params, &agg_pk, agg_circuit, agg_instance);
@@ -727,5 +731,33 @@ impl SharedState {
         }
 
         node_id
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[tokio::test]
+    async fn test_proof_gen() -> Result<(), String> {
+        let ss = SharedState::new("1234".to_owned(), None);
+        const CIRCUIT_CONFIG: CircuitConfig =
+            crate::match_circuit_params!(100, CIRCUIT_CONFIG, {
+                panic!();
+            });
+        let witness = CircuitWitness::dummy(CIRCUIT_CONFIG).unwrap();
+        let super_circuit = gen_super_circuit::<
+            {CIRCUIT_CONFIG.max_txs} ,
+            {CIRCUIT_CONFIG.max_calldata},
+            {CIRCUIT_CONFIG.max_rws},
+            {CIRCUIT_CONFIG.max_copy_rows}, _>(&witness, fixed_rng()).unwrap();
+
+        let mut dummy_req = ProofRequestOptions::default();
+        dummy_req.aggregate = true;
+        dummy_req.param = Some("../param".to_string());
+        println!("ready to compute proof");
+        let proof = compute_proof(&ss, &dummy_req, CIRCUIT_CONFIG, super_circuit).await.unwrap();
+        println!("proof={:?}", proof);
+        Ok(())
     }
 }

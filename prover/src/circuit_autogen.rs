@@ -11,9 +11,9 @@ macro_rules! match_circuit_params {
                     max_rws: 476052,
                     max_copy_rows: 896002,
                     max_exp_steps: 4200,
-                    min_k: 20,
+                    min_k: 18,
                     pad_to: 476052,
-                    min_k_aggregation: 26,
+                    min_k_aggregation: 21,
                     keccak_padding: 336000,
                 };
                 $on_match
@@ -27,9 +27,9 @@ macro_rules! match_circuit_params {
                     max_rws: 3161966,
                     max_copy_rows: 5952002,
                     max_exp_steps: 27900,
-                    min_k: 23,
+                    min_k: 18,
                     pad_to: 3161966,
-                    min_k_aggregation: 26,
+                    min_k_aggregation: 22,
                     keccak_padding: 1600000,
                 };
                 $on_match

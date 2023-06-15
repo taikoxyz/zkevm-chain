@@ -168,3 +168,15 @@ impl CircuitWitness {
         }
     }
 }
+
+mod test {
+    use super::*;
+
+    #[tokio::test]
+    async fn test_geth_client() {
+        let url = Http::from_str("https://rpc.internal.taiko.xyz").unwrap();
+        let geth_client = GethClient::new(url);
+        let block = geth_client.get_block_by_number(1.into()).await.unwrap();
+        println!("{:?}", block)
+    }
+}

@@ -2571,6 +2571,7 @@ dependencies = [
  "ethers-providers",
  "ethers-signers",
  "halo2_proofs 0.2.0",
+ "hex",
  "hyper",
  "itertools",
  "log",
