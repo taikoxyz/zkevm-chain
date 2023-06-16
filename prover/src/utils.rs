@@ -136,6 +136,6 @@ pub fn collect_instance_hex(instance: &[Vec<Fr>]) -> Vec<String> {
     instance
         .iter()
         .flatten()
-        .map(|v| format!("{:x}", U256::from_little_endian(v.to_repr().as_ref())))
+        .map(|v| format!("{:?}", v))
         .collect()
 }

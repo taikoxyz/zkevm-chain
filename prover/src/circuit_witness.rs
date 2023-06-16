@@ -1,4 +1,5 @@
 use crate::Fr;
+use bus_mapping::circuit_input_builder::Block;
 use bus_mapping::circuit_input_builder::BuilderClient;
 use bus_mapping::circuit_input_builder::CircuitsParams;
 use bus_mapping::mock::BlockData;
@@ -22,6 +23,8 @@ pub struct CircuitWitness {
     pub circuit_config: CircuitConfig,
     pub eth_block: eth_types::Block<eth_types::Transaction>,
     pub block: bus_mapping::circuit_input_builder::Block,
+    // dummy block for real data
+    pub dummy_block: Option<bus_mapping::circuit_input_builder::Block>,
     pub code_db: bus_mapping::state_db::CodeDB,
     pub protocol_instance: ProtocolInstance,
 }
@@ -63,9 +66,64 @@ impl CircuitWitness {
             circuit_config,
             eth_block: empty_data.eth_block,
             block: builder.block,
+            dummy_block: None,
             code_db: builder.code_db,
             protocol_instance: ProtocolInstance::default(),
         })
+    }
+
+    pub async fn dummy_with_request(request: &ProofRequestOptions) -> Result<Self, String> {
+        let url = Http::from_str(&request.rpc).map_err(|e| e.to_string())?;
+        let geth_client = GethClient::new(url);
+        let chain_id = geth_client
+            .get_chain_id()
+            .await
+            .map_err(|e| e.to_string())?;
+        let block = geth_client
+            .get_block_by_number((request.block).into())
+            .await
+            .map_err(|e| e.to_string())?;
+        let circuit_config =
+            crate::match_circuit_params!(block.gas_used.as_usize(), CIRCUIT_CONFIG, {
+                return Err(format!(
+                    "No circuit parameters found for block with gas used={}",
+                    block.gas_used
+                )
+                .into());
+            });
+
+        let circuits_params = CircuitsParams {
+            max_txs: circuit_config.max_txs,
+            max_calldata: circuit_config.max_calldata,
+            max_bytecode: circuit_config.max_bytecode,
+            max_rws: circuit_config.max_rws,
+            max_copy_rows: circuit_config.max_copy_rows,
+            max_exp_steps: circuit_config.max_exp_steps,
+            max_evm_rows: circuit_config.pad_to,
+            max_keccak_rows: circuit_config.keccak_padding,
+        };
+        let builder = BuilderClient::new(geth_client, circuits_params)
+            .await
+            .map_err(|e| e.to_string())?;
+        let (eth_block, _, history_hashes, prev_state_root) = builder
+            .get_block(request.block.into())
+            .await
+            .map_err(|e| e.to_string())?;
+
+        let mut w = Self::dummy(circuit_config)?;
+        w.protocol_instance = request.protocol_instance.clone().into();
+        w.eth_block = eth_block;
+
+        let dummy_block = Block::new(
+            chain_id.into(),
+            history_hashes,
+            prev_state_root,
+            &w.eth_block,
+            circuits_params,
+        )
+        .map_err(|e| e.to_string())?;
+        w.dummy_block = Some(dummy_block);
+        Ok(w)
     }
 
     pub async fn from_request(
@@ -111,6 +169,7 @@ impl CircuitWitness {
             circuit_config,
             eth_block,
             block: builder.block,
+            dummy_block: None,
             code_db: builder.code_db,
             protocol_instance: ProtocolInstance::default(),
         })
@@ -122,6 +181,22 @@ impl CircuitWitness {
         block.exp_circuit_pad_to = self.circuit_config.pad_to;
         // fixed randomness used in PublicInput contract and SuperCircuit
         block.randomness = Fr::from(0x100);
+
+        // fill protocol instance
+        block.protocal_instance = self.protocol_instance.clone();
+        block
+    }
+
+    pub fn dummy_evm_witness(&self) -> zkevm_circuits::witness::Block<Fr> {
+        let mut block =
+            evm_circuit::witness::block_convert(&self.block, &self.code_db).expect("block_convert");
+        block.exp_circuit_pad_to = self.circuit_config.pad_to;
+        // fixed randomness used in PublicInput contract and SuperCircuit
+        block.randomness = Fr::from(0x100);
+
+        if let Some(block_data) = &self.dummy_block {
+            block.context = (block_data).into();
+        };
 
         // fill protocol instance
         block.protocal_instance = self.protocol_instance.clone();
@@ -174,9 +249,10 @@ mod test {
 
     #[tokio::test]
     async fn test_geth_client() {
-        let url = Http::from_str("https://rpc.internal.taiko.xyz").unwrap();
+        let urlstr = "http://localhost:8545";
+        let url = Http::from_str(urlstr).unwrap();
         let geth_client = GethClient::new(url);
-        let block = geth_client.get_block_by_number(1.into()).await.unwrap();
-        println!("{:?}", block)
+        let block = geth_client.get_block_by_number(102296.into()).await.unwrap();
+        println!("{:?}", block);
     }
 }

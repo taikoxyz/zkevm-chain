@@ -394,7 +394,7 @@ impl SharedState {
             let self_copy = self.clone();
 
             tokio::spawn(async move {
-                let witness = CircuitWitness::from_request(&task_options_copy)
+                let witness = CircuitWitness::dummy_with_request(&task_options_copy)
                     .await
                     .map_err(|e| e.to_string())?;
 
@@ -739,24 +739,67 @@ mod test {
     use super::*;
 
     #[tokio::test]
-    async fn test_proof_gen() -> Result<(), String> {
+    async fn test_dummy_proof_gen() -> Result<(), String> {
         let ss = SharedState::new("1234".to_owned(), None);
-        const CIRCUIT_CONFIG: CircuitConfig =
-            crate::match_circuit_params!(100, CIRCUIT_CONFIG, {
-                panic!();
-            });
-        let witness = CircuitWitness::dummy(CIRCUIT_CONFIG).unwrap();
-        let super_circuit = gen_super_circuit::<
-            {CIRCUIT_CONFIG.max_txs} ,
-            {CIRCUIT_CONFIG.max_calldata},
-            {CIRCUIT_CONFIG.max_rws},
-            {CIRCUIT_CONFIG.max_copy_rows}, _>(&witness, fixed_rng()).unwrap();
+        const CIRCUIT_CONFIG: CircuitConfig = crate::match_circuit_params!(100, CIRCUIT_CONFIG, {
+            panic!();
+        });
+        let protocol_instance = RequestExtraInstance {
+            l1_signal_service: "23baAc3892a823e9E59B85d6c90068474fe60086".to_string(),
+            l2_signal_service: "1000777700000000000000000000000000000007".to_string(),
+            l2_contract: "1000777700000000000000000000000000000001".to_string(),
+            meta_hash: "ba97517eb3553f0c355d68392493f8b08aaafcd4b05dc6759889c421316cccfb"
+                .to_string(),
+            block_hash: "9e0f92d7b77d621288ec0914de018040e9fc358497056739576625b9fdc929dd"
+                .to_string(),
+            parent_hash: "9face7c3e038177aa05639d7d7aacff6bed5f2cdc03df90c80c3ff3c642d7258"
+                .to_string(),
+            signal_root: "d215c65a2b8ffc53f7b7659dc0a5cab2a5044c3cf71524e36e60d8aa8d4bb173"
+                .to_string(),
+            graffiti: "0000000000000000000000000000000000000000000000000000000000000000"
+                .to_string(),
+            prover: "6C671d2C641CE1b99F17755fd45441fa4326C3B1".to_string(),
+            gas_used: 1605944,
+            parent_gas_used: 3984953,
+            block_max_gas_limit: 6000000,
+            max_transactions_per_block: 79,
+            max_bytes_per_tx_list: 120000,
+        };
 
-        let mut dummy_req = ProofRequestOptions::default();
+        let mut dummy_req = ProofRequestOptions {
+            circuit: "super".to_string(),
+            block: 102296,
+            rpc: "http://localhost:8545".to_string(),
+            protocol_instance: protocol_instance.clone(),
+            param: Some("../param".to_string()),
+            aggregate: true,
+            retry: true,
+            mock: false,
+            mock_feedback: false,
+            verify_proof: true,
+        };
+
         dummy_req.aggregate = true;
         dummy_req.param = Some("../param".to_string());
+        dummy_req.protocol_instance = protocol_instance.clone();
+        // dummy_req.mock = true;
+
+        let mut witness = CircuitWitness::dummy_with_request(&dummy_req).await.unwrap();
+        witness.protocol_instance = protocol_instance.clone().into();
+        let super_circuit = gen_super_circuit::<
+            { CIRCUIT_CONFIG.max_txs },
+            { CIRCUIT_CONFIG.max_calldata },
+            { CIRCUIT_CONFIG.max_rws },
+            { CIRCUIT_CONFIG.max_copy_rows },
+            _,
+        >(&witness, fixed_rng())
+        .unwrap();
+
+
         println!("ready to compute proof");
-        let proof = compute_proof(&ss, &dummy_req, CIRCUIT_CONFIG, super_circuit).await.unwrap();
+        let proof = compute_proof(&ss, &dummy_req, CIRCUIT_CONFIG, super_circuit)
+            .await
+            .unwrap();
         println!("proof={:?}", proof);
         Ok(())
     }

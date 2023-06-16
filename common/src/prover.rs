@@ -1,4 +1,4 @@
-use eth_types::{Address, Bytes, H256, U256};
+use eth_types::{Address, Bytes, H256};
 use serde::{Deserialize, Serialize};
 use zkevm_circuits::witness::ProtocolInstance;
 

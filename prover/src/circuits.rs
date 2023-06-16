@@ -23,7 +23,7 @@ pub fn gen_super_circuit<
     witness: &CircuitWitness,
     mut _rng: RNG,
 ) -> Result<SuperCircuit<Fr>, String> {
-    let block = witness.evm_witness();
+    let block = witness.dummy_evm_witness();
     let circuit = SuperCircuit::new_from_block(&block);
     Ok(circuit)
 }
