@@ -16,6 +16,7 @@ use halo2_proofs::SerdeFormat;
 use hyper::Uri;
 use rand::{thread_rng, Rng};
 use snark_verifier::system::halo2::transcript::evm::EvmTranscript;
+use snark_verifier_sdk::GWC;
 use snark_verifier_sdk::evm::gen_evm_proof_gwc;
 use snark_verifier_sdk::halo2::gen_snark_gwc;
 use snark_verifier_sdk::CircuitExt;
@@ -152,7 +153,7 @@ async fn compute_proof<C: Circuit<Fr> + Clone + SubCircuit<Fr> + CircuitExt<Fr>>
             aggregation_proof.k = agg_params.k() as u8;
             let agg_circuit = {
                 let time_started = Instant::now();
-                let v = PCDAggregationCircuit::new(&agg_params, [snark]).unwrap();
+                let v = PCDAggregationCircuit::<GWC>::new(&agg_params, [snark]).unwrap();
                 aggregation_proof.aux.circuit =
                     Instant::now().duration_since(time_started).as_millis() as u32;
                 v
@@ -769,7 +770,7 @@ mod test {
         let mut dummy_req = ProofRequestOptions {
             circuit: "super".to_string(),
             block: 102296,
-            rpc: "http://localhost:8545".to_string(),
+            rpc: "https://rpc.internal.taiko.xyz".to_string(),
             protocol_instance: protocol_instance.clone(),
             param: Some("../param".to_string()),
             aggregate: true,
