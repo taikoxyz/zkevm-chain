@@ -16,10 +16,10 @@ use halo2_proofs::SerdeFormat;
 use hyper::Uri;
 use rand::{thread_rng, Rng};
 use snark_verifier::system::halo2::transcript::evm::EvmTranscript;
-use snark_verifier_sdk::GWC;
 use snark_verifier_sdk::evm::gen_evm_proof_gwc;
 use snark_verifier_sdk::halo2::gen_snark_gwc;
 use snark_verifier_sdk::CircuitExt;
+use snark_verifier_sdk::GWC;
 use std::collections::HashMap;
 use std::fmt::Write;
 use std::fs::File;
@@ -29,7 +29,7 @@ use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use std::time::Instant;
 use tokio::sync::Mutex;
-use zkevm_circuits::root_circuit::PCDAggregationCircuit;
+use zkevm_circuits::root_circuit::TaikoAggregationCircuit;
 use zkevm_circuits::util::SubCircuit;
 use zkevm_common::json_rpc::jsonrpc_request_client;
 use zkevm_common::prover::*;
@@ -153,7 +153,7 @@ async fn compute_proof<C: Circuit<Fr> + Clone + SubCircuit<Fr> + CircuitExt<Fr>>
             aggregation_proof.k = agg_params.k() as u8;
             let agg_circuit = {
                 let time_started = Instant::now();
-                let v = PCDAggregationCircuit::<GWC>::new(&agg_params, [snark]).unwrap();
+                let v = TaikoAggregationCircuit::<GWC>::new(&agg_params, [snark]).unwrap();
                 aggregation_proof.aux.circuit =
                     Instant::now().duration_since(time_started).as_millis() as u32;
                 v
@@ -749,8 +749,7 @@ mod test {
             l1_signal_service: "23baAc3892a823e9E59B85d6c90068474fe60086".to_string(),
             l2_signal_service: "1000777700000000000000000000000000000007".to_string(),
             l2_contract: "1000777700000000000000000000000000000001".to_string(),
-            meta_hash: "ba97517eb3553f0c355d68392493f8b08aaafcd4b05dc6759889c421316cccfb"
-                .to_string(),
+            meta_data: RequestMetaData::default(),
             block_hash: "9e0f92d7b77d621288ec0914de018040e9fc358497056739576625b9fdc929dd"
                 .to_string(),
             parent_hash: "9face7c3e038177aa05639d7d7aacff6bed5f2cdc03df90c80c3ff3c642d7258"
@@ -765,6 +764,7 @@ mod test {
             block_max_gas_limit: 6000000,
             max_transactions_per_block: 79,
             max_bytes_per_tx_list: 120000,
+            anchor_gas_cost: 0,
         };
 
         let mut dummy_req = ProofRequestOptions {
@@ -785,7 +785,9 @@ mod test {
         dummy_req.protocol_instance = protocol_instance.clone();
         // dummy_req.mock = true;
 
-        let mut witness = CircuitWitness::dummy_with_request(&dummy_req).await.unwrap();
+        let mut witness = CircuitWitness::dummy_with_request(&dummy_req)
+            .await
+            .unwrap();
         witness.protocol_instance = protocol_instance.clone().into();
         let super_circuit = gen_super_circuit::<
             { CIRCUIT_CONFIG.max_txs },
@@ -795,7 +797,6 @@ mod test {
             _,
         >(&witness, fixed_rng())
         .unwrap();
-
 
         println!("ready to compute proof");
         let proof = compute_proof(&ss, &dummy_req, CIRCUIT_CONFIG, super_circuit)

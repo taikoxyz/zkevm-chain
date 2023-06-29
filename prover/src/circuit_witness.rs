@@ -183,7 +183,7 @@ impl CircuitWitness {
         block.randomness = Fr::from(0x100);
 
         // fill protocol instance
-        block.protocal_instance = self.protocol_instance.clone();
+        block.protocol_instance = self.protocol_instance.clone();
         block
     }
 
@@ -199,7 +199,7 @@ impl CircuitWitness {
         };
 
         // fill protocol instance
-        block.protocal_instance = self.protocol_instance.clone();
+        block.protocol_instance = self.protocol_instance.clone();
         block
     }
 
@@ -252,7 +252,10 @@ mod test {
         let urlstr = "http://localhost:8545";
         let url = Http::from_str(urlstr).unwrap();
         let geth_client = GethClient::new(url);
-        let block = geth_client.get_block_by_number(102296.into()).await.unwrap();
+        let block = geth_client
+            .get_block_by_number(102296.into())
+            .await
+            .unwrap();
         println!("{:?}", block);
     }
 }

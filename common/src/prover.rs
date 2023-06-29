@@ -1,6 +1,6 @@
 use eth_types::{Address, Bytes, H256};
 use serde::{Deserialize, Serialize};
-use zkevm_circuits::witness::ProtocolInstance;
+use zkevm_circuits::witness::{MetaHash, ProtocolInstance};
 
 #[derive(Clone, Default, Serialize, Deserialize)]
 pub struct ProofResult {
@@ -71,7 +71,7 @@ pub struct RequestExtraInstance {
     /// l2 contract address
     pub l2_contract: String,
     /// meta hash
-    pub meta_hash: String,
+    pub meta_data: RequestMetaData,
     /// block hash value
     pub block_hash: String,
     /// the parent block hash
@@ -92,6 +92,37 @@ pub struct RequestExtraInstance {
     pub max_transactions_per_block: u64,
     /// maxBytesPerTxList
     pub max_bytes_per_tx_list: u64,
+    /// anchor_gas_cost
+    pub anchor_gas_cost: u64,
+}
+
+/// l1 meta hash
+#[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
+pub struct RequestMetaData {
+    /// meta id
+    pub id: u64,
+    /// meta timestamp
+    pub timestamp: u64,
+    /// l1 block height
+    pub l1_height: u64,
+    /// l1 block hash
+    pub l1_hash: String,
+    /// l1 block mix hash
+    pub l1_mix_hash: String,
+    /// deposits processed
+    pub deposits_processed: String,
+    /// tx list hash
+    pub tx_list_hash: String,
+    /// tx list byte start
+    pub tx_list_byte_start: u32, // u24
+    /// tx list byte end
+    pub tx_list_byte_end: u32, // u24
+    /// gas limit
+    pub gas_limit: u32,
+    /// beneficiary
+    pub beneficiary: String,
+    /// treasury
+    pub treasury: String,
 }
 
 impl PartialEq for RequestExtraInstance {
@@ -99,7 +130,7 @@ impl PartialEq for RequestExtraInstance {
         self.l1_signal_service == other.l1_signal_service
             && self.l2_signal_service == other.l2_signal_service
             && self.l2_contract == other.l2_contract
-            && self.meta_hash == other.meta_hash
+            && self.meta_data == other.meta_data
             && self.block_hash == other.block_hash
             && self.parent_hash == other.parent_hash
             && self.signal_root == other.signal_root
@@ -127,7 +158,20 @@ impl From<RequestExtraInstance> for ProtocolInstance {
             l1_signal_service: parse_address(&instance.l1_signal_service),
             l2_signal_service: parse_address(&instance.l2_signal_service),
             l2_contract: parse_address(&instance.l2_contract),
-            meta_hash: parse_hash(&instance.meta_hash),
+            meta_hash: MetaHash {
+                id: instance.meta_data.id,
+                timestamp: instance.meta_data.timestamp,
+                l1_height: instance.meta_data.l1_height,
+                l1_hash: parse_hash(&instance.meta_data.l1_hash),
+                l1_mix_hash: parse_hash(&instance.meta_data.l1_mix_hash),
+                deposits_processed: parse_hash(&instance.meta_data.deposits_processed),
+                tx_list_hash: parse_hash(&instance.meta_data.tx_list_hash),
+                tx_list_byte_start: instance.meta_data.tx_list_byte_start,
+                tx_list_byte_end: instance.meta_data.tx_list_byte_end,
+                gas_limit: instance.meta_data.gas_limit,
+                beneficiary: parse_address(&instance.meta_data.beneficiary),
+                treasury: parse_address(&instance.meta_data.treasury),
+            },
             block_hash: parse_hash(&instance.block_hash),
             parent_hash: parse_hash(&instance.parent_hash),
             signal_root: parse_hash(&instance.signal_root),
@@ -138,6 +182,7 @@ impl From<RequestExtraInstance> for ProtocolInstance {
             block_max_gas_limit: instance.block_max_gas_limit,
             max_transactions_per_block: instance.max_transactions_per_block,
             max_bytes_per_tx_list: instance.max_bytes_per_tx_list,
+            anchor_gas_cost: instance.anchor_gas_cost,
         }
     }
 }
