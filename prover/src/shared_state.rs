@@ -746,30 +746,47 @@ mod test {
             panic!();
         });
         let protocol_instance = RequestExtraInstance {
-            l1_signal_service: "23baAc3892a823e9E59B85d6c90068474fe60086".to_string(),
+            l1_signal_service: "7a2088a1bFc9d81c55368AE168C2C02570cB814F".to_string(),
             l2_signal_service: "1000777700000000000000000000000000000007".to_string(),
             l2_contract: "1000777700000000000000000000000000000001".to_string(),
-            meta_data: RequestMetaData::default(),
-            block_hash: "9e0f92d7b77d621288ec0914de018040e9fc358497056739576625b9fdc929dd"
+            meta_data: RequestMetaData {
+                id: 1,
+                timestamp: 1688569600,
+                l1_height: 7,
+                l1_hash: "73b58b2be94b468d3b292f0528a25981924422b41d6a09453ffbb7bb424421"
+                    .to_string(),
+                l1_mix_hash: "00000000000000000000000000000000000000000000000000000000000000"
+                    .to_string(),
+                deposits_processed:
+                    "569e75fc77c1a856f6daaf9e69d8a9566ca34aa47f9133711ce065a571af0cfd".to_string(),
+                tx_list_hash: "5ee1ebc106dc4e88bf38da6f67a2ec67c33f2ee64d5223d1b22f1b0b017302"
+                    .to_string(),
+                tx_list_byte_start: 0,
+                tx_list_byte_end: 0,
+                gas_limit: 21000,
+                beneficiary: "0000777700000000000000000000000000000001".to_string(),
+                treasury: "df09A0afD09a63fb04ab3573922437e1e637dE8b".to_string(),
+            },
+            block_hash: "7fea77092cfa8b42802d0063a81a657898934dbc09b280104b157304334323da"
                 .to_string(),
-            parent_hash: "9face7c3e038177aa05639d7d7aacff6bed5f2cdc03df90c80c3ff3c642d7258"
+            parent_hash: "22c97ef59999401ce02984ba6a3c89ce241230e587135e3a9d8a3d15d0369c46"
                 .to_string(),
-            signal_root: "d215c65a2b8ffc53f7b7659dc0a5cab2a5044c3cf71524e36e60d8aa8d4bb173"
+            signal_root: "25f5352342833794e6c468e5818cd88163fff61963891a7237a48567cb88b597"
                 .to_string(),
-            graffiti: "0000000000000000000000000000000000000000000000000000000000000000"
+            graffiti: "6162630000000000000000000000000000000000000000000000000000000000"
                 .to_string(),
-            prover: "6C671d2C641CE1b99F17755fd45441fa4326C3B1".to_string(),
-            gas_used: 1605944,
-            parent_gas_used: 3984953,
+            prover: "70997970C51812dc3A010C7d01b50e0d17dc79C8".to_string(),
+            gas_used: 141003,
+            parent_gas_used: 10,
             block_max_gas_limit: 6000000,
             max_transactions_per_block: 79,
             max_bytes_per_tx_list: 120000,
-            anchor_gas_cost: 0,
+            anchor_gas_cost: 120003,
         };
 
         let mut dummy_req = ProofRequestOptions {
             circuit: "super".to_string(),
-            block: 102296,
+            block: 1,
             rpc: "https://rpc.internal.taiko.xyz".to_string(),
             protocol_instance: protocol_instance.clone(),
             param: Some("../param".to_string()),
