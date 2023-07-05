@@ -105,13 +105,15 @@ impl CircuitWitness {
         let builder = BuilderClient::new(geth_client, circuits_params)
             .await
             .map_err(|e| e.to_string())?;
-        let (builder, eth_block) = builder.gen_inputs(*block_num).await?;
 
         let (eth_block, _, history_hashes, prev_state_root) = builder
             .get_block(request.block.into())
             .await
             .map_err(|e| e.to_string())?;
-
+        let (builder, _eth_block) = builder
+            .gen_inputs(request.block)
+            .await
+            .map_err(|e| e.to_string())?;
         let mut w = Self::dummy(circuit_config)?;
         w.protocol_instance = request.protocol_instance.clone().into();
         w.block = builder.block;
