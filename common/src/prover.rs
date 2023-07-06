@@ -92,8 +92,8 @@ pub struct RequestExtraInstance {
     pub max_transactions_per_block: u64,
     /// maxBytesPerTxList
     pub max_bytes_per_tx_list: u64,
-    /// anchor_gas_cost
-    pub anchor_gas_cost: u64,
+    /// anchor_gas_limit
+    pub anchor_gas_limit: u64,
 }
 
 /// l1 meta hash
@@ -182,7 +182,7 @@ impl From<RequestExtraInstance> for ProtocolInstance {
             block_max_gas_limit: instance.block_max_gas_limit,
             max_transactions_per_block: instance.max_transactions_per_block,
             max_bytes_per_tx_list: instance.max_bytes_per_tx_list,
-            anchor_gas_cost: instance.anchor_gas_cost,
+            anchor_gas_limit: instance.anchor_gas_limit,
         }
     }
 }

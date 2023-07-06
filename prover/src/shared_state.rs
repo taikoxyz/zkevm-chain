@@ -46,8 +46,9 @@ fn get_param_path(path: &String, k: usize) -> PathBuf {
 fn get_or_gen_param(task_options: &ProofRequestOptions, k: usize) -> (Arc<ProverParams>, String) {
     match &task_options.param {
         Some(v) => {
+            let _cur = std::env::current_dir().unwrap();
             let path = get_param_path(v, k);
-            let file = File::open(&path).expect(&format!("couldn't open params {}", k));
+            let file = File::open(&path).expect(&format!("couldn't open path {:?}", path));
             let params = Arc::new(
                 ProverParams::read(&mut std::io::BufReader::new(file))
                     .expect("Failed to read params"),
@@ -752,8 +753,8 @@ mod test {
             meta_data: RequestMetaData {
                 id: 1,
                 timestamp: 1688569600,
-                l1_height: 7,
-                l1_hash: "be24cdce9534ce192d5d3d44f35286ca9d091ab7cf2c7b6cffa2e47e8083ef22"
+                l1_height: 30,
+                l1_hash: "bd228f226946b379a8763c7be21867ecaa189c55eae72f3d4143d71239b37ab3"
                     .to_string(),
                 l1_mix_hash: "0000000000000000000000000000000000000000000000000000000000000000"
                     .to_string(),
@@ -767,21 +768,21 @@ mod test {
                 beneficiary: "0000777700000000000000000000000000000001".to_string(),
                 treasury: "df09A0afD09a63fb04ab3573922437e1e637dE8b".to_string(),
             },
-            block_hash: "7fea77092cfa8b42802d0063a81a657898934dbc09b280104b157304334323da"
+            block_hash: "884e081f282f1c8eab3a65d38d2d5e2860ee0a265d6651a41b70226f39d57f61"
                 .to_string(),
-            parent_hash: "22c97ef59999401ce02984ba6a3c89ce241230e587135e3a9d8a3d15d0369c46"
+            parent_hash: "4f671f69b364a348ae02bdf9f20c2aaa4e871ebf2cc78aa1812fff881022afb4"
                 .to_string(),
-            signal_root: "25f5352342833794e6c468e5818cd88163fff61963891a7237a48567cb88b597"
+            signal_root: "c43db4d140bf11a8879d3e1c1d22ef7adba785f5bc64efb350e796202330bf61"
                 .to_string(),
             graffiti: "6162630000000000000000000000000000000000000000000000000000000000"
                 .to_string(),
             prover: "70997970C51812dc3A010C7d01b50e0d17dc79C8".to_string(),
             gas_used: 141003,
-            parent_gas_used: 10,
+            parent_gas_used: 122473,
             block_max_gas_limit: 6000000,
             max_transactions_per_block: 79,
             max_bytes_per_tx_list: 120000,
-            anchor_gas_cost: 120003,
+            anchor_gas_limit: 180000,
         };
 
         let mut dummy_req = ProofRequestOptions {

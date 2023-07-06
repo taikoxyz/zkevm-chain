@@ -119,6 +119,8 @@ impl CircuitWitness {
         w.block = builder.block;
         w.code_db = builder.code_db;
         w.eth_block = eth_block;
+        // FIXME: wait for takio-client to fix this
+        w.block.txs[0].tx.v += 35 + w.block.chain_id.as_u64() * 2;
 
         let dummy_block = Block::new(
             chain_id.into(),
