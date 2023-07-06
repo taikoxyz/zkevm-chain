@@ -753,13 +753,13 @@ mod test {
                 id: 1,
                 timestamp: 1688569600,
                 l1_height: 7,
-                l1_hash: "73b58b2be94b468d3b292f0528a25981924422b41d6a09453ffbb7bb424421"
+                l1_hash: "be24cdce9534ce192d5d3d44f35286ca9d091ab7cf2c7b6cffa2e47e8083ef22"
                     .to_string(),
-                l1_mix_hash: "00000000000000000000000000000000000000000000000000000000000000"
+                l1_mix_hash: "0000000000000000000000000000000000000000000000000000000000000000"
                     .to_string(),
                 deposits_processed:
                     "569e75fc77c1a856f6daaf9e69d8a9566ca34aa47f9133711ce065a571af0cfd".to_string(),
-                tx_list_hash: "5ee1ebc106dc4e88bf38da6f67a2ec67c33f2ee64d5223d1b22f1b0b017302"
+                tx_list_hash: "655ee1ebc106dc4e88bf38da6f67a2ec67c33f2ee64d5223d1b22f1b0b017302"
                     .to_string(),
                 tx_list_byte_start: 0,
                 tx_list_byte_end: 0,
@@ -786,7 +786,7 @@ mod test {
 
         let mut dummy_req = ProofRequestOptions {
             circuit: "super".to_string(),
-            block: 1,
+            block: 2,
             rpc: "https://rpc.internal.taiko.xyz".to_string(),
             protocol_instance: protocol_instance.clone(),
             param: Some("../param".to_string()),
@@ -806,6 +806,7 @@ mod test {
             .await
             .unwrap();
         witness.protocol_instance = protocol_instance.clone().into();
+
         let super_circuit = gen_super_circuit::<
             { CIRCUIT_CONFIG.max_txs },
             { CIRCUIT_CONFIG.max_calldata },
