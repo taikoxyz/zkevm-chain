@@ -399,7 +399,7 @@ checksum = "a3e2c3daef883ecc1b5d58c15adae93470a91d425f3532ba1695849656af3fc1"
 [[package]]
 name = "bus-mapping"
 version = "0.1.0"
-source = "git+https://github.com/taikoxyz/zkevm-circuits.git?branch=recursion#20de5361e921e6b925838194cafbafc7bd285bd8"
+source = "git+https://github.com/taikoxyz/zkevm-circuits.git?branch=recursion#1cbae1052d8b5736bd4f407be6565e12b55856b8"
 dependencies = [
  "eth-types",
  "ethers-core",
@@ -1105,7 +1105,7 @@ dependencies = [
 [[package]]
 name = "eth-types"
 version = "0.1.0"
-source = "git+https://github.com/taikoxyz/zkevm-circuits.git?branch=recursion#20de5361e921e6b925838194cafbafc7bd285bd8"
+source = "git+https://github.com/taikoxyz/zkevm-circuits.git?branch=recursion#1cbae1052d8b5736bd4f407be6565e12b55856b8"
 dependencies = [
  "ethers-core",
  "ethers-signers",
@@ -1267,7 +1267,7 @@ dependencies = [
 [[package]]
 name = "external-tracer"
 version = "0.1.0"
-source = "git+https://github.com/taikoxyz/zkevm-circuits.git?branch=recursion#20de5361e921e6b925838194cafbafc7bd285bd8"
+source = "git+https://github.com/taikoxyz/zkevm-circuits.git?branch=recursion#1cbae1052d8b5736bd4f407be6565e12b55856b8"
 dependencies = [
  "eth-types",
  "geth-utils",
@@ -1452,7 +1452,7 @@ dependencies = [
 [[package]]
 name = "gadgets"
 version = "0.1.0"
-source = "git+https://github.com/taikoxyz/zkevm-circuits.git?branch=recursion#20de5361e921e6b925838194cafbafc7bd285bd8"
+source = "git+https://github.com/taikoxyz/zkevm-circuits.git?branch=recursion#1cbae1052d8b5736bd4f407be6565e12b55856b8"
 dependencies = [
  "digest 0.7.6",
  "eth-types",
@@ -1493,7 +1493,7 @@ dependencies = [
 [[package]]
 name = "geth-utils"
 version = "0.1.0"
-source = "git+https://github.com/taikoxyz/zkevm-circuits.git?branch=recursion#20de5361e921e6b925838194cafbafc7bd285bd8"
+source = "git+https://github.com/taikoxyz/zkevm-circuits.git?branch=recursion#1cbae1052d8b5736bd4f407be6565e12b55856b8"
 dependencies = [
  "env_logger",
  "gobuild",
@@ -2020,7 +2020,7 @@ dependencies = [
 [[package]]
 name = "keccak256"
 version = "0.1.0"
-source = "git+https://github.com/taikoxyz/zkevm-circuits.git?branch=recursion#20de5361e921e6b925838194cafbafc7bd285bd8"
+source = "git+https://github.com/taikoxyz/zkevm-circuits.git?branch=recursion#1cbae1052d8b5736bd4f407be6565e12b55856b8"
 dependencies = [
  "env_logger",
  "eth-types",
@@ -2180,7 +2180,7 @@ dependencies = [
 [[package]]
 name = "mock"
 version = "0.1.0"
-source = "git+https://github.com/taikoxyz/zkevm-circuits.git?branch=recursion#20de5361e921e6b925838194cafbafc7bd285bd8"
+source = "git+https://github.com/taikoxyz/zkevm-circuits.git?branch=recursion#1cbae1052d8b5736bd4f407be6565e12b55856b8"
 dependencies = [
  "eth-types",
  "ethers-core",
@@ -4226,7 +4226,7 @@ checksum = "2a0956f1ba7c7909bfb66c2e9e4124ab6f6482560f6628b5aaeba39207c9aad9"
 [[package]]
 name = "zkevm-circuits"
 version = "0.1.0"
-source = "git+https://github.com/taikoxyz/zkevm-circuits.git?branch=recursion#20de5361e921e6b925838194cafbafc7bd285bd8"
+source = "git+https://github.com/taikoxyz/zkevm-circuits.git?branch=recursion#1cbae1052d8b5736bd4f407be6565e12b55856b8"
 dependencies = [
  "array-init",
  "bus-mapping",

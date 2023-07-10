@@ -111,7 +111,7 @@ impl CircuitWitness {
             .await
             .map_err(|e| e.to_string())?;
         let (builder, _eth_block) = builder
-            .gen_inputs(request.block)
+            .gen_inputs_with_anchor(request.block, true)
             .await
             .map_err(|e| e.to_string())?;
         let mut w = Self::dummy(circuit_config)?;
@@ -119,8 +119,6 @@ impl CircuitWitness {
         w.block = builder.block;
         w.code_db = builder.code_db;
         w.eth_block = eth_block;
-        // FIXME: wait for takio-client to fix this
-        w.block.txs[0].tx.v += 35 + w.block.chain_id.as_u64() * 2;
 
         let dummy_block = Block::new(
             chain_id.into(),
@@ -171,7 +169,7 @@ impl CircuitWitness {
             max_keccak_rows: circuit_config.keccak_padding,
         };
         let builder = BuilderClient::new(geth_client, circuit_params).await?;
-        let (builder, eth_block) = builder.gen_inputs(*block_num).await?;
+        let (builder, eth_block) = builder.gen_inputs_with_anchor(*block_num, true).await?;
 
         Ok(Self {
             circuit_config,
