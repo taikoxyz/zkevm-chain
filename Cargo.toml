@@ -21,7 +21,7 @@ halo2_wrong_integer = { git = "https://github.com/appliedzkp/halo2wrong.git", ta
 halo2_wrong_maingate = { git = "https://github.com/appliedzkp/halo2wrong.git", tag = "v2023_04_20", package = "maingate" }
 
 #[patch."https://github.com/taikoxyz/zkevm-circuits.git"]
-#bus-mapping = { git = "https://github.com/taikoxyz/zkevm-circuits.git", branch = "recursion" }
-#eth-types = { git = "https://github.com/taikoxyz/zkevm-circuits.git", branch = "recursion" }
-#zkevm-circuits = { git = "https://github.com/taikoxyz/zkevm-circuits.git", branch = "recursion" }
-#mock = { git = "https://github.com/taikoxyz/zkevm-circuits.git", branch = "recursion" }
+#bus-mapping = { git = "https://github.com/taikoxyz/zkevm-circuits.git", branch = "feat/a4-aggregation" }
+#eth-types = { git = "https://github.com/taikoxyz/zkevm-circuits.git", branch = "feat/a4-aggregation" }
+#zkevm-circuits = { git = "https://github.com/taikoxyz/zkevm-circuits.git", branch = "feat/a4-aggregation" }
+#mock = { git = "https://github.com/taikoxyz/zkevm-circuits.git", branch = "feat/a4-aggregation" }
