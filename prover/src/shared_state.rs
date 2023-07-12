@@ -753,8 +753,8 @@ mod test {
             meta_data: RequestMetaData {
                 id: 1,
                 timestamp: 1688569600,
-                l1_height: 30,
-                l1_hash: "bd228f226946b379a8763c7be21867ecaa189c55eae72f3d4143d71239b37ab3"
+                l1_height: 24,
+                l1_hash: "fe0554d29d15cdbf5b881039c228dc5351706f6b96a7179b1443c1d777a6b855"
                     .to_string(),
                 l1_mix_hash: "0000000000000000000000000000000000000000000000000000000000000000"
                     .to_string(),
@@ -768,9 +768,9 @@ mod test {
                 beneficiary: "0000777700000000000000000000000000000001".to_string(),
                 treasury: "df09A0afD09a63fb04ab3573922437e1e637dE8b".to_string(),
             },
-            block_hash: "884e081f282f1c8eab3a65d38d2d5e2860ee0a265d6651a41b70226f39d57f61"
+            block_hash: "30edc380c59a1d48bb17c1f5f8291fa69ef22c7495adf4de5b12566760f174d7"
                 .to_string(),
-            parent_hash: "4f671f69b364a348ae02bdf9f20c2aaa4e871ebf2cc78aa1812fff881022afb4"
+            parent_hash: "92a4a433dc5822323e25a7acb474ab36c32e385617b31e58c6d70071ddb1eb95"
                 .to_string(),
             signal_root: "c43db4d140bf11a8879d3e1c1d22ef7adba785f5bc64efb350e796202330bf61"
                 .to_string(),
@@ -778,18 +778,18 @@ mod test {
                 .to_string(),
             prover: "70997970C51812dc3A010C7d01b50e0d17dc79C8".to_string(),
             gas_used: 141003,
-            parent_gas_used: 122473,
+            parent_gas_used: 122463,
             block_max_gas_limit: 6000000,
             max_transactions_per_block: 79,
             max_bytes_per_tx_list: 120000,
             anchor_gas_limit: 180000,
         };
 
-        let mut dummy_req = ProofRequestOptions {
+        let dummy_req = ProofRequestOptions {
             circuit: "super".to_string(),
             block: 2,
             rpc: "https://rpc.internal.taiko.xyz".to_string(),
-            protocol_instance: protocol_instance.clone(),
+            protocol_instance,
             param: Some("../param".to_string()),
             aggregate: true,
             retry: true,
@@ -798,15 +798,9 @@ mod test {
             verify_proof: true,
         };
 
-        dummy_req.aggregate = true;
-        dummy_req.param = Some("../param".to_string());
-        dummy_req.protocol_instance = protocol_instance.clone();
-        // dummy_req.mock = true;
-
-        let mut witness = CircuitWitness::dummy_with_request(&dummy_req)
+        let witness = CircuitWitness::dummy_with_request(&dummy_req)
             .await
             .unwrap();
-        witness.protocol_instance = protocol_instance.clone().into();
 
         let super_circuit = gen_super_circuit::<
             { CIRCUIT_CONFIG.max_txs },

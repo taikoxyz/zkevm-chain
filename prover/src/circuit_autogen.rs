@@ -13,7 +13,7 @@ macro_rules! match_circuit_params {
                     max_exp_steps: 27900,
                     min_k: 18,
                     pad_to: 3161966,
-                    min_k_aggregation: 21,
+                    min_k_aggregation: 22,
                     keccak_padding: 1600000,
                 };
                 $on_match
