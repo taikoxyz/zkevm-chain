@@ -59,6 +59,8 @@ pub struct Proofs {
     pub aggregation: ProofResult,
     /// Gas used. Determines the upper ceiling for circuit parameters
     pub gas: u64,
+    /// Proof request
+    pub request: ProofRequestOptions,
 }
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]

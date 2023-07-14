@@ -485,6 +485,7 @@ impl SharedState {
                     circuit: circuit_proof,
                     aggregation: aggregation_proof,
                     gas: witness.gas_used(),
+                    request: task_options_copy,
                 };
 
                 Ok(res)
