@@ -27,13 +27,22 @@ pub fn gen_super_circuit<
     let block = witness.dummy_evm_witness();
     assert_eq!(
         block.context.block_hash,
-        block.protocol_instance.block_hash.to_word()
+        block
+            .protocol_instance
+            .as_ref()
+            .unwrap()
+            .block_hash
+            .to_word()
     );
     assert_eq!(
         block.context.history_hashes[block.context.history_hashes.len() - 1],
-        block.protocol_instance.parent_hash.to_word()
+        block
+            .protocol_instance
+            .as_ref()
+            .unwrap()
+            .parent_hash
+            .to_word()
     );
-
     let circuit = SuperCircuit::new_from_block(&block);
     Ok(circuit)
 }

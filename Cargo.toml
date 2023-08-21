@@ -1,9 +1,5 @@
 [workspace]
-members = [
-  "coordinator",
-  "prover",
-  "dev"
-]
+members = ["coordinator", "prover", "dev"]
 
 [profile.release]
 opt-level = 3
@@ -20,8 +16,8 @@ halo2_wrong_ecc = { git = "https://github.com/appliedzkp/halo2wrong.git", tag = 
 halo2_wrong_integer = { git = "https://github.com/appliedzkp/halo2wrong.git", tag = "v2023_04_20", package = "integer" }
 halo2_wrong_maingate = { git = "https://github.com/appliedzkp/halo2wrong.git", tag = "v2023_04_20", package = "maingate" }
 
-#[patch."https://github.com/taikoxyz/zkevm-circuits.git"]
-#bus-mapping = { git = "https://github.com/taikoxyz/zkevm-circuits.git", branch = "recursion" }
-#eth-types = { git = "https://github.com/taikoxyz/zkevm-circuits.git", branch = "recursion" }
-#zkevm-circuits = { git = "https://github.com/taikoxyz/zkevm-circuits.git", branch = "recursion" }
-#mock = { git = "https://github.com/taikoxyz/zkevm-circuits.git", branch = "recursion" }
+[patch."https://github.com/taikoxyz/zkevm-circuits.git"]
+bus-mapping = { git = "https://github.com/johntaiko/zkevm-circuits.git", branch = "feat/evm_circuit_1559" }
+eth-types = { git = "https://github.com/johntaiko/zkevm-circuits.git", branch = "feat/evm_circuit_1559" }
+zkevm-circuits = { git = "https://github.com/johntaiko/zkevm-circuits.git", branch = "feat/evm_circuit_1559" }
+mock = { git = "https://github.com/johntaiko/zkevm-circuits.git", branch = "feat/evm_circuit_1559" }

@@ -753,8 +753,8 @@ mod test {
             meta_data: RequestMetaData {
                 id: 1,
                 timestamp: 1688569600,
-                l1_height: 24,
-                l1_hash: "fe0554d29d15cdbf5b881039c228dc5351706f6b96a7179b1443c1d777a6b855"
+                l1_height: 3610862,
+                l1_hash: "6ee81eb8e7026ba04e31619c721256ee081c7b46b30ed26f7bbfee512be07c9c"
                     .to_string(),
                 l1_mix_hash: "0000000000000000000000000000000000000000000000000000000000000000"
                     .to_string(),
@@ -768,17 +768,17 @@ mod test {
                 beneficiary: "0000777700000000000000000000000000000001".to_string(),
                 treasury: "df09A0afD09a63fb04ab3573922437e1e637dE8b".to_string(),
             },
-            block_hash: "30edc380c59a1d48bb17c1f5f8291fa69ef22c7495adf4de5b12566760f174d7"
+            block_hash: "7d6ec8fc752e9f42264ed07eae90f59e8a3b58c4579fe31c0ac410dcaa75e91e"
                 .to_string(),
-            parent_hash: "92a4a433dc5822323e25a7acb474ab36c32e385617b31e58c6d70071ddb1eb95"
+            parent_hash: "9030c293131961af88fc86908a33a9308bf2a06b4f7e2a8b26ff256635755b87"
                 .to_string(),
-            signal_root: "c43db4d140bf11a8879d3e1c1d22ef7adba785f5bc64efb350e796202330bf61"
+            signal_root: "4f88a53547efa01393915fc4a5ef2b20c6f546c696693405b184c234c6a7f5b4"
                 .to_string(),
             graffiti: "6162630000000000000000000000000000000000000000000000000000000000"
                 .to_string(),
             prover: "70997970C51812dc3A010C7d01b50e0d17dc79C8".to_string(),
             gas_used: 141003,
-            parent_gas_used: 122463,
+            parent_gas_used: 122527,
             block_max_gas_limit: 6000000,
             max_transactions_per_block: 79,
             max_bytes_per_tx_list: 120000,
@@ -788,12 +788,12 @@ mod test {
         let dummy_req = ProofRequestOptions {
             circuit: "super".to_string(),
             block: 2,
-            rpc: "https://rpc.internal.taiko.xyz".to_string(),
+            rpc: "http://43.153.70.15:8545".to_string(),
             protocol_instance,
-            param: Some("../param".to_string()),
-            aggregate: true,
+            param: Some("./param".to_string()),
+            aggregate: false,
             retry: true,
-            mock: false,
+            mock: true,
             mock_feedback: false,
             verify_proof: true,
         };

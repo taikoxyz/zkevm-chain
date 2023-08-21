@@ -6,11 +6,28 @@ license = "MIT OR Apache-2.0"
 
 [dependencies]
 halo2_proofs = { git = "https://github.com/privacy-scaling-explorations/halo2.git", tag = "v2023_04_20" }
-bus-mapping = { git = "https://github.com/taikoxyz/zkevm-circuits.git", branch = "recursion", features = ["test"] }
-eth-types = { git = "https://github.com/taikoxyz/zkevm-circuits.git", branch = "recursion", features = ["warn-unimplemented"] }
-zkevm-circuits = { git = "https://github.com/taikoxyz/zkevm-circuits.git", branch = "recursion", features = ["test-circuits"] }
-snark-verifier = { git = "https://github.com/brechtpd/snark-verifier.git", branch = "feat/add-sdk", default-features = false, features = ["loader_halo2", "system_halo2", "loader_evm", "parallel"] }
-snark-verifier-sdk = { git = "https://github.com/brechtpd/snark-verifier.git", branch = "feat/add-sdk", default-features = false, features = ["loader_halo2", "loader_evm", "parallel", "display", "halo2_circuit_params"] }
+bus-mapping = { git = "https://github.com/taikoxyz/zkevm-circuits.git", branch = "recursion", features = [
+  "test",
+] }
+eth-types = { git = "https://github.com/taikoxyz/zkevm-circuits.git", branch = "recursion", features = [
+  "warn-unimplemented",
+] }
+zkevm-circuits = { git = "https://github.com/taikoxyz/zkevm-circuits.git", branch = "recursion", features = [
+  "test-circuits",
+] }
+snark-verifier = { git = "https://github.com/brechtpd/snark-verifier.git", branch = "feat/add-sdk", default-features = false, features = [
+  "loader_halo2",
+  "system_halo2",
+  "loader_evm",
+  "parallel",
+] }
+snark-verifier-sdk = { git = "https://github.com/brechtpd/snark-verifier.git", branch = "feat/add-sdk", default-features = false, features = [
+  "loader_halo2",
+  "loader_evm",
+  "parallel",
+  "display",
+  "halo2_circuit_params",
+] }
 
 env_logger = "0.9.0"
 ethers-providers = "2.0.0"
@@ -26,6 +43,7 @@ zkevm_common = { path = "../common" }
 itertools = "0.10.3"
 clap = { version = "4.0.14", features = ["derive", "env"] }
 hex = "0.4.3"
+lazy_static = "1.4"
 
 # autogen
 mock = { git = "https://github.com/taikoxyz/zkevm-circuits.git", branch = "recursion", optional = true }

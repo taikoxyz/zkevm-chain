@@ -2,6 +2,7 @@ use crate::Fr;
 use bus_mapping::circuit_input_builder::Block;
 use bus_mapping::circuit_input_builder::BuilderClient;
 use bus_mapping::circuit_input_builder::CircuitsParams;
+use bus_mapping::circuit_input_builder::ProtocolInstance;
 use bus_mapping::mock::BlockData;
 use bus_mapping::rpc::GethClient;
 use eth_types::geth_types;
@@ -14,9 +15,8 @@ use ethers_providers::Http;
 use std::str::FromStr;
 use zkevm_circuits::evm_circuit;
 use zkevm_circuits::pi_circuit::PublicData;
-use zkevm_circuits::witness::ProtocolInstance;
-use zkevm_common::prover::CircuitConfig;
 use zkevm_common::prover::ProofRequestOptions;
+use zkevm_common::prover::{CircuitConfig, RequestExtraInstance};
 
 /// Wrapper struct for circuit witness data.
 pub struct CircuitWitness {
@@ -92,6 +92,7 @@ impl CircuitWitness {
                 .into());
             });
 
+        let pi: ProtocolInstance = request.protocol_instance.clone().into();
         let circuits_params = CircuitsParams {
             max_txs: circuit_config.max_txs,
             max_calldata: circuit_config.max_calldata,
@@ -102,7 +103,7 @@ impl CircuitWitness {
             max_evm_rows: circuit_config.pad_to,
             max_keccak_rows: circuit_config.keccak_padding,
         };
-        let builder = BuilderClient::new(geth_client, circuits_params)
+        let builder = BuilderClient::new(geth_client, circuits_params, Some(pi.clone()))
             .await
             .map_err(|e| e.to_string())?;
 
@@ -111,7 +112,7 @@ impl CircuitWitness {
             .await
             .map_err(|e| e.to_string())?;
         let (builder, _eth_block) = builder
-            .gen_inputs_with_anchor(request.block, true)
+            .gen_inputs(request.block)
             .await
             .map_err(|e| e.to_string())?;
         let mut w = Self::dummy(circuit_config)?;
@@ -126,6 +127,7 @@ impl CircuitWitness {
             prev_state_root,
             &w.eth_block,
             circuits_params,
+            Some(pi.clone()),
         )
         .map_err(|e| e.to_string())?;
         w.dummy_block = Some(dummy_block);
@@ -135,7 +137,8 @@ impl CircuitWitness {
     pub async fn from_request(
         request: &ProofRequestOptions,
     ) -> Result<Self, Box<dyn std::error::Error>> {
-        let mut w = Self::from_rpc(&request.block, &request.rpc).await?;
+        let mut w =
+            Self::from_rpc(&request.block, &request.rpc, &request.protocol_instance).await?;
         w.protocol_instance = request.protocol_instance.clone().into();
         Ok(w)
     }
@@ -145,6 +148,7 @@ impl CircuitWitness {
     pub async fn from_rpc(
         block_num: &u64,
         rpc_url: &str,
+        pi: &RequestExtraInstance,
     ) -> Result<Self, Box<dyn std::error::Error>> {
         let url = Http::from_str(rpc_url)?;
         let geth_client = GethClient::new(url);
@@ -168,8 +172,9 @@ impl CircuitWitness {
             max_evm_rows: circuit_config.pad_to,
             max_keccak_rows: circuit_config.keccak_padding,
         };
-        let builder = BuilderClient::new(geth_client, circuit_params).await?;
-        let (builder, eth_block) = builder.gen_inputs_with_anchor(*block_num, true).await?;
+        let pi: ProtocolInstance = pi.clone().into();
+        let builder = BuilderClient::new(geth_client, circuit_params, Some(pi.clone())).await?;
+        let (builder, eth_block) = builder.gen_inputs(*block_num).await?;
 
         Ok(Self {
             circuit_config,
@@ -189,7 +194,7 @@ impl CircuitWitness {
         block.randomness = Fr::from(0x100);
 
         // fill protocol instance
-        block.protocol_instance = self.protocol_instance.clone();
+        block.protocol_instance = Some(self.protocol_instance.clone());
         block
     }
 
@@ -205,7 +210,7 @@ impl CircuitWitness {
         };
 
         // fill protocol instance
-        block.protocol_instance = self.protocol_instance.clone();
+        block.protocol_instance = Some(self.protocol_instance.clone());
         block
     }
 

@@ -8,13 +8,13 @@ macro_rules! match_circuit_params {
                     max_txs: 14,
                     max_calldata: 69750,
                     max_bytecode: 139500,
-                    max_rws: 3161966,
-                    max_copy_rows: 5952002,
+                    max_rws: 50000,
+                    max_copy_rows: 50000,
                     max_exp_steps: 27900,
-                    min_k: 18,
-                    pad_to: 3161966,
+                    min_k: 19,
+                    pad_to: 0,
                     min_k_aggregation: 22,
-                    keccak_padding: 1600000,
+                    keccak_padding: 500000,
                 };
                 $on_match
             }

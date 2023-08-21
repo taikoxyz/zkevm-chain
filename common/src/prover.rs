@@ -1,6 +1,6 @@
+use bus_mapping::circuit_input_builder::{MetaHash, ProtocolInstance};
 use eth_types::{Address, Bytes, H256};
 use serde::{Deserialize, Serialize};
-use zkevm_circuits::witness::{MetaHash, ProtocolInstance};
 
 #[derive(Clone, Default, Serialize, Deserialize)]
 pub struct ProofResult {
