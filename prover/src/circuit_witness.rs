@@ -33,6 +33,7 @@ impl CircuitWitness {
     pub fn dummy(circuit_config: CircuitConfig) -> Result<Self, String> {
         let history_hashes = vec![Word::zero(); 256];
         let mut eth_block: eth_types::Block<eth_types::Transaction> = eth_types::Block::default();
+        eth_block.mix_hash = Some(H256::zero());
         eth_block.author = Some(Address::zero());
         eth_block.number = Some(history_hashes.len().into());
         eth_block.base_fee_per_gas = Some(0.into());
@@ -237,7 +238,7 @@ impl CircuitWitness {
             coinbase: eth_block.author.expect("coinbase"),
             timestamp: eth_block.timestamp,
             number: eth_block.number.expect("number"),
-            difficulty: eth_block.difficulty,
+            mix_hash: eth_block.mix_hash.expect("mix_hash"),
             gas_limit: eth_block.gas_limit,
             base_fee: eth_block.base_fee_per_gas.unwrap_or_default(),
         };
