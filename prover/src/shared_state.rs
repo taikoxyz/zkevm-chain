@@ -818,4 +818,84 @@ mod test {
         println!("proof={:?}", proof);
         Ok(())
     }
+
+    #[tokio::test]
+    async fn test_with_high_degree() -> Result<(), String> {
+        let ss = SharedState::new("1234".to_owned(), None);
+        const CIRCUIT_CONFIG: CircuitConfig =
+            crate::match_circuit_params!(10001, CIRCUIT_CONFIG, {
+                panic!();
+            });
+        let protocol_instance = RequestExtraInstance {
+            l1_signal_service: "7a2088a1bFc9d81c55368AE168C2C02570cB814F".to_string(),
+            l2_signal_service: "1000777700000000000000000000000000000007".to_string(),
+            l2_contract: "1000777700000000000000000000000000000001".to_string(),
+            meta_data: RequestMetaData {
+                id: 1,
+                timestamp: 1688569600,
+                l1_height: 4143812,
+                l1_hash: "19162da900104daef8f396d0fadcc57e17e3fe3bde8114a53d8a66543dde96a6"
+                    .to_string(),
+                l1_mix_hash: "0000000000000000000000000000000000000000000000000000000000000000"
+                    .to_string(),
+                deposits_processed:
+                    "569e75fc77c1a856f6daaf9e69d8a9566ca34aa47f9133711ce065a571af0cfd".to_string(),
+                tx_list_hash: "655ee1ebc106dc4e88bf38da6f67a2ec67c33f2ee64d5223d1b22f1b0b017302"
+                    .to_string(),
+                tx_list_byte_start: 0,
+                tx_list_byte_end: 0,
+                gas_limit: 21000,
+                beneficiary: "0000777700000000000000000000000000000001".to_string(),
+                treasury: "df09A0afD09a63fb04ab3573922437e1e637dE8b".to_string(),
+            },
+            block_hash: "7d9a24105634252561d0a94534ddea296410d2342b253ca19c3a74b16c621d95"
+                .to_string(),
+            parent_hash: "991f78f08bd8102b428e7c4a120578cfa1413bff3fc99a2ffdcd939c6ced15fd"
+                .to_string(),
+            signal_root: "2c1f492045add283f77246531d2c60ba09499a20d6f415ce8abffe8ca60b023b"
+                .to_string(),
+            graffiti: "6162630000000000000000000000000000000000000000000000000000000000"
+                .to_string(),
+            prover: "70997970C51812dc3A010C7d01b50e0d17dc79C8".to_string(),
+            gas_used: 141003,
+            parent_gas_used: 2077003,
+            block_max_gas_limit: 6000000,
+            max_transactions_per_block: 79,
+            max_bytes_per_tx_list: 120000,
+            anchor_gas_limit: 180000,
+        };
+
+        let dummy_req = ProofRequestOptions {
+            circuit: "super".to_string(),
+            block: 1450835,
+            rpc: "http://43.153.70.15:8545".to_string(),
+            protocol_instance,
+            param: Some("./param".to_string()),
+            aggregate: true,
+            retry: true,
+            mock: false,
+            mock_feedback: false,
+            verify_proof: true,
+        };
+
+        let witness = CircuitWitness::dummy_with_request(&dummy_req)
+            .await
+            .unwrap();
+
+        let super_circuit = gen_super_circuit::<
+            { CIRCUIT_CONFIG.max_txs },
+            { CIRCUIT_CONFIG.max_calldata },
+            { CIRCUIT_CONFIG.max_rws },
+            { CIRCUIT_CONFIG.max_copy_rows },
+            _,
+        >(&witness, fixed_rng())
+        .unwrap();
+
+        println!("ready to compute proof");
+        let proof = compute_proof(&ss, &dummy_req, CIRCUIT_CONFIG, super_circuit)
+            .await
+            .unwrap();
+        println!("proof={:?}", proof);
+        Ok(())
+    }
 }

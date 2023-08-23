@@ -2,7 +2,7 @@
 macro_rules! match_circuit_params {
     ($gas_used:expr, $on_match:expr, $on_error:expr) => {
         match $gas_used {
-            0..=8000000 => {
+            0..=10000 => {
                 const CIRCUIT_CONFIG: CircuitConfig = CircuitConfig {
                     block_gas_limit: 800000,
                     max_txs: 14,
@@ -14,6 +14,22 @@ macro_rules! match_circuit_params {
                     min_k: 19,
                     pad_to: 0,
                     min_k_aggregation: 22,
+                    keccak_padding: 500000,
+                };
+                $on_match
+            }
+            10001..=8000000 => {
+                const CIRCUIT_CONFIG: CircuitConfig = CircuitConfig {
+                    block_gas_limit: 800000,
+                    max_txs: 30,
+                    max_calldata: 69750,
+                    max_bytecode: 139500,
+                    max_rws: 500000,
+                    max_copy_rows: 500000,
+                    max_exp_steps: 27900,
+                    min_k: 21,
+                    pad_to: 0,
+                    min_k_aggregation: 24,
                     keccak_padding: 500000,
                 };
                 $on_match
