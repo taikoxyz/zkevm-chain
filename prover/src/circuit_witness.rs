@@ -183,7 +183,7 @@ impl CircuitWitness {
         block.randomness = Fr::from(0x100);
 
         // fill protocol instance
-        block.protocal_instance = self.protocol_instance.clone();
+        block.protocol_instance = self.protocol_instance.clone();
         block
     }
 
@@ -199,7 +199,7 @@ impl CircuitWitness {
         };
 
         // fill protocol instance
-        block.protocal_instance = self.protocol_instance.clone();
+        block.protocol_instance = self.protocol_instance.clone();
         block
     }
 
