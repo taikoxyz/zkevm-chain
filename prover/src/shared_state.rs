@@ -15,11 +15,14 @@ use halo2_proofs::poly::commitment::Params;
 use halo2_proofs::SerdeFormat;
 use hyper::Uri;
 use rand::{thread_rng, Rng};
+use snark_verifier::loader::evm;
 use snark_verifier::system::halo2::transcript::evm::EvmTranscript;
 use snark_verifier_sdk::GWC;
 use snark_verifier_sdk::evm::gen_evm_proof_gwc;
 use snark_verifier_sdk::halo2::gen_snark_gwc;
 use snark_verifier_sdk::CircuitExt;
+use zkevm_circuits::root_circuit::Config;
+use zkevm_circuits::root_circuit::pcd_aggregation::AccumulationSchemeType;
 use std::collections::HashMap;
 use std::fmt::Write;
 use std::fs::File;
@@ -33,6 +36,7 @@ use zkevm_circuits::root_circuit::PCDAggregationCircuit;
 use zkevm_circuits::util::SubCircuit;
 use zkevm_common::json_rpc::jsonrpc_request_client;
 use zkevm_common::prover::*;
+use circuit_benchmarks::super_circuit::{gen_verifier, evm_verify};
 
 fn get_param_path(path: &String, k: usize) -> PathBuf {
     // try to automatically choose a file if the path is a folder.
@@ -178,7 +182,26 @@ async fn compute_proof<C: Circuit<Fr> + Clone + SubCircuit<Fr> + CircuitExt<Fr>>
             aggregation_proof.instance = collect_instance_hex(&agg_instance);
             let proof = {
                 let time_started = Instant::now();
+                let num_instances = agg_circuit.num_instance().clone();
+                let instances = agg_circuit.instance().clone();
+                let accumulator_indices = Some(agg_circuit.accumulator_indices());
+
                 let v = gen_evm_proof_gwc(&agg_params, &agg_pk, agg_circuit, agg_instance);
+                #[cfg(feature = "evm_verifier")]
+                {
+                    let deployment_code = gen_verifier(
+                        &agg_params,
+                        &agg_pk.get_vk(),
+                        Config::kzg()
+                            .with_num_instance(num_instances.clone())
+                            .with_accumulator_indices(accumulator_indices),
+                        num_instances,
+                        AccumulationSchemeType::GwcType,
+                    );
+                    let evm_verifier_bytecode = evm::compile_yul(&deployment_code);
+                    evm_verify(evm_verifier_bytecode, instances, v.clone());
+                }
+
                 aggregation_proof.aux.proof =
                     Instant::now().duration_since(time_started).as_millis() as u32;
                 v
@@ -207,7 +230,7 @@ async fn compute_proof<C: Circuit<Fr> + Clone + SubCircuit<Fr> + CircuitExt<Fr>>
                 circuit,
                 circuit_instance.clone(),
                 fixed_rng(),
-                task_options.mock_feedback,
+                true,
                 task_options.verify_proof,
                 &mut circuit_proof.aux,
             );
@@ -759,8 +782,8 @@ mod test {
     fn test_abi_enc_hash() {
         let pi = Token::FixedArray(vec![
             Token::FixedBytes(parse_hash("ba97517eb3553f0c355d68392493f8b08aaafcd4b05dc6759889c421316cccfb").to_word().to_be_bytes().into()),
-            Token::FixedBytes(parse_hash("f01083d97f39778b6a628c40a696e2ef675a025a484f259b53fdd3fa89bfe98c").to_word().to_be_bytes().into()),
             Token::FixedBytes(parse_hash("d9de827aca245a08aaaae00e1bb89ad73f734b800deef7ebb6046506ab8b1e15").to_word().to_be_bytes().into()),
+            Token::FixedBytes(parse_hash("f01083d97f39778b6a628c40a696e2ef675a025a484f259b53fdd3fa89bfe98c").to_word().to_be_bytes().into()),
             Token::FixedBytes(parse_hash("d215c65a2b8ffc53f7b7659dc0a5cab2a5044c3cf71524e36e60d8aa8d4bb173").to_word().to_be_bytes().into()),
             Token::FixedBytes(parse_hash("0000000000000000000000000000000000000000000000000000000000000000").to_word().to_be_bytes().into()),
             Token::Address(parse_address("6C671d2C641CE1b99F17755fd45441fa4326C3B1")),
@@ -783,9 +806,9 @@ mod test {
             l2_contract: "1000777700000000000000000000000000000001".to_string(),
             meta_hash: "ba97517eb3553f0c355d68392493f8b08aaafcd4b05dc6759889c421316cccfb"
                 .to_string(),
-            block_hash: "f01083d97f39778b6a628c40a696e2ef675a025a484f259b53fdd3fa89bfe98c"
+            block_hash: "f9101063257478d306ac9d826927eae60c1c9b7db6fd2fe68aa249739221f611"
                 .to_string(),
-            parent_hash: "d9de827aca245a08aaaae00e1bb89ad73f734b800deef7ebb6046506ab8b1e15"
+            parent_hash: "cc9e3bcb7273a75b5f5b77c22c7878506eabb2d2308390a717a52d80c63926d8"
                 .to_string(),
             signal_root: "d215c65a2b8ffc53f7b7659dc0a5cab2a5044c3cf71524e36e60d8aa8d4bb173"
                 .to_string(),
@@ -801,7 +824,7 @@ mod test {
 
         let mut dummy_req = ProofRequestOptions {
             circuit: "super".to_string(),
-            block: 2,
+            block: 30,
             rpc: "https://rpc.internal.taiko.xyz".to_string(),
             protocol_instance: protocol_instance.clone(),
             param: Some("../param".to_string()),
@@ -812,10 +835,10 @@ mod test {
             verify_proof: true,
         };
 
-        dummy_req.aggregate = false;
+        dummy_req.aggregate = true;
         dummy_req.param = Some("../param".to_string());
         dummy_req.protocol_instance = protocol_instance.clone();
-        dummy_req.mock = true;
+        dummy_req.mock = false;
 
         let mut witness = CircuitWitness::dummy_with_request(&dummy_req).await.unwrap();
         witness.protocol_instance = protocol_instance.clone().into();
