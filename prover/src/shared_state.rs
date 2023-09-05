@@ -165,7 +165,7 @@ async fn compute_proof<C: Circuit<Fr> + Clone + SubCircuit<Fr> + CircuitExt<Fr>>
 
             let agg_pk = {
                 let cache_key = format!(
-                    "{}{}{:?}ag",
+                    "{}{}{:?}",
                     &task_options.circuit, &agg_param_path, &circuit_config
                 );
                 shared_state
@@ -780,13 +780,20 @@ mod test {
 
     #[test]
     fn test_abi_enc_hash() {
+            let meta_hash   = "e7c4698134a4c5dce0c885ea9e202be298537756bb363750256ed0c5a603ff11";
+            let block_hash  = "b58dfe193fb44bd3b99398910ffc3da6176665617aff46bcf9bc218fb87a0ebd";
+            let parent_hash = "2d6ff9593ec597e5d90752ea68f43ba69df5b89ab17eadbbdcdd3e11b7e17ea3";
+            let signal_root = "25f5352342833794e6c468e5818cd88163fff61963891a7237a48567cb88b597";
+            let graffiti = "6162630000000000000000000000000000000000000000000000000000000000";
+            let prover = "70997970C51812dc3A010C7d01b50e0d17dc79C8";
+
         let pi = Token::FixedArray(vec![
-            Token::FixedBytes(parse_hash("ba97517eb3553f0c355d68392493f8b08aaafcd4b05dc6759889c421316cccfb").to_word().to_be_bytes().into()),
-            Token::FixedBytes(parse_hash("d9de827aca245a08aaaae00e1bb89ad73f734b800deef7ebb6046506ab8b1e15").to_word().to_be_bytes().into()),
-            Token::FixedBytes(parse_hash("f01083d97f39778b6a628c40a696e2ef675a025a484f259b53fdd3fa89bfe98c").to_word().to_be_bytes().into()),
-            Token::FixedBytes(parse_hash("d215c65a2b8ffc53f7b7659dc0a5cab2a5044c3cf71524e36e60d8aa8d4bb173").to_word().to_be_bytes().into()),
-            Token::FixedBytes(parse_hash("0000000000000000000000000000000000000000000000000000000000000000").to_word().to_be_bytes().into()),
-            Token::Address(parse_address("6C671d2C641CE1b99F17755fd45441fa4326C3B1")),
+            Token::FixedBytes(parse_hash(meta_hash).to_word().to_be_bytes().into()),
+            Token::FixedBytes(parse_hash(parent_hash).to_word().to_be_bytes().into()),
+            Token::FixedBytes(parse_hash(block_hash).to_word().to_be_bytes().into()),
+            Token::FixedBytes(parse_hash(signal_root).to_word().to_be_bytes().into()),
+            Token::FixedBytes(parse_hash(graffiti).to_word().to_be_bytes().into()),
+            Token::Address(parse_address(prover)),
         ]);
 
         let buf = encode(&[pi]);
