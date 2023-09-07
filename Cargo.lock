@@ -363,7 +363,7 @@ checksum = "a3e2c3daef883ecc1b5d58c15adae93470a91d425f3532ba1695849656af3fc1"
 [[package]]
 name = "bus-mapping"
 version = "0.1.0"
-source = "git+https://github.com/taikoxyz/zkevm-circuits.git?branch=feat/a5-testnet#49d92385c0608061f01bda2c5cfd9b3ec9fff74d"
+source = "git+https://github.com/taikoxyz/zkevm-circuits.git?branch=feat/a5-testnet#00fe53f08ad517fff48ae7e9a92c09aed5f4f399"
 dependencies = [
  "eth-types",
  "ethers-core",
@@ -454,7 +454,7 @@ dependencies = [
 [[package]]
 name = "circuit-benchmarks"
 version = "0.1.0"
-source = "git+https://github.com/taikoxyz/zkevm-circuits.git?branch=feat/a5-testnet#49d92385c0608061f01bda2c5cfd9b3ec9fff74d"
+source = "git+https://github.com/taikoxyz/zkevm-circuits.git?branch=feat/a5-testnet#00fe53f08ad517fff48ae7e9a92c09aed5f4f399"
 dependencies = [
  "ark-std",
  "bus-mapping",
@@ -1088,7 +1088,7 @@ dependencies = [
 [[package]]
 name = "eth-types"
 version = "0.1.0"
-source = "git+https://github.com/taikoxyz/zkevm-circuits.git?branch=feat/a5-testnet#49d92385c0608061f01bda2c5cfd9b3ec9fff74d"
+source = "git+https://github.com/taikoxyz/zkevm-circuits.git?branch=feat/a5-testnet#00fe53f08ad517fff48ae7e9a92c09aed5f4f399"
 dependencies = [
  "ethers-core",
  "ethers-signers",
@@ -1250,7 +1250,7 @@ dependencies = [
 [[package]]
 name = "external-tracer"
 version = "0.1.0"
-source = "git+https://github.com/taikoxyz/zkevm-circuits.git?branch=feat/a5-testnet#49d92385c0608061f01bda2c5cfd9b3ec9fff74d"
+source = "git+https://github.com/taikoxyz/zkevm-circuits.git?branch=feat/a5-testnet#00fe53f08ad517fff48ae7e9a92c09aed5f4f399"
 dependencies = [
  "eth-types",
  "geth-utils",
@@ -1435,7 +1435,7 @@ dependencies = [
 [[package]]
 name = "gadgets"
 version = "0.1.0"
-source = "git+https://github.com/taikoxyz/zkevm-circuits.git?branch=feat/a5-testnet#49d92385c0608061f01bda2c5cfd9b3ec9fff74d"
+source = "git+https://github.com/taikoxyz/zkevm-circuits.git?branch=feat/a5-testnet#00fe53f08ad517fff48ae7e9a92c09aed5f4f399"
 dependencies = [
  "digest 0.7.6",
  "eth-types",
@@ -1476,7 +1476,7 @@ dependencies = [
 [[package]]
 name = "geth-utils"
 version = "0.1.0"
-source = "git+https://github.com/taikoxyz/zkevm-circuits.git?branch=feat/a5-testnet#49d92385c0608061f01bda2c5cfd9b3ec9fff74d"
+source = "git+https://github.com/taikoxyz/zkevm-circuits.git?branch=feat/a5-testnet#00fe53f08ad517fff48ae7e9a92c09aed5f4f399"
 dependencies = [
  "env_logger",
  "gobuild",
@@ -1990,7 +1990,7 @@ dependencies = [
 [[package]]
 name = "keccak256"
 version = "0.1.0"
-source = "git+https://github.com/taikoxyz/zkevm-circuits.git?branch=feat/a5-testnet#49d92385c0608061f01bda2c5cfd9b3ec9fff74d"
+source = "git+https://github.com/taikoxyz/zkevm-circuits.git?branch=feat/a5-testnet#00fe53f08ad517fff48ae7e9a92c09aed5f4f399"
 dependencies = [
  "env_logger",
  "eth-types",
@@ -2135,7 +2135,7 @@ dependencies = [
 [[package]]
 name = "mock"
 version = "0.1.0"
-source = "git+https://github.com/taikoxyz/zkevm-circuits.git?branch=feat/a5-testnet#49d92385c0608061f01bda2c5cfd9b3ec9fff74d"
+source = "git+https://github.com/taikoxyz/zkevm-circuits.git?branch=feat/a5-testnet#00fe53f08ad517fff48ae7e9a92c09aed5f4f399"
 dependencies = [
  "eth-types",
  "ethers-core",
@@ -4143,7 +4143,7 @@ checksum = "2a0956f1ba7c7909bfb66c2e9e4124ab6f6482560f6628b5aaeba39207c9aad9"
 [[package]]
 name = "zkevm-circuits"
 version = "0.1.0"
-source = "git+https://github.com/taikoxyz/zkevm-circuits.git?branch=feat/a5-testnet#49d92385c0608061f01bda2c5cfd9b3ec9fff74d"
+source = "git+https://github.com/taikoxyz/zkevm-circuits.git?branch=feat/a5-testnet#00fe53f08ad517fff48ae7e9a92c09aed5f4f399"
 dependencies = [
  "array-init",
  "bus-mapping",
