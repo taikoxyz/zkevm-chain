@@ -165,7 +165,7 @@ async fn compute_proof<C: Circuit<Fr> + Clone + SubCircuit<Fr> + CircuitExt<Fr>>
 
             let agg_pk = {
                 let cache_key = format!(
-                    "{}{}{:?}",
+                    "{}-agg-{}{:?}",
                     &task_options.circuit, &agg_param_path, &circuit_config
                 );
                 shared_state
