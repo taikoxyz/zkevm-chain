@@ -8,6 +8,7 @@ use crate::G1Affine;
 use crate::ProverKey;
 use crate::ProverParams;
 
+use circuit_benchmarks::super_circuit::{evm_verify, gen_verifier};
 use halo2_proofs::dev::MockProver;
 use halo2_proofs::plonk::Circuit;
 use halo2_proofs::plonk::{keygen_pk, keygen_vk};
@@ -15,6 +16,7 @@ use halo2_proofs::poly::commitment::Params;
 use halo2_proofs::SerdeFormat;
 use hyper::Uri;
 use rand::{thread_rng, Rng};
+use snark_verifier::loader::evm;
 use snark_verifier::system::halo2::transcript::evm::EvmTranscript;
 use snark_verifier_sdk::evm::gen_evm_proof_gwc;
 use snark_verifier_sdk::halo2::gen_snark_gwc;
@@ -29,6 +31,8 @@ use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use std::time::Instant;
 use tokio::sync::Mutex;
+use zkevm_circuits::root_circuit::pcd_aggregation::AccumulationSchemeType;
+use zkevm_circuits::root_circuit::Config;
 use zkevm_circuits::root_circuit::TaikoAggregationCircuit;
 use zkevm_circuits::util::SubCircuit;
 use zkevm_common::json_rpc::jsonrpc_request_client;
@@ -162,7 +166,7 @@ async fn compute_proof<C: Circuit<Fr> + Clone + SubCircuit<Fr> + CircuitExt<Fr>>
 
             let agg_pk = {
                 let cache_key = format!(
-                    "{}{}{:?}ag",
+                    "{}-agg-{}{:?}",
                     &task_options.circuit, &agg_param_path, &circuit_config
                 );
                 shared_state
@@ -179,7 +183,26 @@ async fn compute_proof<C: Circuit<Fr> + Clone + SubCircuit<Fr> + CircuitExt<Fr>>
             aggregation_proof.instance = collect_instance_hex(&agg_instance);
             let proof = {
                 let time_started = Instant::now();
+                let num_instances = agg_circuit.num_instance().clone();
+                let instances = agg_circuit.instance().clone();
+                let accumulator_indices = Some(agg_circuit.accumulator_indices());
+
                 let v = gen_evm_proof_gwc(&agg_params, &agg_pk, agg_circuit, agg_instance);
+                #[cfg(feature = "evm_verifier")]
+                {
+                    let deployment_code = gen_verifier(
+                        &agg_params,
+                        &agg_pk.get_vk(),
+                        Config::kzg()
+                            .with_num_instance(num_instances.clone())
+                            .with_accumulator_indices(accumulator_indices),
+                        num_instances,
+                        AccumulationSchemeType::GwcType,
+                    );
+                    let evm_verifier_bytecode = evm::compile_yul(&deployment_code);
+                    evm_verify(evm_verifier_bytecode, instances, v.clone());
+                }
+
                 aggregation_proof.aux.proof =
                     Instant::now().duration_since(time_started).as_millis() as u32;
                 v
@@ -208,7 +231,7 @@ async fn compute_proof<C: Circuit<Fr> + Clone + SubCircuit<Fr> + CircuitExt<Fr>>
                 circuit,
                 circuit_instance.clone(),
                 fixed_rng(),
-                task_options.mock_feedback,
+                true,
                 task_options.verify_proof,
                 &mut circuit_proof.aux,
             );
@@ -739,6 +762,45 @@ impl SharedState {
 #[cfg(test)]
 mod test {
     use super::*;
+    use eth_types::Address;
+    use eth_types::ToBigEndian;
+    use eth_types::ToWord;
+    use eth_types::H256;
+    use ethers_core::abi::encode;
+    use ethers_core::abi::Token;
+    use ethers_core::utils::keccak256;
+    use hex::ToHex;
+
+    fn parse_hash(input: &str) -> H256 {
+        H256::from_slice(&hex::decode(input).expect("parse_hash"))
+    }
+
+    fn parse_address(input: &str) -> Address {
+        Address::from_slice(&hex::decode(input).expect("parse_address"))
+    }
+
+    #[test]
+    fn test_abi_enc_hash() {
+        let meta_hash = "e7c4698134a4c5dce0c885ea9e202be298537756bb363750256ed0c5a603ff11";
+        let block_hash = "b58dfe193fb44bd3b99398910ffc3da6176665617aff46bcf9bc218fb87a0ebd";
+        let parent_hash = "2d6ff9593ec597e5d90752ea68f43ba69df5b89ab17eadbbdcdd3e11b7e17ea3";
+        let signal_root = "25f5352342833794e6c468e5818cd88163fff61963891a7237a48567cb88b597";
+        let graffiti = "6162630000000000000000000000000000000000000000000000000000000000";
+        let prover = "70997970C51812dc3A010C7d01b50e0d17dc79C8";
+
+        let pi = Token::FixedArray(vec![
+            Token::FixedBytes(parse_hash(meta_hash).to_word().to_be_bytes().into()),
+            Token::FixedBytes(parse_hash(parent_hash).to_word().to_be_bytes().into()),
+            Token::FixedBytes(parse_hash(block_hash).to_word().to_be_bytes().into()),
+            Token::FixedBytes(parse_hash(signal_root).to_word().to_be_bytes().into()),
+            Token::FixedBytes(parse_hash(graffiti).to_word().to_be_bytes().into()),
+            Token::Address(parse_address(prover)),
+        ]);
+
+        let buf = encode(&[pi]);
+        let hash = keccak256(&buf);
+        println!("hash={:?}", hash.encode_hex::<String>());
+    }
 
     #[tokio::test]
     async fn test_dummy_proof_gen() -> Result<(), String> {

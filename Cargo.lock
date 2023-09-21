@@ -407,7 +407,7 @@ dependencies = [
  "gadgets",
  "halo2_proofs 0.2.0",
  "itertools",
- "keccak256",
+ "keccak256 0.1.0 (git+https://github.com/johntaiko/zkevm-circuits.git?branch=feat/evm_circuit_1559)",
  "lazy_static",
  "log",
  "mock",
@@ -485,6 +485,30 @@ checksum = "773f3b9af64447d2ce9850330c473515014aa235e6a783b02db81ff39e4a3dad"
 dependencies = [
  "crypto-common",
  "inout",
+]
+
+[[package]]
+name = "circuit-benchmarks"
+version = "0.1.0"
+source = "git+https://github.com/taikoxyz/zkevm-circuits.git?branch=feat/a5-testnet#00fe53f08ad517fff48ae7e9a92c09aed5f4f399"
+dependencies = [
+ "ark-std",
+ "bus-mapping",
+ "env_logger",
+ "eth-types",
+ "ethers-signers",
+ "halo2_proofs 0.2.0",
+ "hex",
+ "itertools",
+ "keccak256 0.1.0 (git+https://github.com/taikoxyz/zkevm-circuits.git?branch=feat/a5-testnet)",
+ "mock",
+ "rand",
+ "rand_chacha",
+ "rand_xorshift",
+ "serde",
+ "snark-verifier",
+ "snark-verifier-sdk",
+ "zkevm-circuits",
 ]
 
 [[package]]
@@ -2020,6 +2044,21 @@ dependencies = [
 [[package]]
 name = "keccak256"
 version = "0.1.0"
+source = "git+https://github.com/taikoxyz/zkevm-circuits.git?branch=feat/a5-testnet#00fe53f08ad517fff48ae7e9a92c09aed5f4f399"
+dependencies = [
+ "env_logger",
+ "eth-types",
+ "halo2_proofs 0.1.0",
+ "itertools",
+ "lazy_static",
+ "log",
+ "num-bigint",
+ "num-traits",
+]
+
+[[package]]
+name = "keccak256"
+version = "0.1.0"
 source = "git+https://github.com/johntaiko/zkevm-circuits.git?branch=feat/evm_circuit_1559#4fdac73bc6fcfd6dfc4ee337d60115bfb9ea9207"
 dependencies = [
  "env_logger",
@@ -2626,9 +2665,11 @@ name = "prover"
 version = "0.1.0"
 dependencies = [
  "bus-mapping",
+ "circuit-benchmarks",
  "clap",
  "env_logger",
  "eth-types",
+ "ethers-core",
  "ethers-providers",
  "ethers-signers",
  "halo2_proofs 0.2.0",
@@ -4242,15 +4283,17 @@ dependencies = [
  "env_logger",
  "eth-types",
  "ethers-core",
+ "ethers-signers",
  "gadgets",
  "halo2_proofs 0.2.0",
  "integer",
  "itertools",
- "keccak256",
+ "keccak256 0.1.0 (git+https://github.com/johntaiko/zkevm-circuits.git?branch=feat/evm_circuit_1559)",
  "lazy_static",
  "libsecp256k1",
  "log",
  "maingate",
+ "mock",
  "num",
  "num-bigint",
  "once_cell",
