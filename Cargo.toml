@@ -17,7 +17,10 @@ halo2_wrong_integer = { git = "https://github.com/appliedzkp/halo2wrong.git", ta
 halo2_wrong_maingate = { git = "https://github.com/appliedzkp/halo2wrong.git", tag = "v2023_04_20", package = "maingate" }
 
 [patch."https://github.com/taikoxyz/zkevm-circuits.git"]
-bus-mapping = { git = "https://github.com/johntaiko/zkevm-circuits.git", branch = "feat/evm_circuit_1559" }
-eth-types = { git = "https://github.com/johntaiko/zkevm-circuits.git", branch = "feat/evm_circuit_1559" }
-zkevm-circuits = { git = "https://github.com/johntaiko/zkevm-circuits.git", branch = "feat/evm_circuit_1559" }
-mock = { git = "https://github.com/johntaiko/zkevm-circuits.git", branch = "feat/evm_circuit_1559" }
+bus-mapping = { git = "https://github.com/smtmfft/zkevm-circuits.git ", branch = "for-a6-release" }
+circuit-benchmarks = { git = "https://github.com/smtmfft/zkevm-circuits.git ", branch = "for-a6-release", features = [
+  "benches",
+] }
+eth-types = { git = "https://github.com/smtmfft/zkevm-circuits.git ", branch = "for-a6-release" }
+zkevm-circuits = { git = "https://github.com/smtmfft/zkevm-circuits.git ", branch = "for-a6-release" }
+mock = { git = "https://github.com/smtmfft/zkevm-circuits.git ", branch = "for-a6-release" }

@@ -1,4 +1,4 @@
-use bus_mapping::circuit_input_builder::{MetaHash, ProtocolInstance};
+use bus_mapping::circuit_input_builder::{MetaData, ProtocolInstance};
 use eth_types::{Address, Bytes, H256};
 use serde::{Deserialize, Serialize};
 
@@ -158,7 +158,7 @@ impl From<RequestExtraInstance> for ProtocolInstance {
             l1_signal_service: parse_address(&instance.l1_signal_service),
             l2_signal_service: parse_address(&instance.l2_signal_service),
             l2_contract: parse_address(&instance.l2_contract),
-            meta_hash: MetaHash {
+            meta_data: MetaData {
                 id: instance.meta_data.id,
                 timestamp: instance.meta_data.timestamp,
                 l1_height: instance.meta_data.l1_height,

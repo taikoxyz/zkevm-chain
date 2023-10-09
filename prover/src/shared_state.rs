@@ -8,6 +8,7 @@ use crate::G1Affine;
 use crate::ProverKey;
 use crate::ProverParams;
 
+#[cfg(feature = "evm_verifier")]
 use circuit_benchmarks::super_circuit::{evm_verify, gen_verifier};
 use halo2_proofs::dev::MockProver;
 use halo2_proofs::plonk::Circuit;
@@ -31,7 +32,7 @@ use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use std::time::Instant;
 use tokio::sync::Mutex;
-use zkevm_circuits::root_circuit::pcd_aggregation::AccumulationSchemeType;
+use zkevm_circuits::root_circuit::taiko_aggregation::AccumulationSchemeType;
 use zkevm_circuits::root_circuit::Config;
 use zkevm_circuits::root_circuit::TaikoAggregationCircuit;
 use zkevm_circuits::util::SubCircuit;
