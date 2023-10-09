@@ -4,6 +4,7 @@ use std::process::Command;
 fn run(cmd: &str, args: Vec<&str>) -> String {
     let err = format!("Error running: {} {:#?}", cmd, &args);
     let result = Command::new(cmd).args(&args).output().expect(&err);
+    println!("{:?}", std::str::from_utf8(&result.stderr));
     assert!(result.status.success(), "Command failed: {err}");
 
     String::from_utf8(result.stdout).expect("utf8 output")

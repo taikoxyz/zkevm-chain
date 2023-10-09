@@ -8,6 +8,8 @@ use crate::G1Affine;
 use crate::ProverKey;
 use crate::ProverParams;
 
+#[cfg(feature = "evm_verifier")]
+use circuit_benchmarks::super_circuit::{evm_verify, gen_verifier};
 use halo2_proofs::dev::MockProver;
 use halo2_proofs::plonk::Circuit;
 use halo2_proofs::plonk::{keygen_pk, keygen_vk};
@@ -17,12 +19,10 @@ use hyper::Uri;
 use rand::{thread_rng, Rng};
 use snark_verifier::loader::evm;
 use snark_verifier::system::halo2::transcript::evm::EvmTranscript;
-use snark_verifier_sdk::GWC;
 use snark_verifier_sdk::evm::gen_evm_proof_gwc;
 use snark_verifier_sdk::halo2::gen_snark_gwc;
 use snark_verifier_sdk::CircuitExt;
-use zkevm_circuits::root_circuit::Config;
-use zkevm_circuits::root_circuit::pcd_aggregation::AccumulationSchemeType;
+use snark_verifier_sdk::GWC;
 use std::collections::HashMap;
 use std::fmt::Write;
 use std::fs::File;
@@ -32,11 +32,12 @@ use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use std::time::Instant;
 use tokio::sync::Mutex;
-use zkevm_circuits::root_circuit::PCDAggregationCircuit;
+use zkevm_circuits::root_circuit::taiko_aggregation::AccumulationSchemeType;
+use zkevm_circuits::root_circuit::Config;
+use zkevm_circuits::root_circuit::TaikoAggregationCircuit;
 use zkevm_circuits::util::SubCircuit;
 use zkevm_common::json_rpc::jsonrpc_request_client;
 use zkevm_common::prover::*;
-use circuit_benchmarks::super_circuit::{gen_verifier, evm_verify};
 
 fn get_param_path(path: &String, k: usize) -> PathBuf {
     // try to automatically choose a file if the path is a folder.
@@ -50,8 +51,9 @@ fn get_param_path(path: &String, k: usize) -> PathBuf {
 fn get_or_gen_param(task_options: &ProofRequestOptions, k: usize) -> (Arc<ProverParams>, String) {
     match &task_options.param {
         Some(v) => {
+            let _cur = std::env::current_dir().unwrap();
             let path = get_param_path(v, k);
-            let file = File::open(&path).expect(&format!("couldn't open params {}", k));
+            let file = File::open(&path).expect(&format!("couldn't open path {:?}", path));
             let params = Arc::new(
                 ProverParams::read(&mut std::io::BufReader::new(file))
                     .expect("Failed to read params"),
@@ -157,7 +159,7 @@ async fn compute_proof<C: Circuit<Fr> + Clone + SubCircuit<Fr> + CircuitExt<Fr>>
             aggregation_proof.k = agg_params.k() as u8;
             let agg_circuit = {
                 let time_started = Instant::now();
-                let v = PCDAggregationCircuit::<GWC>::new(&agg_params, [snark]).unwrap();
+                let v = TaikoAggregationCircuit::<GWC>::new(&agg_params, [snark]).unwrap();
                 aggregation_proof.aux.circuit =
                     Instant::now().duration_since(time_started).as_millis() as u32;
                 v
@@ -762,9 +764,9 @@ impl SharedState {
 mod test {
     use super::*;
     use eth_types::Address;
-    use eth_types::H256;
     use eth_types::ToBigEndian;
     use eth_types::ToWord;
+    use eth_types::H256;
     use ethers_core::abi::encode;
     use ethers_core::abi::Token;
     use ethers_core::utils::keccak256;
@@ -774,18 +776,18 @@ mod test {
         H256::from_slice(&hex::decode(input).expect("parse_hash"))
     }
 
-     fn parse_address(input: &str) -> Address {
+    fn parse_address(input: &str) -> Address {
         Address::from_slice(&hex::decode(input).expect("parse_address"))
     }
 
     #[test]
     fn test_abi_enc_hash() {
-            let meta_hash   = "e7c4698134a4c5dce0c885ea9e202be298537756bb363750256ed0c5a603ff11";
-            let block_hash  = "b58dfe193fb44bd3b99398910ffc3da6176665617aff46bcf9bc218fb87a0ebd";
-            let parent_hash = "2d6ff9593ec597e5d90752ea68f43ba69df5b89ab17eadbbdcdd3e11b7e17ea3";
-            let signal_root = "25f5352342833794e6c468e5818cd88163fff61963891a7237a48567cb88b597";
-            let graffiti = "6162630000000000000000000000000000000000000000000000000000000000";
-            let prover = "70997970C51812dc3A010C7d01b50e0d17dc79C8";
+        let meta_hash = "e7c4698134a4c5dce0c885ea9e202be298537756bb363750256ed0c5a603ff11";
+        let block_hash = "b58dfe193fb44bd3b99398910ffc3da6176665617aff46bcf9bc218fb87a0ebd";
+        let parent_hash = "2d6ff9593ec597e5d90752ea68f43ba69df5b89ab17eadbbdcdd3e11b7e17ea3";
+        let signal_root = "25f5352342833794e6c468e5818cd88163fff61963891a7237a48567cb88b597";
+        let graffiti = "6162630000000000000000000000000000000000000000000000000000000000";
+        let prover = "70997970C51812dc3A010C7d01b50e0d17dc79C8";
 
         let pi = Token::FixedArray(vec![
             Token::FixedBytes(parse_hash(meta_hash).to_word().to_be_bytes().into()),
@@ -808,47 +810,61 @@ mod test {
             panic!();
         });
         let protocol_instance = RequestExtraInstance {
-            l1_signal_service: "23baAc3892a823e9E59B85d6c90068474fe60086".to_string(),
+            l1_signal_service: "7a2088a1bFc9d81c55368AE168C2C02570cB814F".to_string(),
             l2_signal_service: "1000777700000000000000000000000000000007".to_string(),
             l2_contract: "1000777700000000000000000000000000000001".to_string(),
-            meta_hash: "ba97517eb3553f0c355d68392493f8b08aaafcd4b05dc6759889c421316cccfb"
+            meta_data: RequestMetaData {
+                id: 1,
+                timestamp: 1688569600,
+                l1_height: 3610862,
+                l1_hash: "6ee81eb8e7026ba04e31619c721256ee081c7b46b30ed26f7bbfee512be07c9c"
+                    .to_string(),
+                l1_mix_hash: "0000000000000000000000000000000000000000000000000000000000000000"
+                    .to_string(),
+                deposits_processed:
+                    "569e75fc77c1a856f6daaf9e69d8a9566ca34aa47f9133711ce065a571af0cfd".to_string(),
+                tx_list_hash: "655ee1ebc106dc4e88bf38da6f67a2ec67c33f2ee64d5223d1b22f1b0b017302"
+                    .to_string(),
+                tx_list_byte_start: 0,
+                tx_list_byte_end: 0,
+                gas_limit: 21000,
+                beneficiary: "0000777700000000000000000000000000000001".to_string(),
+                treasury: "df09A0afD09a63fb04ab3573922437e1e637dE8b".to_string(),
+            },
+            block_hash: "7d6ec8fc752e9f42264ed07eae90f59e8a3b58c4579fe31c0ac410dcaa75e91e"
                 .to_string(),
-            block_hash: "f9101063257478d306ac9d826927eae60c1c9b7db6fd2fe68aa249739221f611"
+            parent_hash: "9030c293131961af88fc86908a33a9308bf2a06b4f7e2a8b26ff256635755b87"
                 .to_string(),
-            parent_hash: "cc9e3bcb7273a75b5f5b77c22c7878506eabb2d2308390a717a52d80c63926d8"
+            signal_root: "4f88a53547efa01393915fc4a5ef2b20c6f546c696693405b184c234c6a7f5b4"
                 .to_string(),
-            signal_root: "d215c65a2b8ffc53f7b7659dc0a5cab2a5044c3cf71524e36e60d8aa8d4bb173"
+            graffiti: "6162630000000000000000000000000000000000000000000000000000000000"
                 .to_string(),
-            graffiti: "0000000000000000000000000000000000000000000000000000000000000000"
-                .to_string(),
-            prover: "6C671d2C641CE1b99F17755fd45441fa4326C3B1".to_string(),
-            gas_used: 1605944,
-            parent_gas_used: 3984953,
+            prover: "70997970C51812dc3A010C7d01b50e0d17dc79C8".to_string(),
+            gas_used: 141003,
+            parent_gas_used: 122527,
             block_max_gas_limit: 6000000,
             max_transactions_per_block: 79,
             max_bytes_per_tx_list: 120000,
+            anchor_gas_limit: 180000,
         };
 
-        let mut dummy_req = ProofRequestOptions {
+        let dummy_req = ProofRequestOptions {
             circuit: "super".to_string(),
-            block: 30,
-            rpc: "https://rpc.internal.taiko.xyz".to_string(),
-            protocol_instance: protocol_instance.clone(),
-            param: Some("../param".to_string()),
-            aggregate: true,
+            block: 2,
+            rpc: "http://43.153.70.15:8545".to_string(),
+            protocol_instance,
+            param: Some("./param".to_string()),
+            aggregate: false,
             retry: true,
-            mock: false,
+            mock: true,
             mock_feedback: false,
             verify_proof: true,
         };
 
-        dummy_req.aggregate = true;
-        dummy_req.param = Some("../param".to_string());
-        dummy_req.protocol_instance = protocol_instance.clone();
-        dummy_req.mock = false;
+        let witness = CircuitWitness::dummy_with_request(&dummy_req)
+            .await
+            .unwrap();
 
-        let mut witness = CircuitWitness::dummy_with_request(&dummy_req).await.unwrap();
-        witness.protocol_instance = protocol_instance.clone().into();
         let super_circuit = gen_super_circuit::<
             { CIRCUIT_CONFIG.max_txs },
             { CIRCUIT_CONFIG.max_calldata },
@@ -858,6 +874,85 @@ mod test {
         >(&witness, fixed_rng())
         .unwrap();
 
+        println!("ready to compute proof");
+        let proof = compute_proof(&ss, &dummy_req, CIRCUIT_CONFIG, super_circuit)
+            .await
+            .unwrap();
+        println!("proof={:?}", proof);
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn test_with_high_degree() -> Result<(), String> {
+        let ss = SharedState::new("1234".to_owned(), None);
+        const CIRCUIT_CONFIG: CircuitConfig =
+            crate::match_circuit_params!(10001, CIRCUIT_CONFIG, {
+                panic!();
+            });
+        let protocol_instance = RequestExtraInstance {
+            l1_signal_service: "7a2088a1bFc9d81c55368AE168C2C02570cB814F".to_string(),
+            l2_signal_service: "1000777700000000000000000000000000000007".to_string(),
+            l2_contract: "1000777700000000000000000000000000000001".to_string(),
+            meta_data: RequestMetaData {
+                id: 1,
+                timestamp: 1688569600,
+                l1_height: 4143812,
+                l1_hash: "19162da900104daef8f396d0fadcc57e17e3fe3bde8114a53d8a66543dde96a6"
+                    .to_string(),
+                l1_mix_hash: "0000000000000000000000000000000000000000000000000000000000000000"
+                    .to_string(),
+                deposits_processed:
+                    "569e75fc77c1a856f6daaf9e69d8a9566ca34aa47f9133711ce065a571af0cfd".to_string(),
+                tx_list_hash: "655ee1ebc106dc4e88bf38da6f67a2ec67c33f2ee64d5223d1b22f1b0b017302"
+                    .to_string(),
+                tx_list_byte_start: 0,
+                tx_list_byte_end: 0,
+                gas_limit: 21000,
+                beneficiary: "0000777700000000000000000000000000000001".to_string(),
+                treasury: "df09A0afD09a63fb04ab3573922437e1e637dE8b".to_string(),
+            },
+            block_hash: "7d9a24105634252561d0a94534ddea296410d2342b253ca19c3a74b16c621d95"
+                .to_string(),
+            parent_hash: "991f78f08bd8102b428e7c4a120578cfa1413bff3fc99a2ffdcd939c6ced15fd"
+                .to_string(),
+            signal_root: "2c1f492045add283f77246531d2c60ba09499a20d6f415ce8abffe8ca60b023b"
+                .to_string(),
+            graffiti: "6162630000000000000000000000000000000000000000000000000000000000"
+                .to_string(),
+            prover: "70997970C51812dc3A010C7d01b50e0d17dc79C8".to_string(),
+            gas_used: 141003,
+            parent_gas_used: 2077003,
+            block_max_gas_limit: 6000000,
+            max_transactions_per_block: 79,
+            max_bytes_per_tx_list: 120000,
+            anchor_gas_limit: 180000,
+        };
+
+        let dummy_req = ProofRequestOptions {
+            circuit: "super".to_string(),
+            block: 1450835,
+            rpc: "http://43.153.70.15:8545".to_string(),
+            protocol_instance,
+            param: Some("./param".to_string()),
+            aggregate: true,
+            retry: true,
+            mock: false,
+            mock_feedback: false,
+            verify_proof: true,
+        };
+
+        let witness = CircuitWitness::dummy_with_request(&dummy_req)
+            .await
+            .unwrap();
+
+        let super_circuit = gen_super_circuit::<
+            { CIRCUIT_CONFIG.max_txs },
+            { CIRCUIT_CONFIG.max_calldata },
+            { CIRCUIT_CONFIG.max_rws },
+            { CIRCUIT_CONFIG.max_copy_rows },
+            _,
+        >(&witness, fixed_rng())
+        .unwrap();
 
         println!("ready to compute proof");
         let proof = compute_proof(&ss, &dummy_req, CIRCUIT_CONFIG, super_circuit)

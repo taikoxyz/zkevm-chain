@@ -185,9 +185,10 @@ async fn handle_method(
             let options: ProofRequestOptions =
                 serde_json::from_value(options.to_owned()).map_err(|e| e.to_string())?;
 
-            let witness = CircuitWitness::from_rpc(&options.block, &options.rpc)
-                .await
-                .map_err(|e| e.to_string())?;
+            let witness =
+                CircuitWitness::from_rpc(&options.block, &options.rpc, &options.protocol_instance)
+                    .await
+                    .map_err(|e| e.to_string())?;
 
             let circuit_config =
                 crate::match_circuit_params!(witness.gas_used(), CIRCUIT_CONFIG, {

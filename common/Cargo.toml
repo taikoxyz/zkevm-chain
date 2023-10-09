@@ -5,8 +5,11 @@ edition = "2021"
 license = "MIT OR Apache-2.0"
 
 [dependencies]
-eth-types = { git = "https://github.com/taikoxyz/zkevm-circuits.git", branch = "feat/a5-testnet", features = ["warn-unimplemented"] }
-zkevm-circuits = { git = "https://github.com/taikoxyz/zkevm-circuits.git", branch = "feat/a5-testnet" }
+bus-mapping = { git = "https://github.com/taikoxyz/zkevm-circuits.git" }
+eth-types = { git = "https://github.com/taikoxyz/zkevm-circuits.git", features = [
+  "warn-unimplemented",
+] }
+zkevm-circuits = { git = "https://github.com/taikoxyz/zkevm-circuits.git" }
 hyper = { version = "0.14.16", features = ["server"] }
 log = "0.4.14"
 serde = { version = "1.0.136", features = ["derive"] }
