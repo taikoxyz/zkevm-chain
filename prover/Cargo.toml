@@ -58,3 +58,4 @@ paste = { version = "1.0.11", optional = true }
 [features]
 default = []
 autogen = ["mock", "ethers-signers", "zkevm_dev", "paste"]
+evm-verifier = []

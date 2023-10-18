@@ -8,8 +8,14 @@ use crate::G1Affine;
 use crate::ProverKey;
 use crate::ProverParams;
 
-#[cfg(feature = "evm_verifier")]
-use circuit_benchmarks::super_circuit::{evm_verify, gen_verifier};
+#[cfg(feature = "evm-verifier")]
+mod evm_verifier_helper {
+    pub use circuit_benchmarks::taiko_super_circuit::{evm_verify, gen_verifier};
+    pub use snark_verifier::loader::evm;
+    pub use zkevm_circuits::root_circuit::taiko_aggregation::AccumulationSchemeType;
+    pub use zkevm_circuits::root_circuit::Config;
+}
+
 use halo2_proofs::dev::MockProver;
 use halo2_proofs::plonk::Circuit;
 use halo2_proofs::plonk::{keygen_pk, keygen_vk};
@@ -17,7 +23,6 @@ use halo2_proofs::poly::commitment::Params;
 use halo2_proofs::SerdeFormat;
 use hyper::Uri;
 use rand::{thread_rng, Rng};
-use snark_verifier::loader::evm;
 use snark_verifier::system::halo2::transcript::evm::EvmTranscript;
 use snark_verifier_sdk::evm::gen_evm_proof_gwc;
 use snark_verifier_sdk::halo2::gen_snark_gwc;
@@ -32,8 +37,6 @@ use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use std::time::Instant;
 use tokio::sync::Mutex;
-use zkevm_circuits::root_circuit::taiko_aggregation::AccumulationSchemeType;
-use zkevm_circuits::root_circuit::Config;
 use zkevm_circuits::root_circuit::TaikoAggregationCircuit;
 use zkevm_circuits::util::SubCircuit;
 use zkevm_common::json_rpc::jsonrpc_request_client;
@@ -184,24 +187,30 @@ async fn compute_proof<C: Circuit<Fr> + Clone + SubCircuit<Fr> + CircuitExt<Fr>>
             aggregation_proof.instance = collect_instance_hex(&agg_instance);
             let proof = {
                 let time_started = Instant::now();
-                let num_instances = agg_circuit.num_instance().clone();
-                let instances = agg_circuit.instance().clone();
-                let accumulator_indices = Some(agg_circuit.accumulator_indices());
+                #[cfg(feature = "evm-verifier")]
+                let (num_instances, instances, accumulator_indices) = {
+                    (
+                        agg_circuit.num_instance().clone(),
+                        agg_circuit.instance().clone(),
+                        Some(agg_circuit.accumulator_indices()),
+                    )
+                };
 
                 let v = gen_evm_proof_gwc(&agg_params, &agg_pk, agg_circuit, agg_instance);
-                #[cfg(feature = "evm_verifier")]
+                #[cfg(feature = "evm-verifier")]
                 {
-                    let deployment_code = gen_verifier(
+                    let deployment_code = evm_verifier_helper::gen_verifier(
                         &agg_params,
                         &agg_pk.get_vk(),
-                        Config::kzg()
+                        evm_verifier_helper::Config::kzg()
                             .with_num_instance(num_instances.clone())
                             .with_accumulator_indices(accumulator_indices),
                         num_instances,
-                        AccumulationSchemeType::GwcType,
+                        evm_verifier_helper::AccumulationSchemeType::GwcType,
                     );
-                    let evm_verifier_bytecode = evm::compile_yul(&deployment_code);
-                    evm_verify(evm_verifier_bytecode, instances, v.clone());
+                    let evm_verifier_bytecode =
+                        evm_verifier_helper::evm::compile_yul(&deployment_code);
+                    evm_verifier_helper::evm_verify(evm_verifier_bytecode, instances, v.clone());
                 }
 
                 aggregation_proof.aux.proof =
@@ -763,6 +772,7 @@ impl SharedState {
 #[cfg(test)]
 mod test {
     use super::*;
+    use env_logger::Env;
     use eth_types::Address;
     use eth_types::ToBigEndian;
     use eth_types::ToWord;
@@ -884,44 +894,47 @@ mod test {
 
     #[tokio::test]
     async fn test_with_high_degree() -> Result<(), String> {
+        env_logger::Builder::from_env(Env::default().default_filter_or("info")).init();
+
         let ss = SharedState::new("1234".to_owned(), None);
         const CIRCUIT_CONFIG: CircuitConfig =
             crate::match_circuit_params!(10001, CIRCUIT_CONFIG, {
                 panic!();
             });
+
         let protocol_instance = RequestExtraInstance {
             l1_signal_service: "7a2088a1bFc9d81c55368AE168C2C02570cB814F".to_string(),
             l2_signal_service: "1000777700000000000000000000000000000007".to_string(),
             l2_contract: "1000777700000000000000000000000000000001".to_string(),
             meta_data: RequestMetaData {
-                id: 1,
-                timestamp: 1688569600,
-                l1_height: 4143812,
-                l1_hash: "19162da900104daef8f396d0fadcc57e17e3fe3bde8114a53d8a66543dde96a6"
+                id: 1045,
+                timestamp: 1694590452,
+                l1_height: 4278960,
+                l1_hash: "7240c017af19dd18eb328bad5865bfd812e9c14053c354ecaae64ab8896f6e2a"
                     .to_string(),
                 l1_mix_hash: "0000000000000000000000000000000000000000000000000000000000000000"
                     .to_string(),
                 deposits_processed:
-                    "569e75fc77c1a856f6daaf9e69d8a9566ca34aa47f9133711ce065a571af0cfd".to_string(),
-                tx_list_hash: "655ee1ebc106dc4e88bf38da6f67a2ec67c33f2ee64d5223d1b22f1b0b017302"
+                    "56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421".to_string(),
+                tx_list_hash: "569e75fc77c1a856f6daaf9e69d8a9566ca34aa47f9133711ce065a571af0cfd"
                     .to_string(),
                 tx_list_byte_start: 0,
                 tx_list_byte_end: 0,
-                gas_limit: 21000,
+                gas_limit: 820000000,
                 beneficiary: "0000777700000000000000000000000000000001".to_string(),
                 treasury: "df09A0afD09a63fb04ab3573922437e1e637dE8b".to_string(),
             },
-            block_hash: "7d9a24105634252561d0a94534ddea296410d2342b253ca19c3a74b16c621d95"
+            block_hash: "19101b2b2c7fc6308f1b17657efb1adfa94aa2c6c64ab4d9e9d18675bd3e57c3"
                 .to_string(),
-            parent_hash: "991f78f08bd8102b428e7c4a120578cfa1413bff3fc99a2ffdcd939c6ced15fd"
+            parent_hash: "ccac2185fbfb904b6551b4fdedd240b5fc02e8f5508c05e58a2dc7d8f4ca9f0c"
                 .to_string(),
-            signal_root: "2c1f492045add283f77246531d2c60ba09499a20d6f415ce8abffe8ca60b023b"
+            signal_root: "55d8315a59fd224b008c28023824f40072e06e7ad7b25781ec7fd71ea4f8cad5"
                 .to_string(),
             graffiti: "6162630000000000000000000000000000000000000000000000000000000000"
                 .to_string(),
             prover: "70997970C51812dc3A010C7d01b50e0d17dc79C8".to_string(),
-            gas_used: 141003,
-            parent_gas_used: 2077003,
+            gas_used: 814499,
+            parent_gas_used: 217799,
             block_max_gas_limit: 6000000,
             max_transactions_per_block: 79,
             max_bytes_per_tx_list: 120000,
@@ -930,10 +943,10 @@ mod test {
 
         let dummy_req = ProofRequestOptions {
             circuit: "super".to_string(),
-            block: 1450835,
-            rpc: "http://43.153.70.15:8545".to_string(),
+            block: 1045,
+            rpc: "http://43.153.26.11:8545".to_string(),
             protocol_instance,
-            param: Some("./param".to_string()),
+            param: Some("./params".to_string()),
             aggregate: true,
             retry: true,
             mock: false,
@@ -941,9 +954,13 @@ mod test {
             verify_proof: true,
         };
 
-        let witness = CircuitWitness::dummy_with_request(&dummy_req)
-            .await
-            .unwrap();
+        let witness = CircuitWitness::from_rpc(
+            &dummy_req.block,
+            &dummy_req.rpc,
+            &dummy_req.protocol_instance,
+        )
+        .await
+        .unwrap();
 
         let super_circuit = gen_super_circuit::<
             { CIRCUIT_CONFIG.max_txs },

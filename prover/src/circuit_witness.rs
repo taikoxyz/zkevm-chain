@@ -183,7 +183,7 @@ impl CircuitWitness {
             block: builder.block,
             dummy_block: None,
             code_db: builder.code_db,
-            protocol_instance: ProtocolInstance::default(),
+            protocol_instance: pi,
         })
     }
 
