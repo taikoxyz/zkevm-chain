@@ -155,6 +155,8 @@ impl CircuitWitness {
         let geth_client = GethClient::new(url);
         // TODO: add support for `eth_getHeaderByNumber`
         let block = geth_client.get_block_by_number((*block_num).into()).await?;
+        Self::validate_proverable_block(&block)?;
+
         let circuit_config =
             crate::match_circuit_params!(block.gas_used.as_usize(), CIRCUIT_CONFIG, {
                 return Err(format!(
@@ -253,6 +255,23 @@ impl CircuitWitness {
             // block_hash: eth_block.hash.unwrap_or_default(),
             state_root: eth_block.state_root,
         }
+    }
+
+    fn validate_proverable_block(
+        block: &eth_types::Block<eth_types::Transaction>,
+    ) -> Result<(), Box<dyn std::error::Error>> {
+        block.transactions.iter().for_each(|tx| {
+           print!("tx: {:?}", tx);
+        });
+        if block
+            .transactions
+            .iter()
+            .any(|tx| tx.transaction_type != Some(2u64.into()) || (tx.access_list.is_some() && !tx.access_list.as_ref().unwrap().0.is_empty()))
+        {
+            return Err("unsupported block".into());
+        }
+
+        Ok(())
     }
 }
 

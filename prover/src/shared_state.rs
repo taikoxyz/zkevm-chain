@@ -429,7 +429,7 @@ impl SharedState {
             let self_copy = self.clone();
 
             tokio::spawn(async move {
-                let witness = CircuitWitness::dummy_with_request(&task_options_copy)
+                let witness = CircuitWitness::from_request(&task_options_copy)
                     .await
                     .map_err(|e| e.to_string())?;
 
@@ -1001,13 +1001,7 @@ mod test {
             verify_proof: true,
         };
 
-        let witness = CircuitWitness::from_rpc(
-            &dummy_req.block,
-            &dummy_req.rpc,
-            &dummy_req.protocol_instance,
-        )
-        .await
-        .unwrap();
+        let witness = CircuitWitness::from_request(&dummy_req).await.unwrap();
 
         let super_circuit = gen_super_circuit::<
             { CIRCUIT_CONFIG.max_txs },
