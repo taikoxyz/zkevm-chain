@@ -8,6 +8,7 @@ lto = "thin"
 [patch."https://github.com/privacy-scaling-explorations/halo2.git"]
 halo2_proofs = { git = "https://github.com/appliedzkp/halo2.git", tag = "v2023_04_20", package = "halo2_proofs" }
 
+
 # [patch."https://github.com/privacy-scaling-explorations/halo2curves.git"]
 # halo2_curves = { git = "https://github.com/appliedzkp/halo2curves.git", tag = "0.3.3", package = "halo2curves" }
 
@@ -17,10 +18,14 @@ halo2_wrong_integer = { git = "https://github.com/appliedzkp/halo2wrong.git", ta
 halo2_wrong_maingate = { git = "https://github.com/appliedzkp/halo2wrong.git", tag = "v2023_04_20", package = "maingate" }
 
 [patch."https://github.com/taikoxyz/zkevm-circuits.git"]
-bus-mapping = { git = "https://github.com/smtmfft/zkevm-circuits.git ", branch = "for-a6-release" }
+bus-mapping = { git = "https://github.com/smtmfft/zkevm-circuits.git ", branch = "for-a6-release", features = [
+  "test",
+]}
 circuit-benchmarks = { git = "https://github.com/smtmfft/zkevm-circuits.git ", branch = "for-a6-release", features = [
-  "benches",
+    "benches",
 ] }
-eth-types = { git = "https://github.com/smtmfft/zkevm-circuits.git ", branch = "for-a6-release" }
+eth-types = { git = "https://github.com/smtmfft/zkevm-circuits.git ", branch = "for-a6-release", features = [
+    "warn-unimplemented",
+] }
 zkevm-circuits = { git = "https://github.com/smtmfft/zkevm-circuits.git ", branch = "for-a6-release" }
 mock = { git = "https://github.com/smtmfft/zkevm-circuits.git ", branch = "for-a6-release" }
