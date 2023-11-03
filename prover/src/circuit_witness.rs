@@ -276,7 +276,6 @@ impl CircuitWitness {
 }
 
 mod test {
-    use super::*;
 
     #[tokio::test]
     async fn test_geth_client() {

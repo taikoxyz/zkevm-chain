@@ -1,6 +1,5 @@
 use crate::circuit_witness::CircuitWitness;
 use crate::Fr;
-use eth_types::ToWord;
 use rand::Rng;
 // use zkevm_circuits::bytecode_circuit::circuit::BytecodeCircuit;
 // use zkevm_circuits::copy_circuit::CopyCircuit;
@@ -26,22 +25,20 @@ pub fn gen_super_circuit<
 ) -> Result<SuperCircuit<Fr>, String> {
     let block = witness.dummy_evm_witness();
     assert_eq!(
-        block.context.block_hash,
+        block.context.block_hash.to_string(),
         block
             .protocol_instance
             .as_ref()
             .unwrap()
-            .block_hash
-            .to_word()
+            .block_evidence.blockHash.to_string()
     );
     assert_eq!(
-        block.context.history_hashes[block.context.history_hashes.len() - 1],
+        block.context.history_hashes[block.context.history_hashes.len() - 1].to_string(),
         block
             .protocol_instance
             .as_ref()
             .unwrap()
-            .parent_hash
-            .to_word()
+            .block_evidence.parentHash.to_string()
     );
     let circuit = SuperCircuit::new_from_block(&block);
     Ok(circuit)
