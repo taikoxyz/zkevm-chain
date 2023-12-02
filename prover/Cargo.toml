@@ -59,3 +59,4 @@ paste = { version = "1.0.11", optional = true }
 default = []
 autogen = ["mock", "ethers-signers", "zkevm_dev", "paste"]
 evm-verifier = []
+eip-1559-only = []

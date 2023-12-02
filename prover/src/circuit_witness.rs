@@ -260,9 +260,7 @@ impl CircuitWitness {
     fn validate_proverable_block(
         block: &eth_types::Block<eth_types::Transaction>,
     ) -> Result<(), Box<dyn std::error::Error>> {
-        block.transactions.iter().for_each(|tx| {
-           print!("tx: {:?}", tx);
-        });
+        #[cfg(feature = "eip-1559-only")]
         if block
             .transactions
             .iter()
@@ -276,6 +274,7 @@ impl CircuitWitness {
 }
 
 mod test {
+    use super::*;
 
     #[tokio::test]
     async fn test_geth_client() {
