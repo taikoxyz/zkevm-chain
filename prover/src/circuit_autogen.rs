@@ -11,9 +11,9 @@ macro_rules! match_circuit_params {
                     max_rws: 50000,
                     max_copy_rows: 50000,
                     max_exp_steps: 27900,
-                    min_k: 20,
+                    min_k: 19,
                     pad_to: 80000,
-                    min_k_aggregation: 26,
+                    min_k_aggregation: 22,
                     keccak_padding: 500000,
                 };
                 $on_match
