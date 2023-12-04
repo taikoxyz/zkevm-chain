@@ -901,9 +901,9 @@ mod test {
                 l2_contract: "1000777700000000000000000000000000000001".to_string(),
                 meta_data: RequestMetaData {
                     id: 11,
-                    timestamp: 1701449932,
-                    l1_height: 60,
-                    l1_hash: "5ed66920b324deb11f23f2c0fc1f65b7e2b7ba22a4ddb3820162921320f0b004"
+                    timestamp: 1701529797,
+                    l1_height: 65,
+                    l1_hash: "476e91c051dfcb8b98ce8cb10f67a9b8d83674fb598b6c30493d28a081374040"
                         .to_string(),
                     l1_mix_hash: "0000000000000000000000000000000000000000000000000000000000000000"
                         .to_string(),
@@ -919,17 +919,17 @@ mod test {
                     beneficiary: "0000000000000000000000000000000000000000".to_string(),
                     treasury: "df09A0afD09a63fb04ab3573922437e1e637dE8b".to_string(),
                 },
-                block_hash: "f3e016bfa8ff853701e8dba4a06801e601c29237167d4457dd3fd2b84dc4c93b"
+                block_hash: "70d487330c03300a122c3e085506ad8e64a29a6f39efa7dde83cc8bef788b4b8"
                     .to_string(),
-                parent_hash: "e349a2594b5022bbed116b286e52dd44647689f9a24560835b22c61d742b4bd0"
+                parent_hash: "574b3bcf83317a797ad1f86e2e48d5c0bde1ce85d7ee93875dbeb76ac33016c6"
                     .to_string(),
                 signal_root: "2224583fd8d31dbc2c317411b70966e4bb9536ee8bbdf84f6bcba5c8f2ad86fe"
                     .to_string(),
                 graffiti: "6162630000000000000000000000000000000000000000000000000000000000"
                     .to_string(),
                 prover: "70997970C51812dc3A010C7d01b50e0d17dc79C8".to_string(),
-                gas_used: 412231,
-                parent_gas_used: 412042,
+                gas_used: 412243,
+                parent_gas_used: 412066,
                 block_max_gas_limit: 6000000,
                 max_transactions_per_block: 79,
                 max_bytes_per_tx_list: 120000,
@@ -941,9 +941,9 @@ mod test {
                 l2_contract: "1000777700000000000000000000000000000001".to_string(),
                 meta_data: RequestMetaData {
                     id: 1025,
-                    timestamp: 1701472720,
-                    l1_height: 1959,
-                    l1_hash: "3c32abfcccd244f6391aba0c377a395901d647c2991d8e836c301aae862e3258"
+                    timestamp: 1701553257,
+                    l1_height: 2020,
+                    l1_hash: "4260d5df2a821080027911ef04c59f1914386fc467bd9dd1b7ba5691d1041964"
                         .to_string(),
                     l1_mix_hash: "0000000000000000000000000000000000000000000000000000000000000000"
                         .to_string(),
@@ -959,17 +959,17 @@ mod test {
                     beneficiary: "0000000000000000000000000000000000000000".to_string(),
                     treasury: "df09A0afD09a63fb04ab3573922437e1e637dE8b".to_string(),
                 },
-                block_hash: "8b671deb575a80ac3ff07ca66cd150efce80dda252fb470a14ea82b054c74c85"
+                block_hash: "272a6d7f09ae1c8dcae6bae7e5922cd3b8fa68826508f079e009c96f210b726f"
                     .to_string(),
-                parent_hash: "39c54f05027aad90a19927b14d73e830e2bd1e549a5bf5836d4b6dc76690c05b"
+                parent_hash: "3798d05a6399733626bcc680a38bb9a8d36bc8423158b99d8beab271fc8b880e"
                     .to_string(),
                 signal_root: "0cd5218c170d26716db5d11da63da4730d9c55ddfdc605d22cf767cbe18813ba"
                     .to_string(),
                 graffiti: "6162630000000000000000000000000000000000000000000000000000000000"
                     .to_string(),
                 prover: "70997970C51812dc3A010C7d01b50e0d17dc79C8".to_string(),
-                gas_used: 586074,
-                parent_gas_used: 586074,
+                gas_used: 503737,
+                parent_gas_used: 503737,
                 block_max_gas_limit: 6000000,
                 max_transactions_per_block: 79,
                 max_bytes_per_tx_list: 120000,

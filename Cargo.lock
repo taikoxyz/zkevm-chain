@@ -678,7 +678,7 @@ checksum = "a3e2c3daef883ecc1b5d58c15adae93470a91d425f3532ba1695849656af3fc1"
 [[package]]
 name = "bus-mapping"
 version = "0.1.0"
-source = "git+https://github.com/smtmfft/zkevm-circuits.git?branch=fix-compile#5b4f9c8db4b6b53b64b2a61fa9add2236a54779c"
+source = "git+https://github.com/taikoxyz/zkevm-circuits.git?branch=feat/for-a6-release#9caec72c790d63496c7a6a788f21faae5b2efb3a"
 dependencies = [
  "alloy-dyn-abi",
  "alloy-primitives",
@@ -798,7 +798,7 @@ dependencies = [
 [[package]]
 name = "circuit-benchmarks"
 version = "0.1.0"
-source = "git+https://github.com/smtmfft/zkevm-circuits.git?branch=fix-compile#5b4f9c8db4b6b53b64b2a61fa9add2236a54779c"
+source = "git+https://github.com/taikoxyz/zkevm-circuits.git?branch=feat/for-a6-release#9caec72c790d63496c7a6a788f21faae5b2efb3a"
 dependencies = [
  "ark-std 0.3.0",
  "bus-mapping",
@@ -1481,7 +1481,7 @@ dependencies = [
 [[package]]
 name = "eth-types"
 version = "0.1.0"
-source = "git+https://github.com/smtmfft/zkevm-circuits.git?branch=fix-compile#5b4f9c8db4b6b53b64b2a61fa9add2236a54779c"
+source = "git+https://github.com/taikoxyz/zkevm-circuits.git?branch=feat/for-a6-release#9caec72c790d63496c7a6a788f21faae5b2efb3a"
 dependencies = [
  "ethers-core",
  "ethers-signers",
@@ -1643,7 +1643,7 @@ dependencies = [
 [[package]]
 name = "external-tracer"
 version = "0.1.0"
-source = "git+https://github.com/smtmfft/zkevm-circuits.git?branch=fix-compile#5b4f9c8db4b6b53b64b2a61fa9add2236a54779c"
+source = "git+https://github.com/taikoxyz/zkevm-circuits.git?branch=feat/for-a6-release#9caec72c790d63496c7a6a788f21faae5b2efb3a"
 dependencies = [
  "eth-types",
  "geth-utils",
@@ -1839,7 +1839,7 @@ dependencies = [
 [[package]]
 name = "gadgets"
 version = "0.1.0"
-source = "git+https://github.com/smtmfft/zkevm-circuits.git?branch=fix-compile#5b4f9c8db4b6b53b64b2a61fa9add2236a54779c"
+source = "git+https://github.com/taikoxyz/zkevm-circuits.git?branch=feat/for-a6-release#9caec72c790d63496c7a6a788f21faae5b2efb3a"
 dependencies = [
  "digest 0.7.6",
  "eth-types",
@@ -1880,7 +1880,7 @@ dependencies = [
 [[package]]
 name = "geth-utils"
 version = "0.1.0"
-source = "git+https://github.com/smtmfft/zkevm-circuits.git?branch=fix-compile#5b4f9c8db4b6b53b64b2a61fa9add2236a54779c"
+source = "git+https://github.com/taikoxyz/zkevm-circuits.git?branch=feat/for-a6-release#9caec72c790d63496c7a6a788f21faae5b2efb3a"
 dependencies = [
  "env_logger",
  "gobuild",
@@ -2423,7 +2423,7 @@ dependencies = [
 [[package]]
 name = "keccak256"
 version = "0.1.0"
-source = "git+https://github.com/smtmfft/zkevm-circuits.git?branch=fix-compile#5b4f9c8db4b6b53b64b2a61fa9add2236a54779c"
+source = "git+https://github.com/taikoxyz/zkevm-circuits.git?branch=feat/for-a6-release#9caec72c790d63496c7a6a788f21faae5b2efb3a"
 dependencies = [
  "env_logger",
  "eth-types",
@@ -2611,7 +2611,7 @@ dependencies = [
 [[package]]
 name = "mock"
 version = "0.1.0"
-source = "git+https://github.com/smtmfft/zkevm-circuits.git?branch=fix-compile#5b4f9c8db4b6b53b64b2a61fa9add2236a54779c"
+source = "git+https://github.com/taikoxyz/zkevm-circuits.git?branch=feat/for-a6-release#9caec72c790d63496c7a6a788f21faae5b2efb3a"
 dependencies = [
  "eth-types",
  "ethers-core",
@@ -4865,7 +4865,7 @@ dependencies = [
 [[package]]
 name = "zkevm-circuits"
 version = "0.1.0"
-source = "git+https://github.com/smtmfft/zkevm-circuits.git?branch=fix-compile#5b4f9c8db4b6b53b64b2a61fa9add2236a54779c"
+source = "git+https://github.com/taikoxyz/zkevm-circuits.git?branch=feat/for-a6-release#9caec72c790d63496c7a6a788f21faae5b2efb3a"
 dependencies = [
  "alloy-dyn-abi",
  "alloy-primitives",
@@ -4925,18 +4925,3 @@ dependencies = [
  "serde",
  "serde_json",
 ]
-
-[[patch.unused]]
-name = "ecc"
-version = "0.1.0"
-source = "git+https://github.com/appliedzkp/halo2wrong.git?tag=v2023_04_20#f72db265aa3cebe297c9b9816e940d0e1d400886"
-
-[[patch.unused]]
-name = "integer"
-version = "0.1.0"
-source = "git+https://github.com/appliedzkp/halo2wrong.git?tag=v2023_04_20#f72db265aa3cebe297c9b9816e940d0e1d400886"
-
-[[patch.unused]]
-name = "maingate"
-version = "0.1.0"
-source = "git+https://github.com/appliedzkp/halo2wrong.git?tag=v2023_04_20#f72db265aa3cebe297c9b9816e940d0e1d400886"
