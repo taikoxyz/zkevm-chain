@@ -1,4 +1,4 @@
-use bus_mapping::circuit_input_builder::{MetaData, ProtocolInstance};
+use bus_mapping::circuit_input_builder::{ProtocolInstance, protocol_instance::{BlockEvidence, BlockMetadata}};
 use eth_types::{Address, Bytes, H256};
 use serde::{Deserialize, Serialize};
 
@@ -144,8 +144,8 @@ impl PartialEq for RequestExtraInstance {
     }
 }
 
-fn parse_hash(input: &str) -> H256 {
-    H256::from_slice(&hex::decode(input).expect("parse_hash"))
+fn parse_hash(input: &str) -> [u8; 32] {
+    H256::from_slice(&hex::decode(input).expect("parse_hash")).as_fixed_bytes().clone()
 }
 
 fn parse_address(input: &str) -> Address {
@@ -155,34 +155,26 @@ fn parse_address(input: &str) -> Address {
 impl From<RequestExtraInstance> for ProtocolInstance {
     fn from(instance: RequestExtraInstance) -> Self {
         ProtocolInstance {
-            l1_signal_service: parse_address(&instance.l1_signal_service),
-            l2_signal_service: parse_address(&instance.l2_signal_service),
-            l2_contract: parse_address(&instance.l2_contract),
-            meta_data: MetaData {
-                id: instance.meta_data.id,
-                timestamp: instance.meta_data.timestamp,
-                l1_height: instance.meta_data.l1_height,
-                l1_hash: parse_hash(&instance.meta_data.l1_hash),
-                l1_mix_hash: parse_hash(&instance.meta_data.l1_mix_hash),
-                deposits_processed: parse_hash(&instance.meta_data.deposits_processed),
-                tx_list_hash: parse_hash(&instance.meta_data.tx_list_hash),
-                tx_list_byte_start: instance.meta_data.tx_list_byte_start,
-                tx_list_byte_end: instance.meta_data.tx_list_byte_end,
-                gas_limit: instance.meta_data.gas_limit,
-                beneficiary: parse_address(&instance.meta_data.beneficiary),
-                treasury: parse_address(&instance.meta_data.treasury),
+            block_evidence: BlockEvidence {
+                blockMetadata: BlockMetadata {
+                    l1Hash: parse_hash(&instance.meta_data.l1_hash).into(),            // constrain: anchor call
+                    // difficulty: parse_hash(&instance.meta_data.difficult),         // constrain: l2 block's difficulty
+                    txListHash: parse_hash(&instance.meta_data.tx_list_hash).into(),   // constrain: l2 txlist
+                    // extraData;                                                     // constrain: l2 block's extra data
+                    id: instance.meta_data.id,                                        // constrain: l2 block's number
+                    timestamp:  instance.meta_data.timestamp,                         // constrain: l2 block's timestamp
+                    l1Height: instance.meta_data.l1_height,                           // constrain: anchor
+                    gasLimit: instance.meta_data.gas_limit,                           // constrain: l2 block's gas limit - anchor gas limit
+                    coinbase:parse_address(&instance.meta_data.beneficiary).to_fixed_bytes().into(),    // constrain: L2 coinbase
+                    // depositsProcessed: parse_hash(&instance.meta_data.deposits_processed).into(), // constrain: l2 withdraw root
+                    ..Default::default()
+                },
+                parentHash: parse_hash(&instance.parent_hash).into(),
+                blockHash: parse_hash(&instance.block_hash).into(),    // constrain: l2 block hash
+                signalRoot:  parse_hash(&instance.signal_root).into(), // constrain: ??l2 service account storage root??
+                graffiti: parse_hash(&instance.graffiti).into(),
             },
-            block_hash: parse_hash(&instance.block_hash),
-            parent_hash: parse_hash(&instance.parent_hash),
-            signal_root: parse_hash(&instance.signal_root),
-            graffiti: parse_hash(&instance.graffiti),
             prover: parse_address(&instance.prover),
-            gas_used: instance.gas_used,
-            parent_gas_used: instance.parent_gas_used,
-            block_max_gas_limit: instance.block_max_gas_limit,
-            max_transactions_per_block: instance.max_transactions_per_block,
-            max_bytes_per_tx_list: instance.max_bytes_per_tx_list,
-            anchor_gas_limit: instance.anchor_gas_limit,
         }
     }
 }

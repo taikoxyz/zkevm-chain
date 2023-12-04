@@ -209,7 +209,7 @@ async fn compute_proof<C: Circuit<Fr> + Clone + SubCircuit<Fr> + CircuitExt<Fr>>
                         evm_verifier_helper::AccumulationSchemeType::GwcType,
                     );
                     let evm_verifier_bytecode =
-                        evm_verifier_helper::evm::compile_yul(&deployment_code);
+                        evm_verifier_helper::evm::compile_solidity(&deployment_code);
                     evm_verifier_helper::evm_verify(evm_verifier_bytecode, instances, v.clone());
                 }
 
@@ -816,7 +816,7 @@ mod test {
     #[tokio::test]
     async fn test_dummy_proof_gen() -> Result<(), String> {
         let ss = SharedState::new("1234".to_owned(), None);
-        const CIRCUIT_CONFIG: CircuitConfig = crate::match_circuit_params!(100, CIRCUIT_CONFIG, {
+        const CIRCUIT_CONFIG: CircuitConfig = crate::match_circuit_params!(1000, CIRCUIT_CONFIG, {
             panic!();
         });
         let protocol_instance = RequestExtraInstance {
@@ -824,49 +824,49 @@ mod test {
             l2_signal_service: "1000777700000000000000000000000000000007".to_string(),
             l2_contract: "1000777700000000000000000000000000000001".to_string(),
             meta_data: RequestMetaData {
-                id: 1,
+                id: 10,
                 timestamp: 1688569600,
                 l1_height: 3610862,
-                l1_hash: "6ee81eb8e7026ba04e31619c721256ee081c7b46b30ed26f7bbfee512be07c9c"
+                l1_hash: "8374d2fde2f3e5640f0ce4f6bb557e988336c2dae71e55cb3734c5c6be450820"
                     .to_string(),
                 l1_mix_hash: "0000000000000000000000000000000000000000000000000000000000000000"
                     .to_string(),
                 deposits_processed:
-                    "569e75fc77c1a856f6daaf9e69d8a9566ca34aa47f9133711ce065a571af0cfd".to_string(),
-                tx_list_hash: "655ee1ebc106dc4e88bf38da6f67a2ec67c33f2ee64d5223d1b22f1b0b017302"
+                    "deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef".to_string(),
+                tx_list_hash: "b3de7eaf38c3c84a34d7d80100c1b133bd7734f03b5c8e86cb806d684b718d85"
                     .to_string(),
                 tx_list_byte_start: 0,
                 tx_list_byte_end: 0,
                 gas_limit: 21000,
-                beneficiary: "0000777700000000000000000000000000000001".to_string(),
+                beneficiary: "3C44CdDdB6a900fa2b585dd299e03d12FA4293BC".to_string(),
                 treasury: "df09A0afD09a63fb04ab3573922437e1e637dE8b".to_string(),
             },
-            block_hash: "7d6ec8fc752e9f42264ed07eae90f59e8a3b58c4579fe31c0ac410dcaa75e91e"
+            block_hash: "8a8c11d6c46c1e8cce87900b52854fc74975aab054355c2a060aeefc6419b606"
                 .to_string(),
-            parent_hash: "9030c293131961af88fc86908a33a9308bf2a06b4f7e2a8b26ff256635755b87"
+            parent_hash: "beb327617555bd45c05ac7e33d2c509c77192eb8c372873483696b1a7367750a"
                 .to_string(),
-            signal_root: "4f88a53547efa01393915fc4a5ef2b20c6f546c696693405b184c234c6a7f5b4"
+            signal_root: "61e8be9519dac9b5e5124dd2e3f4e79628def914c8a9e6290caddef681fad23b"
                 .to_string(),
             graffiti: "6162630000000000000000000000000000000000000000000000000000000000"
                 .to_string(),
             prover: "70997970C51812dc3A010C7d01b50e0d17dc79C8".to_string(),
-            gas_used: 141003,
-            parent_gas_used: 122527,
+            gas_used: 421599,
+            parent_gas_used: 421422,
             block_max_gas_limit: 6000000,
             max_transactions_per_block: 79,
             max_bytes_per_tx_list: 120000,
-            anchor_gas_limit: 180000,
+            anchor_gas_limit: 250000,
         };
 
         let dummy_req = ProofRequestOptions {
             circuit: "super".to_string(),
-            block: 2,
-            rpc: "http://43.153.70.15:8545".to_string(),
+            block: 10,
+            rpc: "https://rpc.internal.taiko.xyz/".to_string(),
             protocol_instance,
-            param: Some("./param".to_string()),
-            aggregate: false,
+            param: Some("./params".to_string()),
+            aggregate: true,
             retry: true,
-            mock: true,
+            mock: false,
             mock_feedback: false,
             verify_proof: true,
         };
@@ -900,50 +900,10 @@ mod test {
                 l2_signal_service: "1000777700000000000000000000000000000007".to_string(),
                 l2_contract: "1000777700000000000000000000000000000001".to_string(),
                 meta_data: RequestMetaData {
-                    id: 10,
-                    timestamp: 1694510352,
-                    l1_height: 4272887,
-                    l1_hash: "6e3b781b2d9a04e21ecba49e67dc3fb0a8242408cc07fa6fed5d8bd0eca2c985"
-                        .to_string(),
-                    l1_mix_hash: "0000000000000000000000000000000000000000000000000000000000000000"
-                        .to_string(),
-                    deposits_processed:
-                        "569e75fc77c1a856f6daaf9e69d8a9566ca34aa47f9133711ce065a571af0cfd"
-                            .to_string(),
-                    tx_list_hash:
-                        "569e75fc77c1a856f6daaf9e69d8a9566ca34aa47f9133711ce065a571af0cfd"
-                            .to_string(),
-                    tx_list_byte_start: 0,
-                    tx_list_byte_end: 0,
-                    gas_limit: 21000,
-                    beneficiary: "0000777700000000000000000000000000000001".to_string(),
-                    treasury: "df09A0afD09a63fb04ab3573922437e1e637dE8b".to_string(),
-                },
-                block_hash: "c32ce5789b5ae9b2a3921e43fb16c429abcb520acf5e27dc717a9caf46c4319f"
-                    .to_string(),
-                parent_hash: "a534f7f74d155fa0575ccfd9dbb2a7c4f89baa0fb48c3a312f0d97e3fbff7c47"
-                    .to_string(),
-                signal_root: "95a87577b110954a0daf867bd574aa726ec9a061b4bf0903d5adef23872f7f1b"
-                    .to_string(),
-                graffiti: "6162630000000000000000000000000000000000000000000000000000000000"
-                    .to_string(),
-                prover: "70997970C51812dc3A010C7d01b50e0d17dc79C8".to_string(),
-                gas_used: 141003,
-                parent_gas_used: 123960,
-                block_max_gas_limit: 6000000,
-                max_transactions_per_block: 79,
-                max_bytes_per_tx_list: 120000,
-                anchor_gas_limit: 180000,
-            },
-            RequestExtraInstance {
-                l1_signal_service: "7a2088a1bFc9d81c55368AE168C2C02570cB814F".to_string(),
-                l2_signal_service: "1000777700000000000000000000000000000007".to_string(),
-                l2_contract: "1000777700000000000000000000000000000001".to_string(),
-                meta_data: RequestMetaData {
-                    id: 1045,
-                    timestamp: 1694590452,
-                    l1_height: 4278960,
-                    l1_hash: "7240c017af19dd18eb328bad5865bfd812e9c14053c354ecaae64ab8896f6e2a"
+                    id: 11,
+                    timestamp: 1701529797,
+                    l1_height: 65,
+                    l1_hash: "476e91c051dfcb8b98ce8cb10f67a9b8d83674fb598b6c30493d28a081374040"
                         .to_string(),
                     l1_mix_hash: "0000000000000000000000000000000000000000000000000000000000000000"
                         .to_string(),
@@ -956,24 +916,64 @@ mod test {
                     tx_list_byte_start: 0,
                     tx_list_byte_end: 0,
                     gas_limit: 820000000,
-                    beneficiary: "0000777700000000000000000000000000000001".to_string(),
+                    beneficiary: "0000000000000000000000000000000000000000".to_string(),
                     treasury: "df09A0afD09a63fb04ab3573922437e1e637dE8b".to_string(),
                 },
-                block_hash: "19101b2b2c7fc6308f1b17657efb1adfa94aa2c6c64ab4d9e9d18675bd3e57c3"
+                block_hash: "70d487330c03300a122c3e085506ad8e64a29a6f39efa7dde83cc8bef788b4b8"
                     .to_string(),
-                parent_hash: "ccac2185fbfb904b6551b4fdedd240b5fc02e8f5508c05e58a2dc7d8f4ca9f0c"
+                parent_hash: "574b3bcf83317a797ad1f86e2e48d5c0bde1ce85d7ee93875dbeb76ac33016c6"
                     .to_string(),
-                signal_root: "55d8315a59fd224b008c28023824f40072e06e7ad7b25781ec7fd71ea4f8cad5"
+                signal_root: "2224583fd8d31dbc2c317411b70966e4bb9536ee8bbdf84f6bcba5c8f2ad86fe"
                     .to_string(),
                 graffiti: "6162630000000000000000000000000000000000000000000000000000000000"
                     .to_string(),
                 prover: "70997970C51812dc3A010C7d01b50e0d17dc79C8".to_string(),
-                gas_used: 814499,
-                parent_gas_used: 217799,
+                gas_used: 412243,
+                parent_gas_used: 412066,
                 block_max_gas_limit: 6000000,
                 max_transactions_per_block: 79,
                 max_bytes_per_tx_list: 120000,
-                anchor_gas_limit: 180000,
+                anchor_gas_limit: 250000,
+            },
+            RequestExtraInstance {
+                l1_signal_service: "7a2088a1bFc9d81c55368AE168C2C02570cB814F".to_string(),
+                l2_signal_service: "1000777700000000000000000000000000000007".to_string(),
+                l2_contract: "1000777700000000000000000000000000000001".to_string(),
+                meta_data: RequestMetaData {
+                    id: 1025,
+                    timestamp: 1701553257,
+                    l1_height: 2020,
+                    l1_hash: "4260d5df2a821080027911ef04c59f1914386fc467bd9dd1b7ba5691d1041964"
+                        .to_string(),
+                    l1_mix_hash: "0000000000000000000000000000000000000000000000000000000000000000"
+                        .to_string(),
+                    deposits_processed:
+                        "56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421"
+                            .to_string(),
+                    tx_list_hash:
+                        "569e75fc77c1a856f6daaf9e69d8a9566ca34aa47f9133711ce065a571af0cfd"
+                            .to_string(),
+                    tx_list_byte_start: 0,
+                    tx_list_byte_end: 0,
+                    gas_limit: 820000000,
+                    beneficiary: "0000000000000000000000000000000000000000".to_string(),
+                    treasury: "df09A0afD09a63fb04ab3573922437e1e637dE8b".to_string(),
+                },
+                block_hash: "272a6d7f09ae1c8dcae6bae7e5922cd3b8fa68826508f079e009c96f210b726f"
+                    .to_string(),
+                parent_hash: "3798d05a6399733626bcc680a38bb9a8d36bc8423158b99d8beab271fc8b880e"
+                    .to_string(),
+                signal_root: "0cd5218c170d26716db5d11da63da4730d9c55ddfdc605d22cf767cbe18813ba"
+                    .to_string(),
+                graffiti: "6162630000000000000000000000000000000000000000000000000000000000"
+                    .to_string(),
+                prover: "70997970C51812dc3A010C7d01b50e0d17dc79C8".to_string(),
+                gas_used: 503737,
+                parent_gas_used: 503737,
+                block_max_gas_limit: 6000000,
+                max_transactions_per_block: 79,
+                max_bytes_per_tx_list: 120000,
+                anchor_gas_limit: 250000,
             },
         ]
     }
@@ -987,11 +987,11 @@ mod test {
             crate::match_circuit_params!(10001, CIRCUIT_CONFIG, {
                 panic!();
             });
-        let protocol_instance = mock_requests()[0].clone();
+        let protocol_instance = mock_requests()[1].clone();
         let dummy_req = ProofRequestOptions {
             circuit: "super".to_string(),
             block: protocol_instance.meta_data.id,
-            rpc: "http://43.153.26.11:8545".to_string(),
+            rpc: "https://rpc.internal.taiko.xyz/".to_string(),
             protocol_instance,
             param: Some("./params".to_string()),
             aggregate: true,
