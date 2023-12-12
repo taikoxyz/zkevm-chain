@@ -1,4 +1,4 @@
-use bus_mapping::circuit_input_builder::{ProtocolInstance, protocol_instance::{BlockEvidence, BlockMetadata}};
+use bus_mapping::circuit_input_builder::{ProtocolInstance, protocol_instance::{Transition, BlockMetadata}};
 use eth_types::{Address, Bytes, H256};
 use serde::{Deserialize, Serialize};
 
@@ -123,6 +123,8 @@ pub struct RequestMetaData {
     pub beneficiary: String,
     /// treasury
     pub treasury: String,
+    /// previous meta hash
+    pub parent_metahash: String,
 }
 
 impl PartialEq for RequestExtraInstance {
@@ -155,24 +157,29 @@ fn parse_address(input: &str) -> Address {
 impl From<RequestExtraInstance> for ProtocolInstance {
     fn from(instance: RequestExtraInstance) -> Self {
         ProtocolInstance {
-            block_evidence: BlockEvidence {
-                blockMetadata: BlockMetadata {
-                    l1Hash: parse_hash(&instance.meta_data.l1_hash).into(),            // constrain: anchor call
-                    // difficulty: parse_hash(&instance.meta_data.difficult),         // constrain: l2 block's difficulty
-                    txListHash: parse_hash(&instance.meta_data.tx_list_hash).into(),   // constrain: l2 txlist
-                    // extraData;                                                     // constrain: l2 block's extra data
-                    id: instance.meta_data.id,                                        // constrain: l2 block's number
-                    timestamp:  instance.meta_data.timestamp,                         // constrain: l2 block's timestamp
-                    l1Height: instance.meta_data.l1_height,                           // constrain: anchor
-                    gasLimit: instance.meta_data.gas_limit,                           // constrain: l2 block's gas limit - anchor gas limit
-                    coinbase:parse_address(&instance.meta_data.beneficiary).to_fixed_bytes().into(),    // constrain: L2 coinbase
-                    // depositsProcessed: parse_hash(&instance.meta_data.deposits_processed).into(), // constrain: l2 withdraw root
-                    ..Default::default()
-                },
+            transition: Transition {
                 parentHash: parse_hash(&instance.parent_hash).into(),
                 blockHash: parse_hash(&instance.block_hash).into(),    // constrain: l2 block hash
                 signalRoot:  parse_hash(&instance.signal_root).into(), // constrain: ??l2 service account storage root??
                 graffiti: parse_hash(&instance.graffiti).into(),
+            },
+            block_metadata: BlockMetadata {
+                l1Hash: parse_hash(&instance.meta_data.l1_hash).into(),
+                // difficulty: todo!(),
+                blobHash: parse_hash(&instance.meta_data.tx_list_hash).into(),
+                // extraData: todo!(),
+                // depositsHash: todo!(),
+                coinbase: parse_address(&instance.meta_data.beneficiary).to_fixed_bytes().into(),
+                id: instance.meta_data.id,
+                gasLimit: instance.meta_data.gas_limit,
+                timestamp: instance.meta_data.timestamp,
+                l1Height: instance.meta_data.l1_height,
+                txListByteOffset: instance.meta_data.tx_list_byte_start,
+                txListByteSize: instance.meta_data.tx_list_byte_end - instance.meta_data.tx_list_byte_start,
+                // minTier: todo!(),
+                blobUsed: false,
+                parentMetaHash: parse_hash(&instance.meta_data.parent_metahash).into(),
+                ..Default::default()
             },
             prover: parse_address(&instance.prover),
         }

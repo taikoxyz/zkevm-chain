@@ -155,6 +155,8 @@ impl CircuitWitness {
         let geth_client = GethClient::new(url);
         // TODO: add support for `eth_getHeaderByNumber`
         let block = geth_client.get_block_by_number((*block_num).into()).await?;
+
+        #[cfg(feature = "eip-1559-only")]
         Self::validate_proverable_block(&block)?;
 
         let circuit_config =
@@ -257,10 +259,10 @@ impl CircuitWitness {
         }
     }
 
+    #[cfg(feature = "eip-1559-only")]
     fn validate_proverable_block(
         block: &eth_types::Block<eth_types::Transaction>,
     ) -> Result<(), Box<dyn std::error::Error>> {
-        #[cfg(feature = "eip-1559-only")]
         if block
             .transactions
             .iter()

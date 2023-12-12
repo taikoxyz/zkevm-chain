@@ -31,7 +31,7 @@ pub fn gen_super_circuit<
             .protocol_instance
             .as_ref()
             .unwrap()
-            .block_evidence.blockHash.to_string()
+            .transition.blockHash.to_string()
     );
     assert_eq!(
         block.context.history_hashes[block.context.history_hashes.len() - 1].encode_hex(),
@@ -39,7 +39,7 @@ pub fn gen_super_circuit<
             .protocol_instance
             .as_ref()
             .unwrap()
-            .block_evidence.parentHash.to_string()
+            .transition.parentHash.to_string()
     );
     let circuit = SuperCircuit::new_from_block(&block);
     Ok(circuit)
