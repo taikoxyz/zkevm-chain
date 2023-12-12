@@ -870,7 +870,7 @@ mod test {
             param: Some("./params".to_string()),
             aggregate: false,
             retry: true,
-            mock: false,
+            mock: true,
             mock_feedback: false,
             verify_proof: true,
         };

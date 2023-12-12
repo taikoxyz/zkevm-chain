@@ -56,7 +56,7 @@ zkevm_dev = { path = "../dev", optional = true }
 paste = { version = "1.0.11", optional = true }
 
 [features]
-default = ["evm-verifier"]
+default = []
 autogen = ["mock", "ethers-signers", "zkevm_dev", "paste"]
 evm-verifier = []
 eip-1559-only = []
