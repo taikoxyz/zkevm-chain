@@ -870,7 +870,7 @@ mod test {
             param: Some("./params".to_string()),
             aggregate: false,
             retry: true,
-            mock: true,
+            mock: false,
             mock_feedback: false,
             verify_proof: true,
         };
@@ -995,7 +995,7 @@ mod test {
             crate::match_circuit_params!(10001, CIRCUIT_CONFIG, {
                 panic!();
             });
-        let protocol_instance = mock_requests()[0].clone();
+        let protocol_instance = mock_requests()[1].clone();
         let dummy_req = ProofRequestOptions {
             circuit: "super".to_string(),
             block: protocol_instance.meta_data.id,
