@@ -82,6 +82,8 @@ pub struct RequestExtraInstance {
     pub graffiti: String,
     /// Prover address
     pub prover: String,
+    /// treasury
+    pub treasury: String,
     /// gas used
     pub gas_used: u32,
     /// parent gas used
@@ -119,8 +121,6 @@ pub struct RequestMetaData {
     pub gas_limit: u32,
     /// coinbase
     pub coinbase: String,
-    /// treasury
-    pub treasury: String,
     // difficulty
     pub difficulty: String,
     // extraData

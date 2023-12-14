@@ -843,7 +843,6 @@ mod test {
                     .to_string(),
                 parent_metahash: "0000000000000000000000000000000000000000000000000000000000000003"
                     .to_string(),
-                treasury: "df09A0afD09a63fb04ab3573922437e1e637dE8b".to_string(),
                 ..Default::default()
             },
             block_hash: "7a94ae5b46c4d2f9f06a1b5849086e5e6d137800b02e24dc8374f18456eb560c"
@@ -855,6 +854,7 @@ mod test {
             graffiti: "6162630000000000000000000000000000000000000000000000000000000000"
                 .to_string(),
             prover: "70997970C51812dc3A010C7d01b50e0d17dc79C8".to_string(),
+            treasury: "df09A0afD09a63fb04ab3573922437e1e637dE8b".to_string(),
             gas_used: 423216,
             parent_gas_used: 423039,
             block_max_gas_limit: 6000000,
@@ -923,7 +923,6 @@ mod test {
                     difficulty: "0000000000000000000000000000000000000000000000000000000000000001".to_string(),
                     extra_data: "0000000000000000000000000000000000000000000000000000000000000002".to_string(),
                     parent_metahash: "0000000000000000000000000000000000000000000000000000000000000003".to_string(),
-                    treasury: "df09A0afD09a63fb04ab3573922437e1e637dE8b".to_string(),
                     ..Default::default()
                 },
                 block_hash: "1d22f8389a91908babbc26ac4a907e90839c8ba15d8b68e6e65d69ff5c09821c"
@@ -935,6 +934,7 @@ mod test {
                 graffiti: "6162630000000000000000000000000000000000000000000000000000000000"
                     .to_string(),
                 prover: "70997970C51812dc3A010C7d01b50e0d17dc79C8".to_string(),
+                treasury: "df09A0afD09a63fb04ab3573922437e1e637dE8b".to_string(),
                 gas_used: 423393,
                 parent_gas_used: 423216,
                 block_max_gas_limit: 6000000,
@@ -965,7 +965,6 @@ mod test {
                     difficulty: "0000000000000000000000000000000000000000000000000000000000000001".to_string(),
                     extra_data: "0000000000000000000000000000000000000000000000000000000000000002".to_string(),
                     parent_metahash: "0000000000000000000000000000000000000000000000000000000000000003".to_string(),
-                    treasury: "df09A0afD09a63fb04ab3573922437e1e637dE8b".to_string(),
                     ..Default::default()
                 },
                 block_hash: "56e6507518f16fd27f6dc4ef4688fb1a34333ac3745868a92886c2f0c2bad91d"
@@ -977,6 +976,7 @@ mod test {
                 graffiti: "6162630000000000000000000000000000000000000000000000000000000000"
                     .to_string(),
                 prover: "70997970C51812dc3A010C7d01b50e0d17dc79C8".to_string(),
+                treasury: "df09A0afD09a63fb04ab3573922437e1e637dE8b".to_string(),
                 gas_used: 439387,
                 parent_gas_used: 617124,
                 block_max_gas_limit: 6000000,
