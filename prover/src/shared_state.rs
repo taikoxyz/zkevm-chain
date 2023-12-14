@@ -823,7 +823,7 @@ mod test {
             l1_signal_service: "7a2088a1bFc9d81c55368AE168C2C02570cB814F".to_string(),
             l2_signal_service: "1000777700000000000000000000000000000007".to_string(),
             l2_contract: "1000777700000000000000000000000000000001".to_string(),
-            meta_data: RequestMetaData {
+            request_meta_data: RequestMetaData {
                 id: 10,
                 timestamp: 1702037218,
                 l1_height: 57,
@@ -844,6 +844,7 @@ mod test {
                 treasury: "df09A0afD09a63fb04ab3573922437e1e637dE8b".to_string(),
                 parent_metahash: "0000000000000000000000000000000000000000000000000000000000000000"
                 .to_string(),
+                ..Default::default()
             },
             block_hash: "fb9f43d074f3e889f7870aed5bf57a07d287a0444196e432153ac0c8bb526128"
                 .to_string(),
@@ -864,7 +865,7 @@ mod test {
 
         let dummy_req = ProofRequestOptions {
             circuit: "super".to_string(),
-            block: protocol_instance.meta_data.id,
+            block: protocol_instance.request_meta_data.id,
             rpc: "https://rpc.internal.taiko.xyz/".to_string(),
             protocol_instance,
             param: Some("./params".to_string()),
@@ -903,7 +904,7 @@ mod test {
                 l1_signal_service: "7a2088a1bFc9d81c55368AE168C2C02570cB814F".to_string(),
                 l2_signal_service: "1000777700000000000000000000000000000007".to_string(),
                 l2_contract: "1000777700000000000000000000000000000001".to_string(),
-                meta_data: RequestMetaData {
+                request_meta_data: RequestMetaData {
                     id: 11,
                     timestamp: 1702037242,
                     l1_height: 59,
@@ -924,6 +925,7 @@ mod test {
                     treasury: "df09A0afD09a63fb04ab3573922437e1e637dE8b".to_string(),
                     parent_metahash: "0000000000000000000000000000000000000000000000000000000000000000"
                         .to_string(),
+                    ..Default::default()
                 },
                 block_hash: "3a17d93967db151806ea94dd6ea73f4e7ba114953589fc1dfbcc51d5f803ec14"
                     .to_string(),
@@ -945,7 +947,7 @@ mod test {
                 l1_signal_service: "7a2088a1bFc9d81c55368AE168C2C02570cB814F".to_string(),
                 l2_signal_service: "1000777700000000000000000000000000000007".to_string(),
                 l2_contract: "1000777700000000000000000000000000000001".to_string(),
-                meta_data: RequestMetaData {
+                request_meta_data: RequestMetaData {
                     id: 1027,
                     timestamp: 1702060702,
                     l1_height: 2014,
@@ -966,6 +968,7 @@ mod test {
                     treasury: "df09A0afD09a63fb04ab3573922437e1e637dE8b".to_string(),
                     parent_metahash: "0000000000000000000000000000000000000000000000000000000000000000"
                     .to_string(),
+                    ..Default::default()
                 },
                 block_hash: "e2d57a162e9a0ffed195a20ee1eb5a23b6e5c17207c2e781d9222a774a1fefaf"
                     .to_string(),
@@ -998,7 +1001,7 @@ mod test {
         let protocol_instance = mock_requests()[1].clone();
         let dummy_req = ProofRequestOptions {
             circuit: "super".to_string(),
-            block: protocol_instance.meta_data.id,
+            block: protocol_instance.request_meta_data.id,
             rpc: "https://rpc.internal.taiko.xyz/".to_string(),
             protocol_instance,
             param: Some("./params".to_string()),
