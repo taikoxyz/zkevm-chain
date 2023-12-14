@@ -110,17 +110,17 @@ pub struct RequestMetaData {
     /// l1 block mix hash
     pub l1_mix_hash: String,
     /// deposits processed
-    pub deposits_processed: String,
+    pub deposits_hash: String,
     /// tx list hash
-    pub tx_list_hash: String,
+    pub blob_hash: String,
     /// tx list byte start
-    pub tx_list_byte_start: u32, // u24
+    pub tx_list_byte_offset: u32, // u24
     /// tx list byte end
-    pub tx_list_byte_end: u32, // u24
+    pub tx_list_byte_size: u32, // u24
     /// gas limit
     pub gas_limit: u32,
-    /// beneficiary
-    pub beneficiary: String,
+    /// coinbase
+    pub coinbase: String,
     /// treasury
     pub treasury: String,
     // difficulty
@@ -129,6 +129,8 @@ pub struct RequestMetaData {
     pub extra_data: String,
     // minTier
     pub min_tier: u16,
+    // blobUsed
+    pub blob_used: bool,
     /// previous meta hash
     pub parent_metahash: String,
 }
@@ -172,18 +174,18 @@ impl From<RequestExtraInstance> for ProtocolInstance {
             block_metadata: BlockMetadata {
                 l1Hash: parse_hash(&instance.request_meta_data.l1_hash).into(),
                 difficulty: parse_hash(&instance.request_meta_data.difficulty).into(),
-                blobHash: parse_hash(&instance.request_meta_data.tx_list_hash).into(),
+                blobHash: parse_hash(&instance.request_meta_data.blob_hash).into(),
                 extraData: parse_hash(&instance.request_meta_data.extra_data).into(),
-                depositsHash: parse_hash(&instance.request_meta_data.deposits_processed).into(),
-                coinbase: parse_address(&instance.request_meta_data.beneficiary).to_fixed_bytes().into(),
+                depositsHash: parse_hash(&instance.request_meta_data.deposits_hash).into(),
+                coinbase: parse_address(&instance.request_meta_data.coinbase).to_fixed_bytes().into(),
                 id: instance.request_meta_data.id,
                 gasLimit: instance.request_meta_data.gas_limit,
                 timestamp: instance.request_meta_data.timestamp,
                 l1Height: instance.request_meta_data.l1_height,
-                txListByteOffset: instance.request_meta_data.tx_list_byte_start,
-                txListByteSize: instance.request_meta_data.tx_list_byte_end - instance.request_meta_data.tx_list_byte_start,
+                txListByteOffset: instance.request_meta_data.tx_list_byte_offset,
+                txListByteSize: instance.request_meta_data.tx_list_byte_size,
                 minTier: instance.request_meta_data.min_tier,
-                blobUsed: false,
+                blobUsed: instance.request_meta_data.blob_used,
                 parentMetaHash: parse_hash(&instance.request_meta_data.parent_metahash).into(),
             },
             prover: parse_address(&instance.prover),
