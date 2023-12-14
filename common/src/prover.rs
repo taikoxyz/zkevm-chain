@@ -107,8 +107,6 @@ pub struct RequestMetaData {
     pub l1_height: u64,
     /// l1 block hash
     pub l1_hash: String,
-    /// l1 block mix hash
-    pub l1_mix_hash: String,
     /// deposits processed
     pub deposits_hash: String,
     /// tx list hash
