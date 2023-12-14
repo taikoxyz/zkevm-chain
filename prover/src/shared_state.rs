@@ -831,16 +831,16 @@ mod test {
                     .to_string(),
                 l1_mix_hash: "0000000000000000000000000000000000000000000000000000000000000000"
                     .to_string(),
-                deposits_processed:
+                deposits_hash:
                     "56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421"
                         .to_string(),
-                tx_list_hash:
+                blob_hash:
                     "569e75fc77c1a856f6daaf9e69d8a9566ca34aa47f9133711ce065a571af0cfd"
                         .to_string(),
-                tx_list_byte_start: 0,
-                tx_list_byte_end: 0,
+                tx_list_byte_offset: 0,
+                tx_list_byte_size: 0,
                 gas_limit: 820000000,
-                beneficiary: "0000000000000000000000000000000000000000".to_string(),
+                coinbase: "0000000000000000000000000000000000000000".to_string(),
                 treasury: "df09A0afD09a63fb04ab3573922437e1e637dE8b".to_string(),
                 parent_metahash: "0000000000000000000000000000000000000000000000000000000000000000"
                 .to_string(),
@@ -912,16 +912,16 @@ mod test {
                         .to_string(),
                     l1_mix_hash: "0000000000000000000000000000000000000000000000000000000000000000"
                         .to_string(),
-                    deposits_processed:
+                    deposits_hash:
                         "56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421"
                             .to_string(),
-                    tx_list_hash:
+                    blob_hash:
                         "569e75fc77c1a856f6daaf9e69d8a9566ca34aa47f9133711ce065a571af0cfd"
                             .to_string(),
-                    tx_list_byte_start: 0,
-                    tx_list_byte_end: 0,
+                    tx_list_byte_offset: 0,
+                    tx_list_byte_size: 0,
                     gas_limit: 820000000,
-                    beneficiary: "0000000000000000000000000000000000000000".to_string(),
+                    coinbase: "0000000000000000000000000000000000000000".to_string(),
                     treasury: "df09A0afD09a63fb04ab3573922437e1e637dE8b".to_string(),
                     parent_metahash: "0000000000000000000000000000000000000000000000000000000000000000"
                         .to_string(),
@@ -955,16 +955,16 @@ mod test {
                         .to_string(),
                     l1_mix_hash: "0000000000000000000000000000000000000000000000000000000000000000"
                         .to_string(),
-                    deposits_processed:
+                    deposits_hash:
                         "56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421"
                             .to_string(),
-                    tx_list_hash:
+                    blob_hash:
                         "569e75fc77c1a856f6daaf9e69d8a9566ca34aa47f9133711ce065a571af0cfd"
                             .to_string(),
-                    tx_list_byte_start: 0,
-                    tx_list_byte_end: 0,
+                    tx_list_byte_offset: 0,
+                    tx_list_byte_size: 0,
                     gas_limit: 820000000,
-                    beneficiary: "0000000000000000000000000000000000000000".to_string(),
+                    coinbase: "0000000000000000000000000000000000000000".to_string(),
                     treasury: "df09A0afD09a63fb04ab3573922437e1e637dE8b".to_string(),
                     parent_metahash: "0000000000000000000000000000000000000000000000000000000000000000"
                     .to_string(),
