@@ -71,7 +71,7 @@ pub struct RequestExtraInstance {
     /// l2 contract address
     pub l2_contract: String,
     /// meta hash
-    pub meta_data: RequestMetaData,
+    pub request_meta_data: RequestMetaData,
     /// block hash value
     pub block_hash: String,
     /// the parent block hash
@@ -123,6 +123,12 @@ pub struct RequestMetaData {
     pub beneficiary: String,
     /// treasury
     pub treasury: String,
+    // difficulty
+    pub difficulty: String,
+    // extraData
+    pub extra_data: String,
+    // minTier
+    pub min_tier: u16,
     /// previous meta hash
     pub parent_metahash: String,
 }
@@ -132,7 +138,7 @@ impl PartialEq for RequestExtraInstance {
         self.l1_signal_service == other.l1_signal_service
             && self.l2_signal_service == other.l2_signal_service
             && self.l2_contract == other.l2_contract
-            && self.meta_data == other.meta_data
+            && self.request_meta_data == other.request_meta_data
             && self.block_hash == other.block_hash
             && self.parent_hash == other.parent_hash
             && self.signal_root == other.signal_root
@@ -164,22 +170,21 @@ impl From<RequestExtraInstance> for ProtocolInstance {
                 graffiti: parse_hash(&instance.graffiti).into(),
             },
             block_metadata: BlockMetadata {
-                l1Hash: parse_hash(&instance.meta_data.l1_hash).into(),
-                // difficulty: todo!(),
-                blobHash: parse_hash(&instance.meta_data.tx_list_hash).into(),
-                // extraData: todo!(),
-                // depositsHash: todo!(),
-                coinbase: parse_address(&instance.meta_data.beneficiary).to_fixed_bytes().into(),
-                id: instance.meta_data.id,
-                gasLimit: instance.meta_data.gas_limit,
-                timestamp: instance.meta_data.timestamp,
-                l1Height: instance.meta_data.l1_height,
-                txListByteOffset: instance.meta_data.tx_list_byte_start,
-                txListByteSize: instance.meta_data.tx_list_byte_end - instance.meta_data.tx_list_byte_start,
-                // minTier: todo!(),
+                l1Hash: parse_hash(&instance.request_meta_data.l1_hash).into(),
+                difficulty: parse_hash(&instance.request_meta_data.difficulty).into(),
+                blobHash: parse_hash(&instance.request_meta_data.tx_list_hash).into(),
+                extraData: parse_hash(&instance.request_meta_data.extra_data).into(),
+                depositsHash: parse_hash(&instance.request_meta_data.deposits_processed).into(),
+                coinbase: parse_address(&instance.request_meta_data.beneficiary).to_fixed_bytes().into(),
+                id: instance.request_meta_data.id,
+                gasLimit: instance.request_meta_data.gas_limit,
+                timestamp: instance.request_meta_data.timestamp,
+                l1Height: instance.request_meta_data.l1_height,
+                txListByteOffset: instance.request_meta_data.tx_list_byte_start,
+                txListByteSize: instance.request_meta_data.tx_list_byte_end - instance.request_meta_data.tx_list_byte_start,
+                minTier: instance.request_meta_data.min_tier,
                 blobUsed: false,
-                parentMetaHash: parse_hash(&instance.meta_data.parent_metahash).into(),
-                ..Default::default()
+                parentMetaHash: parse_hash(&instance.request_meta_data.parent_metahash).into(),
             },
             prover: parse_address(&instance.prover),
         }
