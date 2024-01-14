@@ -825,9 +825,9 @@ mod test {
             l2_contract: "1000777700000000000000000000000000000001".to_string(),
             request_meta_data: RequestMetaData {
                 id: 10,
-                timestamp: 1702483745,
-                l1_height: 60,
-                l1_hash: "6fa1f469545e24c4e4ae748e5a37180caf14cbbac9e599f70ba3cffda6fbe64a"
+                timestamp: 1704868002,
+                l1_height: 75,
+                l1_hash: "910e395cc68a81b201168e745f659785f79415be650116914b36a5564db26344"
                     .to_string(),
                 deposits_hash: "56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421"
                     .to_string(),
@@ -845,9 +845,9 @@ mod test {
                     .to_string(),
                 ..Default::default()
             },
-            block_hash: "7a94ae5b46c4d2f9f06a1b5849086e5e6d137800b02e24dc8374f18456eb560c"
+            block_hash: "0aaddb104db39797fdf019dac2d581bf07da9cdcfbffece6a84c894ecded7649"
                 .to_string(),
-            parent_hash: "8b369bd391046567912aaffb6070d94c5ecf559fcc262e0a3bd34fbb3075c893"
+            parent_hash: "10d1404faa8517c1bd5cc2931adff7a9a1d89468d9cce386bef6d9fc4ff45663"
                 .to_string(),
             signal_root: "4863d4338e270b3bd07ed68e084177b2faf9a07546dc644ed2322cbd2431f2ef"
                 .to_string(),
@@ -855,8 +855,8 @@ mod test {
                 .to_string(),
             prover: "70997970C51812dc3A010C7d01b50e0d17dc79C8".to_string(),
             treasury: "df09A0afD09a63fb04ab3573922437e1e637dE8b".to_string(),
-            gas_used: 423216,
-            parent_gas_used: 423039,
+            gas_used: 428118,
+            parent_gas_used: 393811,
             block_max_gas_limit: 6000000,
             max_transactions_per_block: 79,
             max_bytes_per_tx_list: 120000,
@@ -906,28 +906,31 @@ mod test {
                 l2_contract: "1000777700000000000000000000000000000001".to_string(),
                 request_meta_data: RequestMetaData {
                     id: 11,
-                    timestamp: 1702483769,
-                    l1_height: 62,
-                    l1_hash: "826279297e1966c8747cae5c5c21f254ac762dcd9d8273cf1cad4d1b8c0fa6af"
+                    timestamp: 1704868026,
+                    l1_height: 77,
+                    l1_hash: "02965bc3ea3d929d342c4a67399462ec9d89c9473994ac65dd7a7fa66845211f"
                         .to_string(),
                     deposits_hash:
                         "56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421"
                             .to_string(),
-                    blob_hash:
-                        "569e75fc77c1a856f6daaf9e69d8a9566ca34aa47f9133711ce065a571af0cfd"
-                            .to_string(),
+                    blob_hash: "569e75fc77c1a856f6daaf9e69d8a9566ca34aa47f9133711ce065a571af0cfd"
+                        .to_string(),
                     tx_list_byte_offset: 0,
                     tx_list_byte_size: 0,
                     gas_limit: 820000000,
                     coinbase: "0000000000000000000000000000000000000000".to_string(),
-                    difficulty: "0000000000000000000000000000000000000000000000000000000000000001".to_string(),
-                    extra_data: "0000000000000000000000000000000000000000000000000000000000000002".to_string(),
-                    parent_metahash: "0000000000000000000000000000000000000000000000000000000000000003".to_string(),
+                    difficulty: "0000000000000000000000000000000000000000000000000000000000000001"
+                        .to_string(),
+                    extra_data: "0000000000000000000000000000000000000000000000000000000000000002"
+                        .to_string(),
+                    parent_metahash:
+                        "0000000000000000000000000000000000000000000000000000000000000003"
+                            .to_string(),
                     ..Default::default()
                 },
-                block_hash: "1d22f8389a91908babbc26ac4a907e90839c8ba15d8b68e6e65d69ff5c09821c"
+                block_hash: "3720946bc42d4ebcb7baf61e649be09ae2bc34c13b762e33497208acc43e02e3"
                     .to_string(),
-                parent_hash: "7a94ae5b46c4d2f9f06a1b5849086e5e6d137800b02e24dc8374f18456eb560c"
+                parent_hash: "0aaddb104db39797fdf019dac2d581bf07da9cdcfbffece6a84c894ecded7649"
                     .to_string(),
                 signal_root: "4863d4338e270b3bd07ed68e084177b2faf9a07546dc644ed2322cbd2431f2ef"
                     .to_string(),
@@ -935,8 +938,8 @@ mod test {
                     .to_string(),
                 prover: "70997970C51812dc3A010C7d01b50e0d17dc79C8".to_string(),
                 treasury: "df09A0afD09a63fb04ab3573922437e1e637dE8b".to_string(),
-                gas_used: 423393,
-                parent_gas_used: 423216,
+                gas_used: 428295,
+                parent_gas_used: 428118,
                 block_max_gas_limit: 6000000,
                 max_transactions_per_block: 79,
                 max_bytes_per_tx_list: 120000,
@@ -948,37 +951,85 @@ mod test {
                 l2_contract: "1000777700000000000000000000000000000001".to_string(),
                 request_meta_data: RequestMetaData {
                     id: 1025,
-                    timestamp: 1702506749,
-                    l1_height: 1977,
-                    l1_hash: "fe86aac6da0a4553ec2778befde9caf85966f9b47651c40f604d7f44a9237be2"
+                    timestamp: 1704891642,
+                    l1_height: 2045,
+                    l1_hash: "a922328190762aa743c0d0b494fbac8b4bd9d4e9d4f71415e868ff51d9bc9089"
                         .to_string(),
                     deposits_hash:
                         "56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421"
                             .to_string(),
-                    blob_hash:
-                        "569e75fc77c1a856f6daaf9e69d8a9566ca34aa47f9133711ce065a571af0cfd"
-                            .to_string(),
+                    blob_hash: "569e75fc77c1a856f6daaf9e69d8a9566ca34aa47f9133711ce065a571af0cfd"
+                        .to_string(),
                     tx_list_byte_offset: 0,
                     tx_list_byte_size: 0,
                     gas_limit: 820000000,
                     coinbase: "0000000000000000000000000000000000000000".to_string(),
-                    difficulty: "0000000000000000000000000000000000000000000000000000000000000001".to_string(),
-                    extra_data: "0000000000000000000000000000000000000000000000000000000000000002".to_string(),
-                    parent_metahash: "0000000000000000000000000000000000000000000000000000000000000003".to_string(),
+                    difficulty: "0000000000000000000000000000000000000000000000000000000000000001"
+                        .to_string(),
+                    extra_data: "0000000000000000000000000000000000000000000000000000000000000002"
+                        .to_string(),
+                    parent_metahash:
+                        "0000000000000000000000000000000000000000000000000000000000000003"
+                            .to_string(),
                     ..Default::default()
                 },
-                block_hash: "56e6507518f16fd27f6dc4ef4688fb1a34333ac3745868a92886c2f0c2bad91d"
+                block_hash: "9a30a370dd4632e102b4f96abddf463af97d6f32e055408a665799b9016e7a26"
                     .to_string(),
-                parent_hash: "47c5fe6d0df29df651e658d85513d8b838896715d1f5ef0fea1607c1e0281c3d"
+                parent_hash: "811becf8042a9396a87b030e9a84bb0a93c8c7e3f744598e247a6c9c2f286a8f"
                     .to_string(),
-                signal_root: "bde041072aef27faa10239cf534f9cbfd4004c906ce107445a7b8d4b9560cda4"
+                signal_root: "24261f85852cd0549ecbc0ca46fcd98e896514c2a9c3a47dde468353e7708bc3"
                     .to_string(),
                 graffiti: "6162630000000000000000000000000000000000000000000000000000000000"
                     .to_string(),
                 prover: "70997970C51812dc3A010C7d01b50e0d17dc79C8".to_string(),
                 treasury: "df09A0afD09a63fb04ab3573922437e1e637dE8b".to_string(),
-                gas_used: 439387,
-                parent_gas_used: 617124,
+                gas_used: 622033,
+                parent_gas_used: 602133,
+                block_max_gas_limit: 6000000,
+                max_transactions_per_block: 79,
+                max_bytes_per_tx_list: 120000,
+                anchor_gas_limit: 250000,
+            },
+            RequestExtraInstance {
+                l1_signal_service: "7a2088a1bFc9d81c55368AE168C2C02570cB814F".to_string(),
+                l2_signal_service: "1000777700000000000000000000000000000007".to_string(),
+                l2_contract: "1000777700000000000000000000000000000001".to_string(),
+                request_meta_data: RequestMetaData {
+                    id: 4097,
+                    timestamp: 1704963618,
+                    l1_height: 8043,
+                    l1_hash: "a8a5eee03a04c79ed8c9cad3e8c1962d2f649210db7ee8bc16b975814228e153"
+                        .to_string(),
+                    deposits_hash:
+                        "56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421"
+                            .to_string(),
+                    blob_hash: "569e75fc77c1a856f6daaf9e69d8a9566ca34aa47f9133711ce065a571af0cfd"
+                        .to_string(),
+                    tx_list_byte_offset: 0,
+                    tx_list_byte_size: 0,
+                    gas_limit: 820000000,
+                    coinbase: "0000000000000000000000000000000000000000".to_string(),
+                    difficulty: "0000000000000000000000000000000000000000000000000000000000000001"
+                        .to_string(),
+                    extra_data: "0000000000000000000000000000000000000000000000000000000000000002"
+                        .to_string(),
+                    parent_metahash:
+                        "0000000000000000000000000000000000000000000000000000000000000003"
+                            .to_string(),
+                    ..Default::default()
+                },
+                block_hash: "781ae8afc009d8bb05ff4c6716e34d7d07c7bbbcaffa2134104a1a082d912f48"
+                    .to_string(),
+                parent_hash: "79c360f595e5ff88a5604b60281193b104509b8341e9f62e03848b22c1248cc1"
+                    .to_string(),
+                signal_root: "e0efaaa960175cf549917909206347f7093c10db96d91f757fd8b5aaf4fde872"
+                    .to_string(),
+                graffiti: "6162630000000000000000000000000000000000000000000000000000000000"
+                    .to_string(),
+                prover: "70997970C51812dc3A010C7d01b50e0d17dc79C8".to_string(),
+                treasury: "df09A0afD09a63fb04ab3573922437e1e637dE8b".to_string(),
+                gas_used: 622033,
+                parent_gas_used: 602133,
                 block_max_gas_limit: 6000000,
                 max_transactions_per_block: 79,
                 max_bytes_per_tx_list: 120000,
@@ -991,12 +1042,16 @@ mod test {
     async fn test_with_high_degree() -> Result<(), String> {
         env_logger::Builder::from_env(Env::default().default_filter_or("info")).init();
 
+        let test_id = std::env::var("TEST_IDX")
+            .unwrap_or("0".to_string())
+            .parse::<usize>()
+            .unwrap_or(0);
         let ss = SharedState::new("1234".to_owned(), None);
         const CIRCUIT_CONFIG: CircuitConfig =
             crate::match_circuit_params!(10001, CIRCUIT_CONFIG, {
                 panic!();
             });
-        let protocol_instance = mock_requests()[1].clone();
+        let protocol_instance = mock_requests()[test_id].clone();
         let dummy_req = ProofRequestOptions {
             circuit: "super".to_string(),
             block: protocol_instance.request_meta_data.id,

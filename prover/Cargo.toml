@@ -8,6 +8,7 @@ license = "MIT OR Apache-2.0"
 halo2_proofs = { git = "https://github.com/privacy-scaling-explorations/halo2.git", tag = "v2023_04_20" }
 bus-mapping = { git = "https://github.com/taikoxyz/zkevm-circuits.git", branch = "feat/for-a6-release", features = [
     "test",
+    "disable_l2_trace_block"
 ] }
 eth-types = { git = "https://github.com/taikoxyz/zkevm-circuits.git", branch = "feat/for-a6-release", features = [
     "warn-unimplemented",
