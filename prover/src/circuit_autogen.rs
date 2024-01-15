@@ -21,7 +21,7 @@ macro_rules! match_circuit_params {
             101..=15200000 => {
                 const CIRCUIT_CONFIG: CircuitConfig = CircuitConfig {
                     block_gas_limit: 15200000,
-                    max_txs: 150,
+                    max_txs: 80,
                     max_calldata: 69750,
                     max_bytecode: 139500,
                     max_rws: 524280,
