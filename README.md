@@ -1,3 +1,5 @@
+# Deprecated in favor of [raiko](https://github.com/taikoxyz/raiko)!
+
 [![Coverage Status](https://coveralls.io/repos/github/privacy-scaling-explorations/zkevm-chain/badge.svg?branch=master)](https://coveralls.io/github/privacy-scaling-explorations/zkevm-chain?branch=master)
 
 ###### Prover Integration Test Status
